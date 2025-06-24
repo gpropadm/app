@@ -50,7 +50,7 @@ export default function Login() {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg mb-6" style={{backgroundColor: '#ff4352'}}>
               <Building className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">CRM IMOBILIÁRIO</h1>
+            <h1 className="text-xl font-bold mb-2" style={{fontFamily: 'atyp-font-family, sans-serif', color: '#000000'}}>G-PROP</h1>
             <p className="text-sm text-gray-600">Entre com suas credenciais para acessar</p>
           </div>
 
