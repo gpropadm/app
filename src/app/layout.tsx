@@ -25,8 +25,8 @@ export default function RootLayout({
           __html: `
             @font-face {
               font-family: 'atyp-font-family';
-              src: url('/fonts/AtypTextTRIAL-Regular-BF65727125ea126.otf') format('opentype');
-              font-weight: normal;
+              src: url('/fonts/atyp-font-family/AtypKidoTRIAL-Thin-BF657271259222f.otf') format('opentype');
+              font-weight: 100;
               font-style: normal;
               font-display: swap;
             }
