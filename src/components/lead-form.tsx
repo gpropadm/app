@@ -194,7 +194,7 @@ export function LeadForm({ isOpen, onClose, onSubmit, lead }: LeadFormProps) {
 
     try {
       // Basic validation
-      if (!formData.name || !formData.email || !formData.phone || !formData.maxPrice) {
+      if (!formData.name || !formData.phone || !formData.maxPrice) {
         throw new Error('Campos obrigatórios não preenchidos')
       }
 
@@ -300,14 +300,13 @@ export function LeadForm({ isOpen, onClose, onSubmit, lead }: LeadFormProps) {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
+                  Email
                 </label>
                 <input
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
                 />
               </div>
 
@@ -558,6 +557,9 @@ export function LeadForm({ isOpen, onClose, onSubmit, lead }: LeadFormProps) {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Cidades Preferidas
               </label>
+              <p className="text-sm text-gray-500 mb-3">
+                Exemplo: Taguatinga Sul, Taguatinga Norte, Asa Sul, Asa Norte
+              </p>
               {formData.preferredCities.map((city, index) => (
                 <div key={index} className="flex items-center space-x-2 mb-2">
                   <input
