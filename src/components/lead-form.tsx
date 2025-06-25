@@ -558,7 +558,7 @@ export function LeadForm({ isOpen, onClose, onSubmit, lead }: LeadFormProps) {
                 Cidades Preferidas
               </label>
               <p className="text-sm text-gray-500 mb-3">
-                Exemplo: Taguatinga Sul, Taguatinga Norte, Asa Sul, Asa Norte
+                Exemplo: Taguatinga Sul, Taguatinga Norte, Asa Sul, Asa Norte...
               </p>
               {formData.preferredCities.map((city, index) => (
                 <div key={index} className="flex items-center space-x-2 mb-2">
