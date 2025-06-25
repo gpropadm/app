@@ -165,7 +165,7 @@ export default function Login() {
             <h1 className="text-5xl mb-2 tracking-wide" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)', letterSpacing: '2px', fontFamily: 'atyp-font-family, sans-serif', color: '#ffffff', fontWeight: '100'}}>
               G-PROP
             </h1>
-            <h2 className="text-2xl font-bold mb-4">Sua Imobiliária agora fala com seus Leads!</h2>
+            <h2 className="text-lg font-bold mb-4">Sua Imobiliária agora fala com seus Leads!</h2>
             <p className="text-lg opacity-90 leading-relaxed">
               Sistema completo para gestão de imóveis, contratos, pagamentos e muito mais!
             </p>
