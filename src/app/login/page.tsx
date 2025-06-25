@@ -162,7 +162,7 @@ export default function Login() {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white p-8 max-w-md">
             <Building className="w-16 h-16 mx-auto mb-6 opacity-90" />
-            <h1 className="text-7xl mb-2 tracking-wide" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)', letterSpacing: '2px', fontFamily: 'atyp-font-family, sans-serif', color: '#ffffff', fontWeight: '300'}}>
+            <h1 className="text-7xl mb-2 tracking-wide" style={{textShadow: '2px 2px 4px rgba(0,0,0,0.3)', letterSpacing: '2px', fontFamily: 'atyp-font-family, sans-serif', color: '#ffffff', fontWeight: '100'}}>
               G-PROP
             </h1>
             <h2 className="text-2xl font-bold mb-4">Sua Imobiliária agora fala com seus Leads!</h2>
