@@ -1,14 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { LeadForm } from '@/components/lead-form'
 import { LeadMatchesModal } from '@/components/lead-matches-modal'
-import { AIListingsModal } from '@/components/ai-listings-modal'
 import { MatchAlert } from '@/components/match-alert'
 import { PartnershipAlert } from '@/components/partnership-alert'
-import { LocationNotifications } from '@/components/location-notifications'
 import { ToastContainer, useToast } from '@/components/toast'
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal'
 import { useLeadNotifications } from '@/hooks/use-lead-notifications'
@@ -29,8 +26,6 @@ import {
   CheckCircle,
   Sparkles,
   Bed,
-  TrendingUp,
-  Zap,
 } from 'lucide-react'
 
 interface Lead {
@@ -71,24 +66,12 @@ export default function Leads() {
   const [filterInterest, setFilterInterest] = useState<string>('all')
   const [showMatchesModal, setShowMatchesModal] = useState(false)
   const [selectedLeadForMatches, setSelectedLeadForMatches] = useState<Lead | null>(null)
-  const [showAIListingsModal, setShowAIListingsModal] = useState(false)
-  const [selectedLeadForListings, setSelectedLeadForListings] = useState<Lead | null>(null)
   const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null)
-  const [showLocationNotifications, setShowLocationNotifications] = useState(false)
-  const [locationNotificationCount, setLocationNotificationCount] = useState(0)
   const { toasts, removeToast, showSuccess, showError } = useToast()
-  const { notifications: leadNotifications, markAsSent, hasNotifications } = useLeadNotifications()
+  const { notifications: leadNotifications, markAsSent } = useLeadNotifications()
   const [matchCounts, setMatchCounts] = useState<{[leadId: string]: number}>({})
-  const [newMatches, setNewMatches] = useState<{
-    leadId: string
-    leadName: string
-    leadPhone: string
-    propertyTitle: string
-    propertyPrice: number
-    matchType: 'RENT' | 'BUY'
-  }[]>([])
   const [previousMatchCounts, setPreviousMatchCounts] = useState<{[leadId: string]: number}>({})
   const [partnershipNotifications, setPartnershipNotifications] = useState<{
     fromUserName: string
@@ -104,21 +87,8 @@ export default function Leads() {
   useEffect(() => {
     fetchLeads(true) // Suppress alerts on initial load
     fetchPartnershipNotifications() // Check for partnership notifications on load
-    fetchLocationNotificationCount() // Check for location notifications on load
   }, [])
 
-  const fetchLocationNotificationCount = async () => {
-    try {
-      const response = await fetch('/api/location-notifications')
-      if (response.ok) {
-        const data = await response.json()
-        const unreadCount = data.notifications.filter((n: any) => !n.isRead).length
-        setLocationNotificationCount(unreadCount)
-      }
-    } catch (error) {
-      console.error('Error fetching location notifications:', error)
-    }
-  }
 
   // Check for new matches and partnerships periodically
   useEffect(() => {
@@ -165,7 +135,7 @@ export default function Leads() {
         
         setLeads(data)
         // Fetch match counts for all leads
-        await fetchMatchCounts(data, suppressAlerts)
+        await fetchMatchCounts(data)
       } else {
         console.error('Error fetching leads:', response.statusText)
       }
@@ -176,16 +146,8 @@ export default function Leads() {
     }
   }
 
-  const fetchMatchCounts = async (leadsData: Lead[], suppressAlerts = false) => {
+  const fetchMatchCounts = async (leadsData: Lead[]) => {
     const counts: {[leadId: string]: number} = {}
-    const detectedNewMatches: {
-      leadId: string
-      leadName: string
-      leadPhone: string
-      propertyTitle: string
-      propertyPrice: number
-      matchType: 'RENT' | 'BUY'
-    }[] = []
     
     // Fetch matches for each active lead
     const activeLeads = leadsData.filter(lead => lead.status === 'ACTIVE')
@@ -198,25 +160,7 @@ export default function Leads() {
             const matches = await response.json()
             counts[lead.id] = matches.length
             
-            // Check if this lead has new matches compared to previous count
-            const previousCount = previousMatchCounts[lead.id] || 0
-            const currentCount = matches.length
             
-            // If there are new matches, collect details for the first new match
-            // Only show alerts if not suppressed and we have previous counts (not first load)
-            if (!suppressAlerts && currentCount > previousCount && matches.length > 0 && Object.keys(previousMatchCounts).length > 0) {
-              const latestMatch = matches[0] // Get the first (most recent) match
-              const targetPrice = lead.interest === 'RENT' ? latestMatch.rentPrice : latestMatch.salePrice
-              
-              detectedNewMatches.push({
-                leadId: lead.id,
-                leadName: lead.name,
-                leadPhone: lead.phone,
-                propertyTitle: latestMatch.title,
-                propertyPrice: targetPrice || 0,
-                matchType: lead.interest as 'RENT' | 'BUY'
-              })
-            }
           } else {
             counts[lead.id] = 0
           }
@@ -231,10 +175,6 @@ export default function Leads() {
     setMatchCounts(counts)
     setPreviousMatchCounts(counts)
     
-    // Show new matches alert if any and not suppressed
-    if (!suppressAlerts && detectedNewMatches.length > 0) {
-      setNewMatches(detectedNewMatches)
-    }
   }
 
   const fetchPartnershipNotifications = async () => {
@@ -358,16 +298,11 @@ export default function Leads() {
     setShowMatchesModal(true)
   }
 
-  const handleViewAIListings = (lead: Lead) => {
-    setSelectedLeadForListings(lead)
-    setShowAIListingsModal(true)
-  }
 
   const handleViewMatchesFromAlert = (leadId: string) => {
     const lead = leads.find(l => l.id === leadId)
     if (lead) {
       handleViewMatches(lead)
-      setNewMatches([]) // Dismiss the alert
     }
   }
 
@@ -376,7 +311,6 @@ export default function Leads() {
       const notificationIds = leadNotifications.map(n => n.id)
       await markAsSent(notificationIds)
     }
-    setNewMatches([])
   }
 
   const formatCurrency = (value: number) => {
@@ -460,14 +394,7 @@ export default function Leads() {
                 Gerencie seus leads e encontre matches automáticos
               </p>
             </div>
-            <div className="mt-4 sm:mt-0 flex space-x-3">
-              <Link
-                href="/leads/map"
-                className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <MapPin className="w-4 h-4 mr-2" />
-                Ver Mapa
-              </Link>
+            <div className="mt-4 sm:mt-0">
               <button
                 onClick={() => {
                   setEditingLead(null)
@@ -487,7 +414,6 @@ export default function Leads() {
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Lead
               </button>
-            </div>
           </div>
         </div>
 
@@ -734,14 +660,6 @@ export default function Leads() {
                                 Buscar
                               </button>
                             )}
-                            <button
-                              onClick={() => handleViewAIListings(lead)}
-                              className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-200 shadow-sm"
-                              title="Buscar anúncios com IA"
-                            >
-                              <TrendingUp className="w-3 h-3 mr-1" />
-                              IA
-                            </button>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -869,14 +787,6 @@ export default function Leads() {
                         Buscar
                       </button>
                     )}
-                    <button
-                      onClick={() => handleViewAIListings(lead)}
-                      className="inline-flex items-center px-2 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-medium rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-200"
-                      title="Buscar anúncios com IA"
-                    >
-                      <Zap className="w-3 h-3 mr-1" />
-                      IA
-                    </button>
                   </div>
                   <div className="flex space-x-2">
                     <button
@@ -938,18 +848,6 @@ export default function Leads() {
         />
       )}
 
-      {/* AI Listings Modal */}
-      {showAIListingsModal && selectedLeadForListings && (
-        <AIListingsModal
-          isOpen={showAIListingsModal}
-          onClose={() => {
-            setShowAIListingsModal(false)
-            setSelectedLeadForListings(null)
-          }}
-          leadId={selectedLeadForListings.id}
-          leadName={selectedLeadForListings.name}
-        />
-      )}
 
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
@@ -978,19 +876,6 @@ export default function Leads() {
         onViewPartnerships={handleViewPartnerships}
       />
 
-      {/* Location Notifications Modal */}
-      {showLocationNotifications && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-4xl mx-4">
-            <LocationNotifications
-              onClose={() => {
-                setShowLocationNotifications(false)
-                fetchLocationNotificationCount() // Refresh count after closing
-              }}
-            />
-          </div>
-        </div>
-      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteConfirmationModal
