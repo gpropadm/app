@@ -39,7 +39,7 @@ interface Lead {
   email: string
   phone: string
   document?: string
-  interest: 'RENT' | 'BUY'
+  interest: 'RENT' | 'BUY' | 'EXCHANGE'
   propertyType: string
   minPrice?: number
   maxPrice: number
@@ -408,7 +408,12 @@ export default function Leads() {
 
 
   const getInterestLabel = (interest: string) => {
-    return interest === 'RENT' ? 'Aluguel' : 'Compra'
+    switch (interest) {
+      case 'RENT': return 'Aluguel'
+      case 'BUY': return 'Compra'
+      case 'EXCHANGE': return 'Permuta'
+      default: return interest
+    }
   }
 
   const getPropertyTypeLabel = (type: string) => {
@@ -417,7 +422,7 @@ export default function Leads() {
       case 'HOUSE': return 'Casa'
       case 'COMMERCIAL': return 'Comercial'
       case 'LAND': return 'Terreno'
-      case 'STUDIO': return 'Studio'
+      case 'STUDIO': return 'Empresa'
       default: return type
     }
   }
@@ -577,6 +582,7 @@ export default function Leads() {
               <option value="all">Todos os Interesses</option>
               <option value="RENT">Aluguel</option>
               <option value="BUY">Compra</option>
+              <option value="EXCHANGE">Permuta</option>
             </select>
           </div>
         </div>

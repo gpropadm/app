@@ -16,7 +16,7 @@ const PROPERTY_TYPES = [
   { value: 'HOUSE', label: 'Casa' },
   { value: 'COMMERCIAL', label: 'Comercial' },
   { value: 'LAND', label: 'Terreno' },
-  { value: 'STUDIO', label: 'Studio' }
+  { value: 'STUDIO', label: 'Empresa' }
 ]
 
 const BRAZIL_STATES = [
@@ -363,6 +363,7 @@ export function LeadForm({ isOpen, onClose, onSubmit, lead }: LeadFormProps) {
                 >
                   <option value="RENT">Aluguel</option>
                   <option value="BUY">Compra</option>
+                  <option value="EXCHANGE">Permuta</option>
                 </select>
               </div>
 
