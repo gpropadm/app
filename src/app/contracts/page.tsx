@@ -6,6 +6,7 @@ import { ContractForm } from '@/components/contract-form'
 import { AIContractForm } from '@/components/ai-contract-form'
 import { ContractMaintenances } from '@/components/contract-maintenances'
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal'
+import { ToastContainer, useToast } from '@/components/toast'
 import { 
   FileText, 
   Plus, 
@@ -69,7 +70,8 @@ export default function Contracts() {
   const [deletingContractId, setDeletingContractId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [contractToDelete, setContractToDelete] = useState<Contract | null>(null)
-  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
+  
+  const { toasts, removeToast, showSuccess, showError } = useToast()
 
   useEffect(() => {
     fetchContracts()
@@ -113,14 +115,14 @@ export default function Contracts() {
       if (response.ok) {
         await fetchContracts()
         setShowForm(false)
-        showNotification('success', 'Contrato criado com sucesso!')
+        showSuccess('Contrato criado!', 'O contrato foi cadastrado com sucesso.')
       } else {
         const errorData = await response.json()
-        showNotification('error', errorData.error || 'Erro ao criar contrato')
+        showError('Erro ao criar contrato', errorData.error || 'Tente novamente.')
       }
     } catch (error) {
       console.error('Error creating contract:', error)
-      showNotification('error', 'Erro ao criar contrato')
+      showError('Erro ao criar contrato', 'Verifique sua conexão e tente novamente.')
     }
   }
 
@@ -140,14 +142,14 @@ export default function Contracts() {
         await fetchContracts()
         setShowForm(false)
         setEditingContract(null)
-        showNotification('success', 'Contrato atualizado com sucesso!')
+        showSuccess('Contrato atualizado!', 'As informações foram atualizadas com sucesso.')
       } else {
         const errorData = await response.json()
-        showNotification('error', errorData.error || 'Erro ao atualizar contrato')
+        showError('Erro ao atualizar contrato', errorData.error || 'Tente novamente.')
       }
     } catch (error) {
       console.error('Error updating contract:', error)
-      showNotification('error', 'Erro ao atualizar contrato')
+      showError('Erro ao atualizar contrato', 'Verifique sua conexão e tente novamente.')
     }
   }
 
@@ -167,14 +169,14 @@ export default function Contracts() {
 
       if (response.ok) {
         await fetchContracts()
-        showNotification('success', 'Contrato excluído com sucesso!')
+        showSuccess('Contrato excluído!', 'O contrato foi removido com sucesso.')
       } else {
         const errorData = await response.json()
-        showNotification('error', errorData.error || 'Erro ao excluir contrato')
+        showError('Erro ao excluir contrato', errorData.error || 'Tente novamente.')
       }
     } catch (error) {
       console.error('Error deleting contract:', error)
-      showNotification('error', 'Erro ao excluir contrato')
+      showError('Erro ao excluir contrato', 'Verifique sua conexão e tente novamente.')
     } finally {
       setDeletingContractId(null)
       setContractToDelete(null)
@@ -186,10 +188,6 @@ export default function Contracts() {
     setShowForm(true)
   }
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message })
-    setTimeout(() => setNotification(null), 5000)
-  }
 
   const closeForm = () => {
     setShowForm(false)
@@ -403,7 +401,7 @@ Sistema: CRM Imobiliário
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#ff4352'}}></div>
         </div>
       </DashboardLayout>
     )
@@ -593,21 +591,22 @@ Sistema: CRM Imobiliário
                   <div className="flex space-x-2">
                     <button 
                       onClick={() => viewContractDetails(contract)}
-                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
                       title="Ver detalhes"
                     >
                       <Eye className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => downloadContract(contract)}
-                      className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                      className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors"
                       title="Baixar contrato"
                     >
                       <Download className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => openEditForm(contract)}
-                      className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg transition-all duration-200 transform hover:scale-110"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      style={{color: '#ff4352'}}
                       title="Editar contrato"
                     >
                       <Edit className="w-4 h-4" />
@@ -615,8 +614,8 @@ Sistema: CRM Imobiliário
                     <button 
                       onClick={() => handleDeleteContract(contract)}
                       disabled={deletingContractId === contract.id}
-                      className={`p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-all duration-200 transform hover:scale-110 ${
-                        deletingContractId === contract.id ? 'opacity-50 cursor-not-allowed animate-pulse' : ''
+                      className={`p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors ${
+                        deletingContractId === contract.id ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                       title="Excluir contrato"
                     >
@@ -777,63 +776,8 @@ Sistema: CRM Imobiliário
           </div>
         )}
 
-        {/* Notification Toast */}
-        {notification && (
-          <div 
-            className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-out animate-in slide-in-from-right ${
-              notification.type === 'success' 
-                ? 'bg-green-600 text-white' 
-                : 'bg-red-600 text-white'
-            }`}
-          >
-            <div className="flex items-center">
-              {notification.type === 'success' ? (
-                <CheckCircle className="w-5 h-5 mr-2" />
-              ) : (
-                <AlertTriangle className="w-5 h-5 mr-2" />
-              )}
-              <span className="font-medium">{notification.message}</span>
-              <button
-                onClick={() => setNotification(null)}
-                className="ml-4 text-white hover:text-gray-200"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-white/60 rounded-full transition-all duration-5000 ease-linear"
-                style={{ 
-                  width: '100%',
-                  animation: 'shrink 5s linear forwards'
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        <style jsx>{`
-          @keyframes shrink {
-            from { width: 100%; }
-            to { width: 0%; }
-          }
-          @keyframes animate-in {
-            from {
-              opacity: 0;
-              transform: translateX(100%);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-          .animate-in {
-            animation: animate-in 0.3s ease-out;
-          }
-          .slide-in-from-right {
-            animation: animate-in 0.3s ease-out;
-          }
-        `}</style>
+        {/* Toast Notifications */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
 
         {/* Delete Confirmation Modal */}
         <DeleteConfirmationModal
