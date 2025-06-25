@@ -70,8 +70,16 @@ export default function Leads() {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [leadToDelete, setLeadToDelete] = useState<Lead | null>(null)
   const { toasts, removeToast, showSuccess, showError } = useToast()
-  const { notifications: leadNotifications, markAsSent } = useLeadNotifications()
+  const { notifications: leadNotifications, markAsSent, hasNotifications } = useLeadNotifications()
   const [matchCounts, setMatchCounts] = useState<{[leadId: string]: number}>({})
+  const [newMatches, setNewMatches] = useState<{
+    leadId: string
+    leadName: string
+    leadPhone: string
+    propertyTitle: string
+    propertyPrice: number
+    matchType: 'RENT' | 'BUY'
+  }[]>([])
   const [previousMatchCounts, setPreviousMatchCounts] = useState<{[leadId: string]: number}>({})
   const [partnershipNotifications, setPartnershipNotifications] = useState<{
     fromUserName: string
@@ -135,7 +143,7 @@ export default function Leads() {
         
         setLeads(data)
         // Fetch match counts for all leads
-        await fetchMatchCounts(data)
+        await fetchMatchCounts(data, suppressAlerts)
       } else {
         console.error('Error fetching leads:', response.statusText)
       }
@@ -146,8 +154,16 @@ export default function Leads() {
     }
   }
 
-  const fetchMatchCounts = async (leadsData: Lead[]) => {
+  const fetchMatchCounts = async (leadsData: Lead[], suppressAlerts = false) => {
     const counts: {[leadId: string]: number} = {}
+    const detectedNewMatches: {
+      leadId: string
+      leadName: string
+      leadPhone: string
+      propertyTitle: string
+      propertyPrice: number
+      matchType: 'RENT' | 'BUY'
+    }[] = []
     
     // Fetch matches for each active lead
     const activeLeads = leadsData.filter(lead => lead.status === 'ACTIVE')
@@ -160,7 +176,25 @@ export default function Leads() {
             const matches = await response.json()
             counts[lead.id] = matches.length
             
+            // Check if this lead has new matches compared to previous count
+            const previousCount = previousMatchCounts[lead.id] || 0
+            const currentCount = matches.length
             
+            // If there are new matches, collect details for the first new match
+            // Only show alerts if not suppressed and we have previous counts (not first load)
+            if (!suppressAlerts && currentCount > previousCount && matches.length > 0 && Object.keys(previousMatchCounts).length > 0) {
+              const latestMatch = matches[0] // Get the first (most recent) match
+              const targetPrice = lead.interest === 'RENT' ? latestMatch.rentPrice : latestMatch.salePrice
+              
+              detectedNewMatches.push({
+                leadId: lead.id,
+                leadName: lead.name,
+                leadPhone: lead.phone,
+                propertyTitle: latestMatch.title,
+                propertyPrice: targetPrice || 0,
+                matchType: lead.interest as 'RENT' | 'BUY'
+              })
+            }
           } else {
             counts[lead.id] = 0
           }
@@ -175,6 +209,10 @@ export default function Leads() {
     setMatchCounts(counts)
     setPreviousMatchCounts(counts)
     
+    // Show new matches alert if any and not suppressed
+    if (!suppressAlerts && detectedNewMatches.length > 0) {
+      setNewMatches(detectedNewMatches)
+    }
   }
 
   const fetchPartnershipNotifications = async () => {
@@ -303,6 +341,7 @@ export default function Leads() {
     const lead = leads.find(l => l.id === leadId)
     if (lead) {
       handleViewMatches(lead)
+      setNewMatches([]) // Dismiss the alert
     }
   }
 
@@ -311,6 +350,7 @@ export default function Leads() {
       const notificationIds = leadNotifications.map(n => n.id)
       await markAsSent(notificationIds)
     }
+    setNewMatches([])
   }
 
   const formatCurrency = (value: number) => {
@@ -414,6 +454,7 @@ export default function Leads() {
                 <Plus className="w-4 h-4 mr-2" />
                 Novo Lead
               </button>
+            </div>
           </div>
         </div>
 
