@@ -10,10 +10,6 @@ export async function GET(request: NextRequest) {
       where: {
         userId: user.id // Only return owners that belong to the current user
       },
-      include: {
-        properties: true, // Include related properties
-        bankAccounts: true // Include bank account data
-      },
       orderBy: {
         createdAt: 'desc'
       }
