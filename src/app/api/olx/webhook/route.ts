@@ -34,37 +34,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se lead já existe pelo telefone ou email (apenas se fornecidos)
-    const existingLead = await prisma.lead.findFirst({
-      where: {
-        OR: [
-          ...(leadData.phone ? [{ phone: leadData.phone }] : []),
-          ...(leadData.email ? [{ email: leadData.email }] : [])
-        ]
-      }
-    })
-
-    if (existingLead) {
-      console.log('🔄 Lead já existe, atualizando:', existingLead.id)
-      
-      // Atualizar lead existente
-      const updatedLead = await prisma.lead.update({
-        where: { id: existingLead.id },
-        data: {
-          ...leadData,
-          updatedAt: new Date(),
-          // Adicionar informação da fonte
-          notes: `${existingLead.notes || ''}\n\n🔗 Novo interesse via OLX em ${new Date().toLocaleString('pt-BR')}`
-        }
-      })
-
-      return NextResponse.json({
-        success: true,
-        action: 'updated',
-        leadId: updatedLead.id,
-        message: 'Lead atualizado com sucesso'
-      })
-    }
+    // Criar lead diretamente sem verificar duplicatas para evitar problemas de schema
+    console.log('📝 Criando novo lead OLX:', leadData.name)
 
     // Criar novo lead
     const newLead = await prisma.lead.create({
@@ -80,7 +51,7 @@ export async function POST(request: NextRequest) {
       success: true,
       action: 'created',
       leadId: newLead.id,
-      message: 'Lead criado com sucesso'
+      message: 'Lead OLX criado com sucesso'
     })
 
   } catch (error) {
