@@ -55,7 +55,91 @@ export async function GET(request: NextRequest) {
 
     console.log(`📊 Encontrados ${allPayments.length} pagamentos para os contratos do usuário`)
 
-    return NextResponse.json(allPayments)
+    // Now enrich with basic contract info
+    const enrichedPayments = await Promise.all(
+      allPayments.map(async (payment) => {
+        try {
+          const contract = await prisma.contract.findUnique({
+            where: { id: payment.contractId },
+            select: {
+              id: true,
+              propertyId: true,
+              tenantId: true,
+              rentAmount: true
+            }
+          })
+          
+          if (!contract) {
+            return {
+              ...payment,
+              maintenanceDeductions: 0,
+              maintenances: [],
+              contract: { 
+                property: { title: 'Contrato não encontrado' },
+                tenant: { name: 'Inquilino não encontrado' }
+              }
+            }
+          }
+
+          const property = await prisma.property.findUnique({
+            where: { id: contract.propertyId },
+            select: { title: true, address: true }
+          })
+          
+          const tenant = await prisma.tenant.findUnique({
+            where: { id: contract.tenantId },
+            select: { name: true, email: true, phone: true }
+          })
+
+          // Calculate maintenance deductions for this contract
+          const maintenances = await prisma.maintenance.findMany({
+            where: {
+              contractId: contract.id,
+              deductFromOwner: true,
+              status: 'COMPLETED', // Only completed maintenances
+              completedDate: {
+                gte: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth() - 1, 1),
+                lt: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth(), 1)
+              }
+            },
+            select: {
+              id: true,
+              amount: true,
+              title: true,
+              completedDate: true
+            }
+          })
+
+          const maintenanceDeductions = maintenances.reduce((total, maintenance) => total + maintenance.amount, 0)
+          
+          return {
+            ...payment,
+            maintenanceDeductions,
+            maintenances,
+            contract: {
+              ...contract,
+              property: property || { title: 'Propriedade não encontrada', address: '' },
+              tenant: tenant || { name: 'Inquilino não encontrado', email: '', phone: '' }
+            }
+          }
+        } catch (error) {
+          console.error('Error enriching payment:', payment.id, error)
+          return {
+            ...payment,
+            maintenanceDeductions: 0,
+            maintenances: [],
+            contract: { 
+              property: { title: 'Erro ao carregar' },
+              tenant: { name: 'Erro ao carregar' }
+            }
+          }
+        }
+      })
+    )
+
+    console.log(`✅ Dados enriquecidos para ${enrichedPayments.length} pagamentos`)
+
+    return NextResponse.json(enrichedPayments)
   } catch (error) {
     console.error('Error fetching payments:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {
