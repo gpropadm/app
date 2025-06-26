@@ -77,6 +77,9 @@ export async function GET(request: NextRequest) {
         pixInstructions: 'Faça o PIX para a chave acima e envie o comprovante.',
         bankName: '',
         accountHolder: ''
+      },
+      api: settingsMap.api || {
+        infosimplesApiKey: ''
       }
     }
 
@@ -239,6 +242,28 @@ export async function POST(request: NextRequest) {
           }
         })
         console.log('Payment settings saved to database')
+      }
+      
+      if (data.api) {
+        await prisma.settings.upsert({
+          where: {
+            companyId_key: {
+              companyId: company.id,
+              key: 'api'
+            }
+          },
+          update: {
+            value: JSON.stringify(data.api),
+            updatedAt: new Date()
+          },
+          create: {
+            companyId: company.id,
+            key: 'api',
+            value: JSON.stringify(data.api),
+            category: 'api'
+          }
+        })
+        console.log('API settings saved to database')
       }
     } catch (settingsError) {
       console.error('Error saving settings to database:', settingsError)

@@ -71,6 +71,7 @@ model Property {
   city         String
   state        String
   zipCode      String
+  propertyRegistration String? // Cadastro do imóvel para consulta IPTU
   bedrooms     Int
   bathrooms    Int
   area         Float

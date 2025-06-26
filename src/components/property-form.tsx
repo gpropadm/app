@@ -24,6 +24,7 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
     city: '',
     state: '',
     zipCode: '',
+    propertyRegistration: '', // Cadastro do Imóvel para IPTU
     bedrooms: 1,
     bathrooms: 1,
     area: '',
@@ -91,6 +92,7 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
             city: property.city || '',
             state: property.state || '',
             zipCode: property.zipCode || '',
+            propertyRegistration: property.propertyRegistration || '',
             bedrooms: property.bedrooms || 1,
             bathrooms: property.bathrooms || 1,
             area: property.area?.toString() || '',
@@ -177,6 +179,7 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
       city: '',
       state: '',
       zipCode: '',
+      propertyRegistration: '',
       bedrooms: 1,
       bathrooms: 1,
       area: '',
@@ -515,6 +518,22 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
                 maxLength={9}
                 required
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cadastro do Imóvel (IPTU)
+              </label>
+              <input
+                type="text"
+                value={formData.propertyRegistration}
+                onChange={(e) => setFormData(prev => ({ ...prev, propertyRegistration: e.target.value }))}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Número do cadastro municipal"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Usado para consultar débitos de IPTU
+              </p>
             </div>
 
             <div>

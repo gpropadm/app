@@ -5,7 +5,8 @@ import { DashboardLayout } from '@/components/dashboard-layout'
 import { PropertyForm } from '@/components/property-form'
 import { ToastContainer, useToast } from '@/components/toast'
 import { DeleteConfirmationModal } from '@/components/delete-confirmation-modal'
-import { Plus, Search, MapPin, Bed, Bath, Square, Edit, Trash2 } from 'lucide-react'
+import { Plus, Search, MapPin, Bed, Bath, Square, Edit, Trash2, FileText } from 'lucide-react'
+import { IPTUInfo } from '@/components/iptu-info'
 
 interface Property {
   id: string
@@ -15,6 +16,7 @@ interface Property {
   city: string
   state: string
   zipCode: string
+  propertyRegistration: string | null
   bedrooms: number
   bathrooms: number
   area: number
@@ -42,6 +44,7 @@ export default function Properties() {
   const [deletingPropertyId, setDeletingPropertyId] = useState<string | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [propertyToDelete, setPropertyToDelete] = useState<Property | null>(null)
+  const [showIPTUInfo, setShowIPTUInfo] = useState<string | null>(null)
   
   const { toasts, removeToast, showSuccess, showError } = useToast()
 
@@ -171,6 +174,10 @@ export default function Properties() {
   const closeForm = () => {
     setShowForm(false)
     setEditingProperty(null)
+  }
+
+  const toggleIPTUInfo = (propertyId: string) => {
+    setShowIPTUInfo(showIPTUInfo === propertyId ? null : propertyId)
   }
 
   const filteredProperties = properties.filter(property => {
@@ -422,6 +429,15 @@ export default function Properties() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
                         <button 
+                          onClick={() => toggleIPTUInfo(property.id)}
+                          className={`p-2 hover:bg-blue-50 rounded-lg transition-colors ${
+                            showIPTUInfo === property.id ? 'bg-blue-50 text-blue-700' : 'text-blue-600'
+                          }`}
+                          title="Consultar IPTU"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </button>
+                        <button 
                           onClick={() => openEditForm(property)}
                           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                           style={{color: '#f63c6a'}}
@@ -527,6 +543,15 @@ export default function Properties() {
                 </div>
                 <div className="flex space-x-2">
                   <button 
+                    onClick={() => toggleIPTUInfo(property.id)}
+                    className={`p-2 hover:bg-blue-50 rounded-lg transition-colors ${
+                      showIPTUInfo === property.id ? 'bg-blue-50 text-blue-700' : 'text-blue-600'
+                    }`}
+                    title="Consultar IPTU"
+                  >
+                    <FileText className="w-4 h-4" />
+                  </button>
+                  <button 
                     onClick={() => openEditForm(property)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                     style={{color: '#f63c6a'}}
@@ -553,6 +578,19 @@ export default function Properties() {
             </div>
           ))}
         </div>
+
+        {/* IPTU Information Panel */}
+        {showIPTUInfo && (() => {
+          const selectedProperty = filteredProperties.find(p => p.id === showIPTUInfo)
+          return selectedProperty ? (
+            <div className="mt-6">
+              <IPTUInfo 
+                propertyRegistration={selectedProperty.propertyRegistration}
+                propertyAddress={`${selectedProperty.address}, ${selectedProperty.city} - ${selectedProperty.state}`}
+              />
+            </div>
+          ) : null
+        })()}
 
         {filteredProperties.length === 0 && (
           <div className="text-center py-12">

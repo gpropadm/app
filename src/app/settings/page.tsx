@@ -17,7 +17,8 @@ import {
   Upload,
   Moon,
   Sun,
-  User
+  User,
+  Settings
 } from 'lucide-react'
 
 interface CompanySettings {
@@ -70,6 +71,10 @@ interface UserProfile {
   name: string
   email: string
   phone: string
+}
+
+interface APISettings {
+  infosimplesApiKey: string
 }
 
 export default function Settings() {
@@ -133,6 +138,10 @@ export default function Settings() {
     phone: ''
   })
 
+  const [apiSettings, setApiSettings] = useState<APISettings>({
+    infosimplesApiKey: ''
+  })
+
   useEffect(() => {
     loadSettings()
     loadUserProfile()
@@ -180,6 +189,12 @@ export default function Settings() {
           setPaymentSettings(prev => ({
             ...prev,
             ...data.payment
+          }))
+        }
+        if (data.api) {
+          setApiSettings(prev => ({
+            ...prev,
+            ...data.api
           }))
         }
       } else {
@@ -253,7 +268,8 @@ export default function Settings() {
         system: systemSettings,
         notifications: notificationSettings,
         financial: financialSettings,
-        payment: paymentSettings
+        payment: paymentSettings,
+        api: apiSettings
       }
       
       console.log('Sending payload:', payload)
@@ -408,6 +424,7 @@ export default function Settings() {
     { id: 'notifications', name: 'Notificações', icon: Bell },
     { id: 'financial', name: 'Financeiro', icon: DollarSign },
     ...(isAdmin ? [{ id: 'payment', name: 'Pagamento PIX', icon: DollarSign }] : []),
+    { id: 'apis', name: 'APIs Externas', icon: Settings },
     { id: 'integrations', name: 'Integrações', icon: Link },
     { id: 'security', name: 'Segurança', icon: Shield },
   ]
@@ -1226,6 +1243,88 @@ export default function Settings() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {activeTab === 'apis' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">APIs Externas</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Configure as chaves de API para serviços externos utilizados pelo sistema.
+                </p>
+                
+                <div className="space-y-6">
+                  {/* InfoSimples API */}
+                  <div className="p-6 border border-gray-200 dark:border-gray-600 rounded-lg">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h4 className="text-lg font-medium text-gray-900 dark:text-white">InfoSimples IPTU</h4>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                          API para consulta de débitos de IPTU em prefeituras brasileiras
+                        </p>
+                      </div>
+                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+                        apiSettings.infosimplesApiKey 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}>
+                        {apiSettings.infosimplesApiKey ? 'Configurado' : 'Não Configurado'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          API Key da InfoSimples
+                        </label>
+                        <input
+                          type="password"
+                          value={apiSettings.infosimplesApiKey}
+                          onChange={(e) => setApiSettings(prev => ({ ...prev, infosimplesApiKey: e.target.value }))}
+                          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:border-transparent"
+                          style={{
+                            '--focus-ring-color': '#f63c6a',
+                            '--focus-border-color': 'transparent'
+                          } as React.CSSProperties}
+                          onFocus={(e) => {
+                            e.target.style.boxShadow = '0 0 0 2px rgba(255, 67, 82, 0.2)'
+                            e.target.style.borderColor = '#f63c6a'
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.boxShadow = ''
+                            e.target.style.borderColor = '#d1d5db'
+                          }}
+                          placeholder="Insira sua API key da InfoSimples"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Mantenha esta chave em segurança. Ela será usada para consultar débitos de IPTU.
+                        </p>
+                      </div>
+
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <h5 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                          ℹ️ Sobre a API InfoSimples
+                        </h5>
+                        <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+                          <p><strong>Funcionalidade:</strong> Consulta débitos de IPTU em tempo real</p>
+                          <p><strong>Preço:</strong> R$ 0,05 a R$ 0,20 por consulta (dependendo do volume)</p>
+                          <p><strong>Taxa mínima:</strong> R$ 100/mês</p>
+                          <p><strong>Conta teste:</strong> R$ 100 grátis para novos usuários</p>
+                          <div className="mt-3">
+                            <a 
+                              href="https://infosimples.com/consultas/pref-sp-sao-paulo-debitos-iptu/" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200 underline text-sm"
+                            >
+                              📖 Documentação da API →
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
