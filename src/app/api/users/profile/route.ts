@@ -16,7 +16,8 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
-        phone: true
+        phone: true,
+        role: true
       }
     })
 
@@ -70,7 +71,8 @@ export async function PUT(request: NextRequest) {
         id: true,
         name: true,
         email: true,
-        phone: true
+        phone: true,
+        role: true
       }
     })
 

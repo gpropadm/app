@@ -373,13 +373,41 @@ export default function Settings() {
     }
   }
 
+  // Verificar se é admin (assumindo que o primeiro usuário da empresa é admin)
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    checkAdminStatus()
+  }, [])
+
+  const checkAdminStatus = async () => {
+    try {
+      const response = await fetch('/api/users/profile')
+      if (response.ok) {
+        const userData = await response.json()
+        // Verificar se o usuário tem role de ADMIN
+        // Fallback: se não há role definida, considerar admin se for o primeiro usuário (id === '1')
+        // ou se o email contém 'admin'
+        const isExplicitAdmin = userData.role === 'ADMIN'
+        const isFallbackAdmin = userData.id === '1' || userData.email?.toLowerCase().includes('admin')
+        setIsAdmin(isExplicitAdmin || isFallbackAdmin)
+      } else {
+        // Se a API não responder, por segurança, negar acesso
+        setIsAdmin(false)
+      }
+    } catch (error) {
+      console.log('Erro ao verificar status de admin:', error)
+      setIsAdmin(false) // Por segurança, negar acesso se não conseguir verificar
+    }
+  }
+
   const tabs = [
     { id: 'profile', name: 'Meu Perfil', icon: User },
     { id: 'company', name: 'Empresa', icon: Building2 },
     { id: 'system', name: 'Sistema', icon: Palette },
     { id: 'notifications', name: 'Notificações', icon: Bell },
     { id: 'financial', name: 'Financeiro', icon: DollarSign },
-    { id: 'payment', name: 'Pagamento PIX', icon: DollarSign },
+    ...(isAdmin ? [{ id: 'payment', name: 'Pagamento PIX', icon: DollarSign }] : []),
     { id: 'integrations', name: 'Integrações', icon: Link },
     { id: 'security', name: 'Segurança', icon: Shield },
   ]

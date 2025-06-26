@@ -57,6 +57,33 @@ export async function POST(request: NextRequest) {
 
     console.log(`Updated ${updateResult.count} users with company ID: ${company.id}`)
 
+    // Also set the first user as admin if no admin exists
+    const adminCount = await prisma.user.count({
+      where: {
+        role: 'ADMIN'
+      }
+    })
+
+    if (adminCount === 0) {
+      const firstUser = await prisma.user.findFirst({
+        orderBy: {
+          createdAt: 'asc'
+        }
+      })
+
+      if (firstUser) {
+        await prisma.user.update({
+          where: {
+            id: firstUser.id
+          },
+          data: {
+            role: 'ADMIN'
+          }
+        })
+        console.log(`Set user ${firstUser.email} as ADMIN`)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: `${updateResult.count} usuários associados à empresa com sucesso`,
