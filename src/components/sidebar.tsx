@@ -36,7 +36,7 @@ const menuItems = [
   { icon: Calculator, label: 'Financeiro', href: '/financial' },
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
-  { icon: CreditCard, label: 'PIX Pagamento', href: '/payment-info' },
+  { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
   { icon: UserPlus, label: 'Usuários', href: '/users' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]

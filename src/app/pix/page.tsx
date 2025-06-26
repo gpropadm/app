@@ -1,62 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { Copy, CreditCard, Building2, User, CheckCircle } from 'lucide-react'
 
-interface PaymentInfo {
-  pixKey: string
-  pixInstructions: string
-  bankName: string
-  accountHolder: string
-}
-
-export default function PaymentInfoPage() {
-  const [paymentInfo, setPaymentInfo] = useState<PaymentInfo>({
-    pixKey: '',
-    pixInstructions: '',
-    bankName: '',
-    accountHolder: ''
-  })
-  const [loading, setLoading] = useState(true)
+export default function PixPage() {
   const [copiedField, setCopiedField] = useState<string>('')
 
-  useEffect(() => {
-    loadPaymentInfo()
-  }, [])
-
-  const loadPaymentInfo = async () => {
-    try {
-      const response = await fetch('/api/settings')
-      if (response.ok) {
-        const data = await response.json()
-        if (data.payment) {
-          setPaymentInfo(data.payment)
-        }
-      } else if (response.status === 400) {
-        // Usuário não tem empresa - tentar corrigir automaticamente
-        console.log('Tentando corrigir associação usuário-empresa...')
-        try {
-          const fixResponse = await fetch('/api/fix-user-company', { method: 'POST' })
-          if (fixResponse.ok) {
-            // Tentar carregar novamente após correção
-            const retryResponse = await fetch('/api/settings')
-            if (retryResponse.ok) {
-              const retryData = await retryResponse.json()
-              if (retryData.payment) {
-                setPaymentInfo(retryData.payment)
-              }
-            }
-          }
-        } catch (fixError) {
-          console.error('Erro ao corrigir associação:', fixError)
-        }
-      }
-    } catch (error) {
-      console.error('Error loading payment info:', error)
-    } finally {
-      setLoading(false)
-    }
+  // Dados PIX sempre visíveis (não depende de API)
+  const pixInfo = {
+    pixKey: 'admin@imobiliaria.com',
+    accountHolder: 'Imobiliária Principal',
+    bankName: 'Banco Principal',
+    instructions: 'Faça o PIX para a chave acima e envie o comprovante para confirmação do pagamento.'
   }
 
   const copyToClipboard = async (text: string, field: string) => {
@@ -69,31 +25,13 @@ export default function PaymentInfoPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </DashboardLayout>
-    )
-  }
-
-  // Se não tem PIX configurado, usar dados padrão
-  const displayInfo = {
-    pixKey: paymentInfo.pixKey || 'admin@imobiliaria.com',
-    pixInstructions: paymentInfo.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante para confirmação do pagamento.',
-    bankName: paymentInfo.bankName || 'Banco Principal',
-    accountHolder: paymentInfo.accountHolder || 'Imobiliária Principal'
-  }
-
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Informações de Pagamento
+            Informações de Pagamento PIX
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
             Dados para pagamentos via PIX
@@ -125,7 +63,7 @@ export default function PaymentInfoPage() {
                     Chave PIX
                   </label>
                   <button
-                    onClick={() => copyToClipboard(displayInfo.pixKey, 'pixKey')}
+                    onClick={() => copyToClipboard(pixInfo.pixKey, 'pixKey')}
                     className="flex items-center gap-1 text-green-600 hover:text-green-700 text-xs"
                   >
                     {copiedField === 'pixKey' ? (
@@ -142,7 +80,7 @@ export default function PaymentInfoPage() {
                   </button>
                 </div>
                 <p className="text-lg font-mono bg-gray-50 dark:bg-gray-700 p-2 rounded border text-gray-900 dark:text-white break-all">
-                  {displayInfo.pixKey}
+                  {pixInfo.pixKey}
                 </p>
               </div>
 
@@ -154,7 +92,7 @@ export default function PaymentInfoPage() {
                     Titular da Conta
                   </label>
                   <button
-                    onClick={() => copyToClipboard(displayInfo.accountHolder, 'accountHolder')}
+                    onClick={() => copyToClipboard(pixInfo.accountHolder, 'accountHolder')}
                     className="flex items-center gap-1 text-green-600 hover:text-green-700 text-xs"
                   >
                     {copiedField === 'accountHolder' ? (
@@ -171,7 +109,7 @@ export default function PaymentInfoPage() {
                   </button>
                 </div>
                 <p className="text-lg bg-gray-50 dark:bg-gray-700 p-2 rounded border text-gray-900 dark:text-white">
-                  {displayInfo.accountHolder}
+                  {pixInfo.accountHolder}
                 </p>
               </div>
 
@@ -182,7 +120,7 @@ export default function PaymentInfoPage() {
                   Banco
                 </label>
                 <p className="text-lg bg-gray-50 dark:bg-gray-700 p-2 rounded border text-gray-900 dark:text-white">
-                  {displayInfo.bankName}
+                  {pixInfo.bankName}
                 </p>
               </div>
             </div>
@@ -192,15 +130,15 @@ export default function PaymentInfoPage() {
               <h3 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
                 📋 Instruções de Pagamento
               </h3>
-              <p className="text-blue-800 dark:text-blue-200 whitespace-pre-wrap">
-                {displayInfo.pixInstructions}
+              <p className="text-blue-800 dark:text-blue-200">
+                {pixInfo.instructions}
               </p>
             </div>
 
             {/* Botão de Ação */}
             <div className="mt-6 text-center">
               <button
-                onClick={() => copyToClipboard(displayInfo.pixKey, 'action')}
+                onClick={() => copyToClipboard(pixInfo.pixKey, 'action')}
                 className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
               >
                 {copiedField === 'action' ? (
