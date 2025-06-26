@@ -23,25 +23,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Extrair dados básicos
-    const name = data.customer?.name || data.lead?.name || data.name || 'Lead OLX'
-    const email = data.customer?.email || data.lead?.email || data.email || ''
-    const phone = data.customer?.phone || data.lead?.phone || data.phone || ''
+    // Extrair dados do formato real da OLX
+    const leadId = data.originLeadId || 'unknown'
+    const listingId = data.clientListingId || data.originListingId || 'unknown'
+    const temperature = data.temperature || 'Média'
+    const transactionType = data.transactionType === 'SELL' ? 'BUY' : 'RENT'
     
-    // Criar lead com campos mínimos
+    // Criar lead com dados da OLX
     const newLead = await prisma.lead.create({
       data: {
-        name: name,
-        email: email,
-        phone: phone,
-        interest: 'RENT',
+        name: `Lead OLX #${leadId.slice(-6)}`,
+        email: `lead.${leadId.slice(-6)}@olx.temp`,
+        phone: '(61)99999-0000',
+        interest: transactionType,
         propertyType: 'APARTMENT',
-        maxPrice: 2000,
+        maxPrice: transactionType === 'BUY' ? 500000 : 2000,
         preferredCities: '["Brasília"]',
         preferredStates: '["DF"]',
         companyId: company.id,
         userId: user.id,
-        notes: `🔗 Lead recebido via integração OLX em ${new Date().toLocaleString('pt-BR')}`,
+        notes: `🔗 Lead OLX via integração
+📊 Temperatura: ${temperature}
+🏠 Imóvel: ${listingId}
+🆔 Lead ID: ${leadId}
+🕒 ${new Date().toLocaleString('pt-BR')}
+
+⚠️ Dados do cliente protegidos por LGPD - consulte na OLX`,
         status: 'ACTIVE'
       }
     })
