@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       },
       include: {
         properties: true, // Include related properties
-        bankAccount: true // Include bank account data
+        bankAccounts: true // Include bank account data
       },
       orderBy: {
         createdAt: 'desc'
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     // Create bank account if provided
     if (data.bankAccount && data.bankAccount.bankName) {
       console.log('🏦 Creating bank account...')
-      await prisma.bankAccount.create({
+      await prisma.bankAccounts.create({
         data: {
           ownerId: owner.id,
           bankName: data.bankAccount.bankName,
@@ -149,7 +149,7 @@ export async function POST(request: NextRequest) {
       where: { id: owner.id },
       include: {
         properties: true,
-        bankAccount: true
+        bankAccounts: true
       }
     })
 
