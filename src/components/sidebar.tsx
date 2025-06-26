@@ -37,7 +37,6 @@ const menuItems = [
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
-  { icon: UserPlus, label: 'Usuários', href: '/users' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
 
@@ -120,10 +119,6 @@ export function Sidebar() {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {menuItems.map((item) => {
-              if (item.href === '/users' && session?.user?.role === 'USER') {
-                return null
-              }
-              
               const isActive = pathname === item.href
               return (
                 <li key={item.href}>
@@ -172,10 +167,6 @@ export function Sidebar() {
         <nav className="flex-1 py-4 flex flex-col">
           <ul className="space-y-1 flex-1">
             {menuItems.map((item) => {
-              if (item.href === '/users' && session?.user?.role === 'USER') {
-                return null
-              }
-              
               const isActive = pathname === item.href
               return (
                 <li key={item.href} className="px-2">
