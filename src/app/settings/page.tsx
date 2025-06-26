@@ -59,6 +59,13 @@ interface FinancialSettings {
   maxInterestDays: number    // máximo de dias para calcular juros
 }
 
+interface PaymentSettings {
+  pixKey: string             // Chave PIX da empresa
+  pixInstructions: string    // Instruções de pagamento
+  bankName: string          // Nome do banco
+  accountHolder: string     // Titular da conta
+}
+
 interface UserProfile {
   name: string
   email: string
@@ -113,6 +120,13 @@ export default function Settings() {
     maxInterestDays: 365       // máximo 1 ano de juros
   })
 
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettings>({
+    pixKey: '',
+    pixInstructions: 'Faça o PIX para a chave acima e envie o comprovante.',
+    bankName: '',
+    accountHolder: ''
+  })
+
   const [userProfile, setUserProfile] = useState<UserProfile>({
     name: '',
     email: '',
@@ -160,6 +174,12 @@ export default function Settings() {
           setFinancialSettings(prev => ({
             ...prev,
             ...data.financial
+          }))
+        }
+        if (data.payment) {
+          setPaymentSettings(prev => ({
+            ...prev,
+            ...data.payment
           }))
         }
       } else {
@@ -232,7 +252,8 @@ export default function Settings() {
         company: companySettings,
         system: systemSettings,
         notifications: notificationSettings,
-        financial: financialSettings
+        financial: financialSettings,
+        payment: paymentSettings
       }
       
       console.log('Sending payload:', payload)
@@ -358,6 +379,7 @@ export default function Settings() {
     { id: 'system', name: 'Sistema', icon: Palette },
     { id: 'notifications', name: 'Notificações', icon: Bell },
     { id: 'financial', name: 'Financeiro', icon: DollarSign },
+    { id: 'payment', name: 'Pagamento PIX', icon: DollarSign },
     { id: 'integrations', name: 'Integrações', icon: Link },
     { id: 'security', name: 'Segurança', icon: Shield },
   ]
@@ -1062,6 +1084,83 @@ export default function Settings() {
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'payment' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Configurações de Pagamento PIX</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Configure suas informações de PIX para que assistentes e clientes possam realizar pagamentos.
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Chave PIX *
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.pixKey}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, pixKey: e.target.value }))}
+                      placeholder="Email, CPF, CNPJ, telefone ou chave aleatória"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Titular da Conta
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.accountHolder}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, accountHolder: e.target.value }))}
+                      placeholder="Nome do titular da conta PIX"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Banco
+                    </label>
+                    <input
+                      type="text"
+                      value={paymentSettings.bankName}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, bankName: e.target.value }))}
+                      placeholder="Nome do banco (opcional)"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Instruções de Pagamento
+                    </label>
+                    <textarea
+                      value={paymentSettings.pixInstructions}
+                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, pixInstructions: e.target.value }))}
+                      placeholder="Instruções que serão mostradas aos clientes"
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                {paymentSettings.pixKey && (
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
+                      📋 Informações que os assistentes verão:
+                    </h4>
+                    <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
+                      <p><strong>Chave PIX:</strong> {paymentSettings.pixKey}</p>
+                      {paymentSettings.accountHolder && <p><strong>Titular:</strong> {paymentSettings.accountHolder}</p>}
+                      {paymentSettings.bankName && <p><strong>Banco:</strong> {paymentSettings.bankName}</p>}
+                      <p><strong>Instruções:</strong> {paymentSettings.pixInstructions}</p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

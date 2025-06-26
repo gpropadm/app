@@ -78,6 +78,12 @@ export async function GET(request: NextRequest) {
         dailyInterestRate: 0.033,  // 0.033% ao dia (1% ao mês)
         gracePeriodDays: 0,        // sem carência
         maxInterestDays: 365       // máximo 1 ano de juros
+      },
+      payment: settingsMap.payment || {
+        pixKey: '',
+        pixInstructions: 'Faça o PIX para a chave acima e envie o comprovante.',
+        bankName: '',
+        accountHolder: ''
       }
     }
 
@@ -225,6 +231,28 @@ export async function POST(request: NextRequest) {
           }
         })
         console.log('Financial settings saved to database')
+      }
+      
+      if (data.payment) {
+        await prisma.settings.upsert({
+          where: {
+            companyId_key: {
+              companyId: company.id,
+              key: 'payment'
+            }
+          },
+          update: {
+            value: JSON.stringify(data.payment),
+            updatedAt: new Date()
+          },
+          create: {
+            companyId: company.id,
+            key: 'payment',
+            value: JSON.stringify(data.payment),
+            category: 'payment'
+          }
+        })
+        console.log('Payment settings saved to database')
       }
     } catch (settingsError) {
       console.error('Error saving settings to database:', settingsError)
