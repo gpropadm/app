@@ -1102,7 +1102,68 @@ export default function Settings() {
                     <input
                       type="text"
                       value={paymentSettings.pixKey}
-                      onChange={(e) => setPaymentSettings(prev => ({ ...prev, pixKey: e.target.value }))}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        let formattedValue = value
+                        
+                        // Remove tudo exceto números para detectar o tipo
+                        const numbersOnly = value.replace(/\D/g, '')
+                        
+                        // Aplicar máscara baseado no padrão
+                        if (numbersOnly.length <= 11 && /^\d+$/.test(numbersOnly)) {
+                          // CPF: 000.000.000-00
+                          if (numbersOnly.length === 11) {
+                            formattedValue = numbersOnly.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+                          } else if (numbersOnly.length > 3 && numbersOnly.length <= 11) {
+                            // CPF parcial
+                            if (numbersOnly.length <= 6) {
+                              formattedValue = numbersOnly.replace(/(\d{3})(\d{1,3})/, '$1.$2')
+                            } else if (numbersOnly.length <= 9) {
+                              formattedValue = numbersOnly.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3')
+                            } else {
+                              formattedValue = numbersOnly.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4')
+                            }
+                          }
+                        } else if (numbersOnly.length >= 12 && numbersOnly.length <= 14) {
+                          // CNPJ: 00.000.000/0000-00
+                          if (numbersOnly.length === 14) {
+                            formattedValue = numbersOnly.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5')
+                          } else {
+                            // CNPJ parcial
+                            if (numbersOnly.length <= 5) {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{1,3})/, '$1.$2')
+                            } else if (numbersOnly.length <= 8) {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{3})(\d{1,3})/, '$1.$2.$3')
+                            } else if (numbersOnly.length <= 12) {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{3})(\d{3})(\d{1,4})/, '$1.$2.$3/$4')
+                            } else {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{1,2})/, '$1.$2.$3/$4-$5')
+                            }
+                          }
+                        } else if (/^\(\d{0,2}\)/.test(value) || (numbersOnly.length >= 10 && numbersOnly.length <= 11 && !formattedValue.includes('.'))) {
+                          // Telefone: (00) 00000-0000
+                          if (numbersOnly.length === 11) {
+                            formattedValue = numbersOnly.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3')
+                          } else if (numbersOnly.length === 10) {
+                            formattedValue = numbersOnly.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
+                          } else if (numbersOnly.length > 2) {
+                            if (numbersOnly.length <= 7) {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{1,5})/, '($1) $2')
+                            } else if (numbersOnly.length <= 10) {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{4})(\d{1,4})/, '($1) $2-$3')
+                            } else {
+                              formattedValue = numbersOnly.replace(/(\d{2})(\d{5})(\d{1,4})/, '($1) $2-$3')
+                            }
+                          }
+                        }
+                        
+                        // Se não é número, mantém como está (email ou chave aleatória)
+                        if (!/^\d/.test(value.replace(/\D/g, '')) || value.includes('@') || value.includes('.') && !numbersOnly) {
+                          formattedValue = value
+                        }
+                        
+                        setPaymentSettings(prev => ({ ...prev, pixKey: formattedValue }))
+                      }}
                       placeholder="Email, CPF, CNPJ, telefone ou chave aleatória"
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
