@@ -31,6 +31,31 @@ export default function PixPage() {
             instructions: data.payment.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
           })
         }
+      } else if (response.status === 400) {
+        // Tentar corrigir associação usuário-empresa automaticamente
+        try {
+          console.log('Tentando corrigir associação usuário-empresa...')
+          const fixResponse = await fetch('/api/fix-user-company', { method: 'POST' })
+          if (fixResponse.ok) {
+            // Aguardar um momento e tentar novamente
+            setTimeout(async () => {
+              const retryResponse = await fetch('/api/settings')
+              if (retryResponse.ok) {
+                const retryData = await retryResponse.json()
+                if (retryData.payment && retryData.payment.pixKey) {
+                  setPixInfo({
+                    pixKey: retryData.payment.pixKey,
+                    accountHolder: retryData.payment.accountHolder || 'IMOBILIÁRIA PRINCIPAL LTDA',
+                    bankName: retryData.payment.bankName || 'Banco do Brasil',
+                    instructions: retryData.payment.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+                  })
+                }
+              }
+            }, 2000) // Aguardar 2 segundos
+          }
+        } catch (fixError) {
+          console.log('Erro ao corrigir associação, usando dados padrão')
+        }
       }
     } catch (error) {
       console.log('Usando dados padrão do PIX')
