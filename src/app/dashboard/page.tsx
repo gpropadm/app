@@ -247,22 +247,22 @@ export default function Dashboard() {
             Ações Rápidas
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            <a href="/properties" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <Building2 className="w-8 h-8 mb-2" style={{color: '#ff4352'}} />
               <span className="text-sm font-medium text-gray-900">Novo Imóvel</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            </a>
+            <a href="/owners" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <Users className="w-8 h-8 text-green-600 mb-2" />
               <span className="text-sm font-medium text-gray-900">Novo Proprietário</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            </a>
+            <a href="/contracts" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <FileText className="w-8 h-8 text-purple-600 mb-2" />
               <span className="text-sm font-medium text-gray-900">Novo Contrato</span>
-            </button>
-            <button className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+            </a>
+            <a href="/financial" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
               <TrendingUp className="w-8 h-8 text-orange-600 mb-2" />
               <span className="text-sm font-medium text-gray-900">Relatórios</span>
-            </button>
+            </a>
           </div>
         </div>
       </div>
