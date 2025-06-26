@@ -7,10 +7,10 @@ import { Copy, CreditCard, Building2, User, CheckCircle } from 'lucide-react'
 export default function PixPage() {
   const [copiedField, setCopiedField] = useState<string>('')
   const [pixInfo, setPixInfo] = useState({
-    pixKey: '(61) 99999-9999',
-    accountHolder: 'IMOBILIÁRIA PRINCIPAL LTDA',
-    bankName: 'Banco do Brasil',
-    instructions: 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+    pixKey: '',
+    accountHolder: '',
+    bankName: '',
+    instructions: ''
   })
 
   useEffect(() => {
@@ -22,13 +22,13 @@ export default function PixPage() {
       const response = await fetch('/api/settings')
       if (response.ok) {
         const data = await response.json()
-        if (data.payment && data.payment.pixKey) {
-          // Usar dados das configurações se existirem
+        if (data.payment) {
+          // Usar dados das configurações
           setPixInfo({
-            pixKey: data.payment.pixKey,
-            accountHolder: data.payment.accountHolder || 'IMOBILIÁRIA PRINCIPAL LTDA',
-            bankName: data.payment.bankName || 'Banco do Brasil',
-            instructions: data.payment.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+            pixKey: data.payment.pixKey || '',
+            accountHolder: data.payment.accountHolder || '',
+            bankName: data.payment.bankName || '',
+            instructions: data.payment.pixInstructions || ''
           })
         }
       } else if (response.status === 400) {
@@ -42,12 +42,12 @@ export default function PixPage() {
               const retryResponse = await fetch('/api/settings')
               if (retryResponse.ok) {
                 const retryData = await retryResponse.json()
-                if (retryData.payment && retryData.payment.pixKey) {
+                if (retryData.payment) {
                   setPixInfo({
-                    pixKey: retryData.payment.pixKey,
-                    accountHolder: retryData.payment.accountHolder || 'IMOBILIÁRIA PRINCIPAL LTDA',
-                    bankName: retryData.payment.bankName || 'Banco do Brasil',
-                    instructions: retryData.payment.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+                    pixKey: retryData.payment.pixKey || '',
+                    accountHolder: retryData.payment.accountHolder || '',
+                    bankName: retryData.payment.bankName || '',
+                    instructions: retryData.payment.pixInstructions || ''
                   })
                 }
               }
@@ -71,6 +71,30 @@ export default function PixPage() {
     } catch (error) {
       console.error('Failed to copy:', error)
     }
+  }
+
+  // Se não tem PIX configurado, mostrar mensagem
+  if (!pixInfo.pixKey) {
+    return (
+      <DashboardLayout>
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="text-center py-12">
+              <CreditCard className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                PIX não configurado
+              </h2>
+              <p className="text-gray-600 mb-6">
+                O administrador ainda não configurou as informações de PIX.
+              </p>
+              <p className="text-sm text-gray-500">
+                Configure em: Configurações → Pagamento PIX
+              </p>
+            </div>
+          </div>
+        </div>
+      </DashboardLayout>
+    )
   }
 
   return (
