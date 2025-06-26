@@ -1173,14 +1173,28 @@ export default function Settings() {
 
                 {paymentSettings.pixKey && (
                   <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-2">
-                      📋 Informações que os assistentes verão:
-                    </h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                        📋 Informações de PIX para Compartilhar:
+                      </h4>
+                      <a 
+                        href="/pix" 
+                        target="_blank"
+                        className="text-blue-600 hover:text-blue-700 text-xs underline"
+                      >
+                        Ver página completa →
+                      </a>
+                    </div>
                     <div className="space-y-2 text-sm text-blue-800 dark:text-blue-200">
                       <p><strong>Chave PIX:</strong> {paymentSettings.pixKey}</p>
                       {paymentSettings.accountHolder && <p><strong>Titular:</strong> {paymentSettings.accountHolder}</p>}
                       {paymentSettings.bankName && <p><strong>Banco:</strong> {paymentSettings.bankName}</p>}
                       <p><strong>Instruções:</strong> {paymentSettings.pixInstructions}</p>
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        💡 <strong>Como usar:</strong> Compartilhe o link <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">app.gprop.com.br/pix</code> com clientes ou assistentes para que vejam suas informações de pagamento.
+                      </p>
                     </div>
                   </div>
                 )}
