@@ -11,15 +11,6 @@ export async function GET(request: NextRequest) {
       where: {
         userId: user.id
       },
-      include: {
-        property: {
-          include: {
-            owner: true
-          }
-        },
-        tenant: true,
-        payments: true
-      },
       orderBy: {
         createdAt: 'desc'
       }
