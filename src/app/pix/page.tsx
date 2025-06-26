@@ -9,10 +9,10 @@ export default function PixPage() {
 
   // Dados PIX sempre visíveis (não depende de API)
   const pixInfo = {
-    pixKey: 'admin@imobiliaria.com',
-    accountHolder: 'Imobiliária Principal',
-    bankName: 'Banco Principal',
-    instructions: 'Faça o PIX para a chave acima e envie o comprovante para confirmação do pagamento.'
+    pixKey: '(61) 99999-9999',
+    accountHolder: 'IMOBILIÁRIA PRINCIPAL LTDA',
+    bankName: 'Banco do Brasil',
+    instructions: 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
   }
 
   const copyToClipboard = async (text: string, field: string) => {
