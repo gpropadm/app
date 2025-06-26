@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           ...leadData,
           updatedAt: new Date(),
           // Adicionar informação da fonte
-          notes: `${existingLead.notes || ''}\n\n🔗 Novo interesse via OLX em ${new Date().toLocaleString('pt-BR')}\nImóvel: ${leadData.preferredCities}`
+          notes: `${existingLead.notes || ''}\n\n🔗 Novo interesse via OLX em ${new Date().toLocaleString('pt-BR')}`
         }
       })
 
@@ -70,8 +70,7 @@ export async function POST(request: NextRequest) {
     const newLead = await prisma.lead.create({
       data: {
         ...leadData,
-        status: 'ACTIVE',
-        notes: `🔗 Lead recebido via integração OLX em ${new Date().toLocaleString('pt-BR')}\nImóvel de interesse: ${leadData.preferredCities}`
+        status: 'ACTIVE'
       }
     })
 
@@ -147,7 +146,9 @@ function extractLeadData(data: any, companyId: string, userId: string) {
       amenities: JSON.stringify([]),
       // Campos obrigatórios do Prisma
       companyId: companyId,
-      userId: userId
+      userId: userId,
+      // Não incluir preferredLocation para evitar erros de schema
+      notes: `🔗 Lead recebido via integração OLX em ${new Date().toLocaleString('pt-BR')}`
     }
 
     // Validar dados mínimos necessários
