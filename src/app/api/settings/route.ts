@@ -1,17 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/auth-middleware'
+import { requireAuthWithCompany } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request)
-    
-    if (!user.companyId) {
-      return NextResponse.json(
-        { error: 'Usuário não está associado a uma empresa' },
-        { status: 400 }
-      )
-    }
+    const user = await requireAuthWithCompany(request)
     
     // Buscar a empresa do usuário logado
     const company = await prisma.company.findUnique({
@@ -105,19 +98,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await requireAuth(request)
+    const user = await requireAuthWithCompany(request)
     const data = await request.json()
     console.log('=== SETTINGS POST REQUEST ===')
     console.log('User ID:', user.id)
     console.log('Company ID:', user.companyId)
     console.log('Received data:', JSON.stringify(data, null, 2))
-    
-    if (!user.companyId) {
-      return NextResponse.json(
-        { error: 'Usuário não está associado a uma empresa' },
-        { status: 400 }
-      )
-    }
     
     // Buscar a empresa do usuário logado
     const company = await prisma.company.findUnique({

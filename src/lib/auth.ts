@@ -59,13 +59,52 @@ export const authOptions: NextAuthOptions = {
           data: { lastLogin: new Date() }
         })
 
+        // Auto-fix missing company association
+        let finalCompanyId = user.companyId
+        if (!user.companyId) {
+          console.log('⚠️ User has no company, attempting auto-fix...')
+          try {
+            // Find the first available company or create a default one
+            let defaultCompany = await prisma.company.findFirst()
+            
+            if (!defaultCompany) {
+              console.log('Creating default company for user...')
+              defaultCompany = await prisma.company.create({
+                data: {
+                  name: 'Imobiliária Principal',
+                  tradeName: 'Imobiliária Principal',
+                  document: '00.000.000/0001-00',
+                  email: 'contato@imobiliaria.com',
+                  phone: '(11) 0000-0000',
+                  address: 'Endereço principal, 123',
+                  city: 'São Paulo',
+                  state: 'SP',
+                  zipCode: '00000-000',
+                  subscription: 'BASIC'
+                }
+              })
+            }
+            
+            // Associate user with company
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { companyId: defaultCompany.id }
+            })
+            
+            finalCompanyId = defaultCompany.id
+            console.log(`✅ Auto-fixed: Associated ${user.email} with ${defaultCompany.name}`)
+          } catch (error) {
+            console.error('❌ Failed to auto-fix company association:', error)
+          }
+        }
+
         console.log('✅ Login successful for:', user.email)
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
-          companyId: user.companyId || undefined,
+          companyId: finalCompanyId || undefined,
           companyName: undefined
         }
         } catch (error) {
