@@ -156,7 +156,10 @@ export default function Users() {
   }
 
   const handleDeleteUser = async (id: string) => {
-    if (!confirm('Tem certeza que deseja deletar este usuário?')) return
+    const user = users.find(u => u.id === id)
+    if (!user) return
+    
+    if (!confirm(`Tem certeza que deseja deletar o usuário "${user.name}"?\n\nEsta ação não pode ser desfeita.`)) return
 
     try {
       const response = await fetch(`/api/users/${id}`, {
@@ -164,12 +167,16 @@ export default function Users() {
       })
 
       if (response.ok) {
+        const data = await response.json()
+        alert(data.message || 'Usuário deletado com sucesso!')
         await fetchUsers()
       } else {
-        console.error('Error deleting user')
+        const errorData = await response.json()
+        alert(`Erro ao deletar usuário:\n${errorData.error || 'Erro desconhecido'}`)
       }
     } catch (error) {
       console.error('Error deleting user:', error)
+      alert('Erro de conexão ao deletar usuário. Tente novamente.')
     }
   }
 
@@ -408,8 +415,17 @@ export default function Users() {
                         </button>
                         <button 
                           onClick={() => handleDeleteUser(user.id)}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Deletar usuário"
+                          disabled={user.email === session?.user?.email}
+                          className={`p-2 rounded-lg transition-colors ${
+                            user.email === session?.user?.email
+                              ? 'text-gray-400 cursor-not-allowed'
+                              : 'text-red-600 hover:bg-red-50'
+                          }`}
+                          title={
+                            user.email === session?.user?.email 
+                              ? 'Você não pode deletar sua própria conta'
+                              : 'Deletar usuário'
+                          }
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
