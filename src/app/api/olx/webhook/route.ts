@@ -11,8 +11,20 @@ export async function POST(request: NextRequest) {
     
     console.log('📨 Webhook OLX recebido:', JSON.stringify(data, null, 2))
 
+    // Buscar primeira empresa e usuário disponíveis
+    const company = await prisma.company.findFirst()
+    const user = await prisma.user.findFirst()
+
+    if (!company || !user) {
+      console.log('❌ Empresa ou usuário não encontrados')
+      return NextResponse.json(
+        { error: 'Sistema não configurado corretamente' },
+        { status: 500 }
+      )
+    }
+
     // Extrair dados do lead baseado no formato da OLX
-    const leadData = extractLeadData(data)
+    const leadData = extractLeadData(data, company.id, user.id)
     
     if (!leadData) {
       console.log('❌ Dados de lead inválidos:', data)
@@ -22,12 +34,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verificar se lead já existe pelo telefone ou email
+    // Verificar se lead já existe pelo telefone ou email (apenas se fornecidos)
     const existingLead = await prisma.lead.findFirst({
       where: {
         OR: [
-          { phone: leadData.phone },
-          { email: leadData.email }
+          ...(leadData.phone ? [{ phone: leadData.phone }] : []),
+          ...(leadData.email ? [{ email: leadData.email }] : [])
         ]
       }
     })
@@ -108,7 +120,7 @@ export async function GET() {
 /**
  * Extrai dados do lead do payload da OLX
  */
-function extractLeadData(data: any) {
+function extractLeadData(data: any, companyId: string, userId: string) {
   try {
     // Adaptar baseado no formato real da OLX
     // Esta estrutura pode precisar ser ajustada baseado no payload real
@@ -133,7 +145,9 @@ function extractLeadData(data: any) {
         'DF'
       ]),
       amenities: JSON.stringify([]),
-      source: 'OLX_INTEGRATION'
+      // Campos obrigatórios do Prisma
+      companyId: companyId,
+      userId: userId
     }
 
     // Validar dados mínimos necessários
