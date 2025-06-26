@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -37,6 +37,7 @@ const menuItems = [
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
+  { icon: UserPlus, label: 'Usuários', href: '/users' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
 
@@ -76,6 +77,30 @@ export function Sidebar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  // Verificar se é admin usando a mesma lógica da página de settings
+  const checkAdminStatus = async () => {
+    try {
+      const response = await fetch('/api/users/profile')
+      if (response.ok) {
+        const userData = await response.json()
+        const isExplicitAdmin = userData.role === 'ADMIN'
+        const isFallbackAdmin = userData.id === '1' || userData.email?.toLowerCase().includes('admin')
+        setIsAdmin(isExplicitAdmin || isFallbackAdmin)
+      } else {
+        setIsAdmin(false)
+      }
+    } catch (error) {
+      setIsAdmin(false)
+    }
+  }
+
+  useEffect(() => {
+    if (session) {
+      checkAdminStatus()
+    }
+  }, [session])
 
 
   return (
@@ -119,6 +144,11 @@ export function Sidebar() {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {menuItems.map((item) => {
+              // Ocultar página de usuários se não for admin
+              if (item.href === '/users' && !isAdmin) {
+                return null
+              }
+              
               const isActive = pathname === item.href
               return (
                 <li key={item.href}>
@@ -167,6 +197,11 @@ export function Sidebar() {
         <nav className="flex-1 py-4 flex flex-col">
           <ul className="space-y-1 flex-1">
             {menuItems.map((item) => {
+              // Ocultar página de usuários se não for admin
+              if (item.href === '/users' && !isAdmin) {
+                return null
+              }
+              
               const isActive = pathname === item.href
               return (
                 <li key={item.href} className="px-2">
