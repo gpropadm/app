@@ -85,10 +85,10 @@ export default function PixPage() {
                 PIX não configurado
               </h2>
               <p className="text-gray-600 mb-6">
-                O administrador ainda não configurou as informações de PIX.
+                As informações de PIX ainda não foram configuradas.
               </p>
               <p className="text-sm text-gray-500">
-                Configure em: Configurações → Pagamento PIX
+                Entre em contato com o administrador para mais informações.
               </p>
             </div>
           </div>
