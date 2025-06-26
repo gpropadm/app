@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     const user = await requireAuth(request)
     
+    // First get contracts
     const contracts = await prisma.contract.findMany({
       where: {
         userId: user.id
@@ -16,7 +17,42 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(contracts)
+    // Then get related data manually to avoid schema conflicts
+    const enrichedContracts = await Promise.all(
+      contracts.map(async (contract) => {
+        try {
+          const property = await prisma.property.findUnique({
+            where: { id: contract.propertyId }
+          })
+          
+          const tenant = await prisma.tenant.findUnique({
+            where: { id: contract.tenantId }
+          })
+          
+          const owner = property ? await prisma.owner.findUnique({
+            where: { id: property.ownerId }
+          }) : null
+
+          return {
+            ...contract,
+            property: property ? {
+              ...property,
+              owner: owner || { id: '', name: 'Proprietário não encontrado', email: '' }
+            } : { id: '', title: 'Propriedade não encontrada', address: '', propertyType: '', owner: { id: '', name: 'Proprietário não encontrado', email: '' } },
+            tenant: tenant || { id: '', name: 'Inquilino não encontrado', email: '', phone: '' }
+          }
+        } catch (error) {
+          console.error('Error enriching contract:', error)
+          return {
+            ...contract,
+            property: { id: '', title: 'Erro ao carregar', address: '', propertyType: '', owner: { id: '', name: 'Erro', email: '' } },
+            tenant: { id: '', name: 'Erro ao carregar', email: '', phone: '' }
+          }
+        }
+      })
+    )
+
+    return NextResponse.json(enrichedContracts)
   } catch (error) {
     console.error('Error fetching contracts:', error)
     if (error instanceof Error && error.message === 'Unauthorized') {
