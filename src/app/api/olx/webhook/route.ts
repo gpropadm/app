@@ -37,10 +37,21 @@ export async function POST(request: NextRequest) {
     // Criar lead diretamente sem verificar duplicatas para evitar problemas de schema
     console.log('📝 Criando novo lead OLX:', leadData.name)
 
-    // Criar novo lead
+    // Criar novo lead com apenas campos essenciais
     const newLead = await prisma.lead.create({
       data: {
-        ...leadData,
+        name: leadData.name,
+        email: leadData.email || '',
+        phone: leadData.phone || '',
+        interest: leadData.interest,
+        propertyType: leadData.propertyType,
+        maxPrice: leadData.maxPrice,
+        preferredCities: leadData.preferredCities,
+        preferredStates: leadData.preferredStates,
+        amenities: leadData.amenities,
+        companyId: leadData.companyId,
+        userId: leadData.userId,
+        notes: leadData.notes,
         status: 'ACTIVE'
       }
     })
