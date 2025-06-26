@@ -1,18 +1,41 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { Copy, CreditCard, Building2, User, CheckCircle } from 'lucide-react'
 
 export default function PixPage() {
   const [copiedField, setCopiedField] = useState<string>('')
-
-  // Dados PIX sempre visíveis (não depende de API)
-  const pixInfo = {
+  const [pixInfo, setPixInfo] = useState({
     pixKey: '(61) 99999-9999',
     accountHolder: 'IMOBILIÁRIA PRINCIPAL LTDA',
     bankName: 'Banco do Brasil',
     instructions: 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+  })
+
+  useEffect(() => {
+    loadPixInfo()
+  }, [])
+
+  const loadPixInfo = async () => {
+    try {
+      const response = await fetch('/api/settings')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.payment && data.payment.pixKey) {
+          // Usar dados das configurações se existirem
+          setPixInfo({
+            pixKey: data.payment.pixKey,
+            accountHolder: data.payment.accountHolder || 'IMOBILIÁRIA PRINCIPAL LTDA',
+            bankName: data.payment.bankName || 'Banco do Brasil',
+            instructions: data.payment.pixInstructions || 'Faça o PIX para a chave acima e envie o comprovante de pagamento para nosso WhatsApp para confirmação.'
+          })
+        }
+      }
+    } catch (error) {
+      console.log('Usando dados padrão do PIX')
+      // Manter dados padrão se não conseguir carregar
+    }
   }
 
   const copyToClipboard = async (text: string, field: string) => {
