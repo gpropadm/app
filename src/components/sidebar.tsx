@@ -20,7 +20,8 @@ import {
   MessageSquare,
   UserPlus,
   Power,
-  TrendingDown
+  TrendingDown,
+  CreditCard
 } from 'lucide-react'
 
 // OPÇÃO 1: Ícones mais modernos
@@ -35,6 +36,7 @@ const menuItems = [
   { icon: Calculator, label: 'Financeiro', href: '/financial' },
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
+  { icon: CreditCard, label: 'PIX Pagamento', href: '/payment-info' },
   { icon: UserPlus, label: 'Usuários', href: '/users' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
