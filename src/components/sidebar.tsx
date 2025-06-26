@@ -18,7 +18,6 @@ import {
   Calculator,
   Zap,
   MessageSquare,
-  Sparkles,
   UserPlus,
   Power,
   TrendingDown
@@ -36,7 +35,6 @@ const menuItems = [
   { icon: Calculator, label: 'Financeiro', href: '/financial' },
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
-  { icon: Sparkles, label: 'Analytics & IA', href: '/analytics' },
   { icon: UserPlus, label: 'Usuários', href: '/users' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
