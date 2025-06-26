@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { UserForm } from '@/components/user-form'
+import { ConfirmationModal } from '@/components/confirmation-modal'
+import { ToastContainer, useToast } from '@/components/toast'
 import { Plus, Search, Building2, Edit, Trash2, User, Shield, Lock, Unlock, Calendar } from 'lucide-react'
 
 interface User {
@@ -32,6 +34,14 @@ export default function Users() {
   const [showForm, setShowForm] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; user: User | null; loading: boolean }>({
+    isOpen: false,
+    user: null,
+    loading: false
+  })
+  const [hasApiError, setHasApiError] = useState(false)
+  
+  const { toasts, removeToast, showSuccess, showError } = useToast()
 
   // Verificar se é admin usando a mesma lógica da página de settings
   const checkAdminStatus = async () => {
@@ -78,9 +88,11 @@ export default function Users() {
       if (response.ok) {
         const data = await response.json()
         setUsers(data)
+        setHasApiError(false)
       }
     } catch (error) {
       console.error('Error fetching users:', error)
+      setHasApiError(true)
     } finally {
       setLoading(false)
     }
@@ -99,8 +111,10 @@ export default function Users() {
       if (response.ok) {
         await fetchUsers()
         setShowForm(false)
+        showSuccess('Usuário criado', 'Usuário criado com sucesso!')
       } else {
         const errorData = await response.json()
+        showError('Erro ao criar usuário', errorData.error || 'Erro ao criar usuário')
         throw new Error(errorData.error || 'Erro ao criar usuário')
       }
     } catch (error) {
@@ -125,8 +139,10 @@ export default function Users() {
         await fetchUsers()
         setShowForm(false)
         setEditingUser(null)
+        showSuccess('Usuário atualizado', 'Usuário atualizado com sucesso!')
       } else {
         const errorData = await response.json()
+        showError('Erro ao atualizar usuário', errorData.error || 'Erro ao atualizar usuário')
         throw new Error(errorData.error || 'Erro ao atualizar usuário')
       }
     } catch (error) {
@@ -147,36 +163,50 @@ export default function Users() {
 
       if (response.ok) {
         await fetchUsers()
+        showSuccess(
+          !currentStatus ? 'Usuário bloqueado' : 'Usuário desbloqueado',
+          `Usuário ${!currentStatus ? 'bloqueado' : 'desbloqueado'} com sucesso!`
+        )
       } else {
-        console.error('Error toggling user block status')
+        showError('Erro', 'Erro ao alterar status do usuário')
       }
     } catch (error) {
       console.error('Error toggling user block status:', error)
     }
   }
 
-  const handleDeleteUser = async (id: string) => {
-    const user = users.find(u => u.id === id)
-    if (!user) return
-    
-    if (!confirm(`Tem certeza que deseja deletar o usuário "${user.name}"?\n\nEsta ação não pode ser desfeita.`)) return
+  const openDeleteModal = (user: User) => {
+    setDeleteModal({ isOpen: true, user, loading: false })
+  }
+
+  const closeDeleteModal = () => {
+    setDeleteModal({ isOpen: false, user: null, loading: false })
+  }
+
+  const handleDeleteUser = async () => {
+    if (!deleteModal.user) return
+
+    setDeleteModal(prev => ({ ...prev, loading: true }))
 
     try {
-      const response = await fetch(`/api/users/${id}`, {
+      const response = await fetch(`/api/users/${deleteModal.user.id}`, {
         method: 'DELETE',
       })
 
       if (response.ok) {
         const data = await response.json()
-        alert(data.message || 'Usuário deletado com sucesso!')
+        showSuccess('Usuário deletado', data.message || 'Usuário deletado com sucesso!')
         await fetchUsers()
+        closeDeleteModal()
       } else {
         const errorData = await response.json()
-        alert(`Erro ao deletar usuário:\n${errorData.error || 'Erro desconhecido'}`)
+        showError('Erro ao deletar usuário', errorData.error || 'Erro desconhecido')
       }
     } catch (error) {
       console.error('Error deleting user:', error)
-      alert('Erro de conexão ao deletar usuário. Tente novamente.')
+      showError('Erro de conexão', 'Erro de conexão ao deletar usuário. Tente novamente.')
+    } finally {
+      setDeleteModal(prev => ({ ...prev, loading: false }))
     }
   }
 
@@ -238,7 +268,7 @@ export default function Users() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#f63c6a'}}></div>
         </div>
       </DashboardLayout>
     )
@@ -257,7 +287,16 @@ export default function Users() {
           </div>
           <button 
             onClick={() => setShowForm(true)}
-            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
+            style={{backgroundColor: '#f63c6a'}}
+            onMouseEnter={(e) => {
+              const target = e.target as HTMLButtonElement
+              target.style.backgroundColor = '#e03659'
+            }}
+            onMouseLeave={(e) => {
+              const target = e.target as HTMLButtonElement
+              target.style.backgroundColor = '#f63c6a'
+            }}
           >
             <Plus className="w-5 h-5 mr-2" />
             Novo Usuário
@@ -414,7 +453,7 @@ export default function Users() {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
-                          onClick={() => handleDeleteUser(user.id)}
+                          onClick={() => openDeleteModal(user)}
                           disabled={user.email === session?.user?.email}
                           className={`p-2 rounded-lg transition-colors ${
                             user.email === session?.user?.email
@@ -461,6 +500,22 @@ export default function Users() {
           onSubmit={editingUser ? handleEditUser : handleCreateUser}
           user={editingUser}
         />
+
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          onClose={closeDeleteModal}
+          onConfirm={handleDeleteUser}
+          title="Deletar Usuário"
+          message={`Tem certeza que deseja deletar o usuário "${deleteModal.user?.name}"? Esta ação não pode ser desfeita e todos os dados relacionados serão removidos.`}
+          type="delete"
+          confirmText="Deletar"
+          cancelText="Cancelar"
+          loading={deleteModal.loading}
+        />
+
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
     </DashboardLayout>
   )
