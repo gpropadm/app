@@ -129,7 +129,7 @@ export function Sidebar() {
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg" style={{backgroundColor: '#ff4352'}}>
+            <div className="p-2 rounded-lg" style={{backgroundColor: '#f63c6a'}}>
               <Building2 className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -160,7 +160,7 @@ export function Sidebar() {
                         ? ''
                         : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border-transparent'
                     }`}
-                    style={isActive ? {backgroundColor: '#fef2f2', color: '#ff4352', borderColor: '#ff4352'} : {}}
+                    style={isActive ? {backgroundColor: '#fef2f2', color: '#f63c6a', borderColor: '#f63c6a'} : {}}
                   >
                     <item.icon className="w-5 h-5" />
                     <span className="font-medium">{item.label}</span>
@@ -188,7 +188,7 @@ export function Sidebar() {
       <div className="hidden lg:block fixed left-0 top-0 h-full w-16 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 z-40">
         {/* Logo */}
         <div className="flex items-center justify-center h-16 border-b border-gray-200 dark:border-gray-700">
-          <div className="p-2 rounded-lg" style={{backgroundColor: '#ff4352'}}>
+          <div className="p-2 rounded-lg" style={{backgroundColor: '#f63c6a'}}>
             <Building2 className="w-6 h-6 text-white" />
           </div>
         </div>
@@ -212,7 +212,7 @@ export function Sidebar() {
                         ? ''
                         : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100'
                     }`}
-                    style={isActive ? {backgroundColor: '#fef2f2', color: '#ff4352'} : {}}
+                    style={isActive ? {backgroundColor: '#fef2f2', color: '#f63c6a'} : {}}
                     title={item.label}
                   >
                     <item.icon className="w-5 h-5" />

@@ -235,7 +235,7 @@ export default function Properties() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#ff4352'}}></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#f63c6a'}}></div>
         </div>
       </DashboardLayout>
     )
@@ -255,14 +255,14 @@ export default function Properties() {
           <button 
             onClick={() => setShowForm(true)}
             className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#ff4352'}}
+            style={{backgroundColor: '#f63c6a'}}
             onMouseEnter={(e) => {
               const target = e.target as HTMLButtonElement
-              target.style.backgroundColor = '#e03e4d'
+              target.style.backgroundColor = '#e03659'
             }}
             onMouseLeave={(e) => {
               const target = e.target as HTMLButtonElement
-              target.style.backgroundColor = '#ff4352'
+              target.style.backgroundColor = '#f63c6a'
             }}
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -424,7 +424,7 @@ export default function Properties() {
                         <button 
                           onClick={() => openEditForm(property)}
                           className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                          style={{color: '#ff4352'}}
+                          style={{color: '#f63c6a'}}
                           title="Editar imóvel"
                         >
                           <Edit className="w-4 h-4" />
@@ -529,7 +529,7 @@ export default function Properties() {
                   <button 
                     onClick={() => openEditForm(property)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    style={{color: '#ff4352'}}
+                    style={{color: '#f63c6a'}}
                     title="Editar imóvel"
                   >
                     <Edit className="w-4 h-4" />

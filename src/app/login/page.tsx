@@ -47,7 +47,7 @@ export default function Login() {
         <div className="w-full max-w-sm space-y-8">
           {/* Logo and Title */}
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg mb-6" style={{backgroundColor: '#ff4352'}}>
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg mb-6" style={{backgroundColor: '#f63c6a'}}>
               <Building className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 mb-2">CRM IMOBILIÁRIO</h1>
@@ -66,8 +66,8 @@ export default function Login() {
                 className="w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-1 transition-colors"
                 onFocus={(e) => {
                   const target = e.target as HTMLInputElement
-                  target.style.borderColor = '#ff4352'
-                  target.style.boxShadow = '0 0 0 1px #ff4352'
+                  target.style.borderColor = '#f63c6a'
+                  target.style.boxShadow = '0 0 0 1px #f63c6a'
                 }}
                 onBlur={(e) => {
                   const target = e.target as HTMLInputElement
@@ -89,8 +89,8 @@ export default function Login() {
                 className="w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-1 transition-colors pr-10"
                 onFocus={(e) => {
                   const target = e.target as HTMLInputElement
-                  target.style.borderColor = '#ff4352'
-                  target.style.boxShadow = '0 0 0 1px #ff4352'
+                  target.style.borderColor = '#f63c6a'
+                  target.style.boxShadow = '0 0 0 1px #f63c6a'
                 }}
                 onBlur={(e) => {
                   const target = e.target as HTMLInputElement
@@ -111,7 +111,7 @@ export default function Login() {
 
             {/* Error Message */}
             {error && (
-              <div className="text-sm text-center py-2 px-3 rounded-md border" style={{color: '#ff4352', backgroundColor: '#fef2f2', borderColor: '#fecaca'}}>
+              <div className="text-sm text-center py-2 px-3 rounded-md border" style={{color: '#f63c6a', backgroundColor: '#fef2f2', borderColor: '#fecaca'}}>
                 {error}
               </div>
             )}
@@ -122,18 +122,18 @@ export default function Login() {
               disabled={loading || !email || !password}
               className="w-full py-3 px-4 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
               style={{
-                backgroundColor: loading || !email || !password ? '#d1d5db' : '#ff4352'
+                backgroundColor: loading || !email || !password ? '#d1d5db' : '#f63c6a'
               }}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement
                 if (!loading && email && password) {
-                  target.style.backgroundColor = '#e03e4d'
+                  target.style.backgroundColor = '#e03659'
                 }
               }}
               onMouseLeave={(e) => {
                 const target = e.target as HTMLButtonElement
                 if (!loading && email && password) {
-                  target.style.backgroundColor = '#ff4352'
+                  target.style.backgroundColor = '#f63c6a'
                 }
               }}
             >
@@ -157,7 +157,7 @@ export default function Login() {
       </div>
 
       {/* Right side - Background Image/Pattern */}
-      <div className="hidden lg:block flex-1 relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #ff6b7a, #ff4352, #e03e4d)'}}>
+      <div className="hidden lg:block flex-1 relative overflow-hidden" style={{background: 'linear-gradient(to bottom right, #ff6b7a, #f63c6a, #e03659)'}}>
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white p-8 max-w-md">

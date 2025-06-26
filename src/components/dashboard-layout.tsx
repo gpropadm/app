@@ -26,7 +26,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#ff4352'}}></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#f63c6a'}}></div>
       </div>
     )
   }
@@ -74,7 +74,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               {/* Avatar */}
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white overflow-hidden" style={{background: companyLogo ? 'transparent' : 'linear-gradient(to bottom right, #ff4352, #e03e4d)'}}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white overflow-hidden" style={{background: companyLogo ? 'transparent' : 'linear-gradient(to bottom right, #f63c6a, #e03659)'}}>
                     {companyLogo ? (
                       <img 
                         src={companyLogo} 

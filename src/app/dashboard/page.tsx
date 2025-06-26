@@ -168,7 +168,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="p-3 rounded-lg" style={{backgroundColor: '#fef2f2'}}>
-                    <Icon className="w-6 h-6" style={{color: '#ff4352'}} />
+                    <Icon className="w-6 h-6" style={{color: '#f63c6a'}} />
                   </div>
                 </div>
                 <div className="mt-4 flex items-center">
@@ -248,7 +248,7 @@ export default function Dashboard() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <a href="/properties" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-              <Building2 className="w-8 h-8 mb-2" style={{color: '#ff4352'}} />
+              <Building2 className="w-8 h-8 mb-2" style={{color: '#f63c6a'}} />
               <span className="text-sm font-medium text-gray-900">Novo Imóvel</span>
             </a>
             <a href="/owners" className="flex flex-col items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">

@@ -207,7 +207,7 @@ export default function Tenants() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#ff4352'}}></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2" style={{borderColor: '#f63c6a'}}></div>
         </div>
       </DashboardLayout>
     )
@@ -227,14 +227,14 @@ export default function Tenants() {
           <button 
             onClick={() => setShowForm(true)}
             className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 text-white rounded-lg transition-all duration-200 transform hover:scale-105 shadow-md hover:shadow-lg"
-            style={{backgroundColor: '#ff4352'}}
+            style={{backgroundColor: '#f63c6a'}}
             onMouseEnter={(e) => {
               const target = e.target as HTMLButtonElement
-              target.style.backgroundColor = '#e03e4d'
+              target.style.backgroundColor = '#e03659'
             }}
             onMouseLeave={(e) => {
               const target = e.target as HTMLButtonElement
-              target.style.backgroundColor = '#ff4352'
+              target.style.backgroundColor = '#f63c6a'
             }}
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -343,7 +343,7 @@ export default function Tenants() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#fef2f2'}}>
-                            <UserCheck className="w-5 h-5" style={{color: '#ff4352'}} />
+                            <UserCheck className="w-5 h-5" style={{color: '#f63c6a'}} />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-white">{tenant.name}</div>
@@ -418,7 +418,7 @@ export default function Tenants() {
                           <button 
                             onClick={() => openEditForm(tenant)}
                             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                            style={{color: '#ff4352'}}
+                            style={{color: '#f63c6a'}}
                             title="Editar inquilino"
                           >
                             <Edit className="w-4 h-4" />
@@ -449,7 +449,7 @@ export default function Tenants() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#fef2f2'}}>
-                      <UserCheck className="w-5 h-5" style={{color: '#ff4352'}} />
+                      <UserCheck className="w-5 h-5" style={{color: '#f63c6a'}} />
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-gray-900">{tenant.name}</h3>
@@ -507,7 +507,7 @@ export default function Tenants() {
                   <button 
                     onClick={() => openEditForm(tenant)}
                     className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                    style={{color: '#ff4352'}}
+                    style={{color: '#f63c6a'}}
                     title="Editar inquilino"
                   >
                     <Edit className="w-4 h-4" />

@@ -765,14 +765,14 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
                   type="button"
                   onClick={addImage}
                   className="px-4 py-2 text-white rounded-lg transition-colors"
-                  style={{backgroundColor: '#ff4352'}}
+                  style={{backgroundColor: '#f63c6a'}}
                   onMouseEnter={(e) => {
                     const target = e.target as HTMLButtonElement
-                    target.style.backgroundColor = '#e03e4d'
+                    target.style.backgroundColor = '#e03659'
                   }}
                   onMouseLeave={(e) => {
                     const target = e.target as HTMLButtonElement
-                    target.style.backgroundColor = '#ff4352'
+                    target.style.backgroundColor = '#f63c6a'
                   }}
                 >
                   <Plus className="w-4 h-4" />
@@ -867,17 +867,17 @@ export function PropertyForm({ isOpen, onClose, onSubmit, property }: PropertyFo
               type="submit"
               disabled={loading}
               className="px-6 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{backgroundColor: loading ? '#d1d5db' : '#ff4352'}}
+              style={{backgroundColor: loading ? '#d1d5db' : '#f63c6a'}}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement
                 if (!loading) {
-                  target.style.backgroundColor = '#e03e4d'
+                  target.style.backgroundColor = '#e03659'
                 }
               }}
               onMouseLeave={(e) => {
                 const target = e.target as HTMLButtonElement
                 if (!loading) {
-                  target.style.backgroundColor = '#ff4352'
+                  target.style.backgroundColor = '#f63c6a'
                 }
               }}
             >

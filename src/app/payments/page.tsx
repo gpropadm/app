@@ -875,7 +875,7 @@ export default function Payments() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4 flex-1">
                           <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#fef2f2'}}>
-                            <DollarSign className="w-5 h-5" style={{color: '#ff4352'}} />
+                            <DollarSign className="w-5 h-5" style={{color: '#f63c6a'}} />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-1">

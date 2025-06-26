@@ -437,14 +437,14 @@ export default function Settings() {
             <button 
               onClick={saveUserProfile}
               className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 text-white rounded-lg transition-colors"
-              style={{backgroundColor: '#ff4352'}}
+              style={{backgroundColor: '#f63c6a'}}
               onMouseEnter={(e) => {
                 const target = e.target as HTMLButtonElement
-                target.style.backgroundColor = '#e03e4d'
+                target.style.backgroundColor = '#e03659'
               }}
               onMouseLeave={(e) => {
                 const target = e.target as HTMLButtonElement
-                target.style.backgroundColor = '#ff4352'
+                target.style.backgroundColor = '#f63c6a'
               }}
             >
               <Save className="w-5 h-5 mr-2" />
@@ -502,12 +502,12 @@ export default function Settings() {
               onChange={(e) => setActiveTab(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:border-transparent"
               style={{
-                '--focus-ring-color': '#ff4352',
+                '--focus-ring-color': '#f63c6a',
                 '--focus-border-color': 'transparent'
               } as React.CSSProperties}
               onFocus={(e) => {
                 e.target.style.boxShadow = '0 0 0 2px rgba(255, 67, 82, 0.2)'
-                e.target.style.borderColor = '#ff4352'
+                e.target.style.borderColor = '#f63c6a'
               }}
               onBlur={(e) => {
                 e.target.style.boxShadow = ''
@@ -542,12 +542,12 @@ export default function Settings() {
                       onChange={(e) => setUserProfile(prev => ({ ...prev, name: e.target.value }))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:border-transparent"
                       style={{
-                        '--focus-ring-color': '#ff4352',
+                        '--focus-ring-color': '#f63c6a',
                         '--focus-border-color': 'transparent'
                       } as React.CSSProperties}
                       onFocus={(e) => {
                         e.target.style.boxShadow = '0 0 0 2px rgba(255, 67, 82, 0.2)'
-                        e.target.style.borderColor = '#ff4352'
+                        e.target.style.borderColor = '#f63c6a'
                       }}
                       onBlur={(e) => {
                         e.target.style.boxShadow = ''
@@ -579,12 +579,12 @@ export default function Settings() {
                       onChange={(e) => setUserProfile(prev => ({ ...prev, phone: formatPhone(e.target.value) }))}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:border-transparent"
                       style={{
-                        '--focus-ring-color': '#ff4352',
+                        '--focus-ring-color': '#f63c6a',
                         '--focus-border-color': 'transparent'
                       } as React.CSSProperties}
                       onFocus={(e) => {
                         e.target.style.boxShadow = '0 0 0 2px rgba(255, 67, 82, 0.2)'
-                        e.target.style.borderColor = '#ff4352'
+                        e.target.style.borderColor = '#f63c6a'
                       }}
                       onBlur={(e) => {
                         e.target.style.boxShadow = ''
@@ -603,10 +603,10 @@ export default function Settings() {
                 <div className="p-4 rounded-lg" style={{backgroundColor: '#fef2f2'}}>
                   <div className="flex">
                     <div className="flex-shrink-0">
-                      <User className="w-5 h-5" style={{color: '#ff4352'}} />
+                      <User className="w-5 h-5" style={{color: '#f63c6a'}} />
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium" style={{color: '#ff4352'}}>
+                      <h3 className="text-sm font-medium" style={{color: '#f63c6a'}}>
                         Por que o telefone é importante?
                       </h3>
                       <div className="mt-2 text-sm text-gray-700">

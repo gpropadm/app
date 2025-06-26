@@ -184,35 +184,62 @@ model Contract {
 }
 
 model Payment {
-  id           String        @id @default(cuid())
-  contractId   String
-  amount       Float
-  dueDate      DateTime
-  paidDate     DateTime?
-  status       PaymentStatus @default(PENDING)
-  paymentMethod String?      // BOLETO, PIX, DINHEIRO, TRANSFERENCIA, CARTAO
-  boletoUrl    String?
-  boletoCode   String?
-  penalty      Float?
-  interest     Float?
-  receipts     String?       // JSON array of receipt image URLs
-  notes        String?       // Additional payment notes
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  contract     Contract      @relation(fields: [contractId], references: [id])
+  id                String        @id @default(cuid())
+  contractId        String
+  amount            Float
+  dueDate           DateTime
+  paidDate          DateTime?
+  status            PaymentStatus @default(PENDING)
+  paymentMethod     String?       // BOLETO, PIX, DINHEIRO, TRANSFERENCIA, CARTAO
+  gateway           PaymentGateway @default(ASAAS) // Gateway usado para este pagamento
+  gatewayPaymentId  String?       // ID do pagamento no gateway
+  boletoUrl         String?
+  boletoCode        String?
+  pixQrCode         String?
+  penalty           Float?
+  interest          Float?
+  receipts          String?       // JSON array of receipt image URLs
+  notes             String?       // Additional payment notes
+  
+  // Split de pagamento
+  ownerAmount       Float?        // Valor que vai para o proprietário
+  companyAmount     Float?        // Valor que fica com a imobiliária
+  gatewayFee        Float?        // Taxa cobrada pelo gateway
+  splitData         String?       // JSON com dados completos do split
+  
+  // Webhooks e rastreamento
+  webhookReceived   Boolean       @default(false)
+  lastWebhookAt     DateTime?
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  contract          Contract      @relation(fields: [contractId], references: [id])
 
   @@map("payments")
 }
 
 model BankAccount {
-  id          String  @id @default(cuid())
-  ownerId     String  @unique
-  bankName    String
-  accountType String
-  agency      String
-  account     String
-  pixKey      String?
-  owner       Owner   @relation(fields: [ownerId], references: [id])
+  id             String  @id @default(cuid())
+  ownerId        String
+  bankName       String
+  bankCode       String
+  accountType    String
+  agency         String
+  account        String
+  accountDigit   String?
+  pixKey         String?
+  isDefault      Boolean @default(false)
+  isActive       Boolean @default(true)
+  
+  // Dados para gateways
+  asaasWalletId  String? // ID da carteira no Asaas
+  pjbankAccountId String? // ID da conta no PJBank
+  validated      Boolean @default(false) // Conta validada pelo gateway
+  validatedAt    DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  owner          Owner   @relation(fields: [ownerId], references: [id])
 
   @@map("bank_accounts")
 }
@@ -287,6 +314,12 @@ enum PaymentStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+enum PaymentGateway {
+  ASAAS
+  PJBANK
+  MANUAL
 }
 
 enum AlertType {

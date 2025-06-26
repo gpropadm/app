@@ -99,10 +99,10 @@ export function LocationSelector({ value, onChange, placeholder = "Buscar locali
     }
 
     circleRef.current = new window.google.maps.Circle({
-      strokeColor: '#ff4352',
+      strokeColor: '#f63c6a',
       strokeOpacity: 0.8,
       strokeWeight: 2,
-      fillColor: '#ff4352',
+      fillColor: '#f63c6a',
       fillOpacity: 0.15,
       map: mapInstance.current,
       center: { lat, lng },

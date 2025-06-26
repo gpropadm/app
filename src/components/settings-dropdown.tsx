@@ -100,7 +100,7 @@ export function SettingsDropdown() {
                     <Icon className="w-4 h-4" />
                     <span>{option.label}</span>
                   </div>
-                  {isSelected && <Check className="w-4 h-4" style={{color: '#ff4352'}} />}
+                  {isSelected && <Check className="w-4 h-4" style={{color: '#f63c6a'}} />}
                 </button>
               )
             })}
