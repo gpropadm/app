@@ -74,6 +74,20 @@ export async function GET(request: NextRequest) {
           ...payment,
           maintenanceDeductions: 0, // Temporarily disable maintenance
           maintenances: [],
+          // Mapear receipts para receiptUrl para compatibilidade
+          receiptUrl: payment.receipts ? (() => {
+            try {
+              if (typeof payment.receipts === 'string') {
+                const parsed = JSON.parse(payment.receipts)
+                return parsed?.[0]?.url || null
+              } else {
+                return payment.receipts?.[0]?.url || null
+              }
+            } catch (error) {
+              console.warn('Erro ao parsear receipts:', error)
+              return null
+            }
+          })() : null,
           contract: {
             ...contract,
             property: property || { title: 'Propriedade não encontrada', address: '' },
@@ -88,6 +102,19 @@ export async function GET(request: NextRequest) {
           ...payment,
           maintenanceDeductions: 0,
           maintenances: [],
+          // Mapear receipts para receiptUrl mesmo em caso de erro
+          receiptUrl: payment.receipts ? (() => {
+            try {
+              if (typeof payment.receipts === 'string') {
+                const parsed = JSON.parse(payment.receipts)
+                return parsed?.[0]?.url || null
+              } else {
+                return payment.receipts?.[0]?.url || null
+              }
+            } catch (error) {
+              return null
+            }
+          })() : null,
           contract: {
             property: { title: 'Erro ao carregar', address: '' },
             tenant: { name: 'Erro ao carregar', email: '', phone: '' }

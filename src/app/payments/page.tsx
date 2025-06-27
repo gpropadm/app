@@ -41,6 +41,7 @@ interface Payment {
   dueDate: string
   status: string
   receiptUrl?: string
+  receipts?: string | any[] // Can be JSON string or array
   paidDate?: string
   paymentMethod?: string
   notes?: string
@@ -258,19 +259,41 @@ export default function Payments() {
   }
 
   const viewReceipt = (payment: Payment) => {
-    console.log('Visualizando comprovante:', {
+    console.log('🔍 Visualizando comprovante:', {
       paymentId: payment.id,
       receiptUrl: payment.receiptUrl,
+      receipts: payment.receipts,
       status: payment.status,
       tenant: payment.tenant?.name
     })
     
-    if (!payment.receiptUrl) {
+    // Try multiple ways to get receipt URL
+    let receiptUrl = payment.receiptUrl
+    
+    if (!receiptUrl && payment.receipts) {
+      console.log('🔄 Tentando extrair URL dos receipts:', payment.receipts)
+      try {
+        if (typeof payment.receipts === 'string') {
+          const parsed = JSON.parse(payment.receipts)
+          receiptUrl = parsed?.[0]?.url || null
+          console.log('📋 URL extraída do string:', receiptUrl)
+        } else {
+          receiptUrl = payment.receipts?.[0]?.url || null
+          console.log('📋 URL extraída do objeto:', receiptUrl)
+        }
+      } catch (error) {
+        console.warn('⚠️ Erro ao parsear receipts:', error)
+      }
+    }
+    
+    if (!receiptUrl) {
+      console.log('❌ Nenhum comprovante encontrado')
       showNotification('error', 'Nenhum comprovante foi anexado a este pagamento')
       return
     }
     
-    setViewingReceipt(payment)
+    console.log('✅ Abrindo modal com URL:', receiptUrl)
+    setViewingReceipt({...payment, receiptUrl})
     setShowReceiptModal(true)
   }
 
