@@ -71,6 +71,7 @@ export default function Payments() {
   const [selectedTenant, setSelectedTenant] = useState<string | null>(null)
   const [allPayments, setAllPayments] = useState<Payment[]>([])
   const [processingPayment, setProcessingPayment] = useState(false)
+  const [allPaymentsLoading, setAllPaymentsLoading] = useState(false)
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
 
   // Função para mostrar notificações
@@ -202,10 +203,14 @@ export default function Payments() {
   }
 
   const fetchAllPaymentsByTenant = async (tenantName: string) => {
+    setAllPaymentsLoading(true)
     try {
+      console.log('🔄 Buscando histórico de pagamentos para:', tenantName)
       const response = await fetch('/api/payments/all-months')
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('📊 Dados recebidos da API:', data.length, 'pagamentos')
         
         const mappedPayments = data.map((payment: any) => ({
           ...payment,
@@ -227,10 +232,20 @@ export default function Payments() {
           tenant: payment.contract?.tenant || {}
         })).filter((payment: Payment) => payment.tenant?.name === tenantName)
         
+        console.log('✅ Pagamentos filtrados para', tenantName + ':', mappedPayments.length)
         setAllPayments(mappedPayments)
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }))
+        console.error('❌ Erro na API:', response.status, errorData)
+        showNotification('error', `Erro ao carregar histórico: ${errorData.error || 'Erro desconhecido'}`)
+        setAllPayments([])
       }
     } catch (error) {
-      console.error('Erro ao carregar todos os pagamentos:', error)
+      console.error('❌ Erro ao carregar todos os pagamentos:', error)
+      showNotification('error', 'Erro de conexão ao carregar histórico de pagamentos')
+      setAllPayments([])
+    } finally {
+      setAllPaymentsLoading(false)
     }
   }
 
@@ -866,7 +881,14 @@ export default function Payments() {
               </div>
 
               <div className="p-6 space-y-4">
-                {allPayments.map((payment) => {
+                {allPaymentsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    <span className="ml-3 text-gray-600 dark:text-gray-400">Carregando histórico de pagamentos...</span>
+                  </div>
+                ) : (
+                  <>
+                    {allPayments.map((payment) => {
                   const daysOverdue = getDaysOverdue(payment.dueDate)
                   const paymentIsOverdue = isOverdue(payment.dueDate) && !isPaidStatus(payment.status)
                   
@@ -967,20 +989,22 @@ export default function Payments() {
                       </div>
                     </div>
                   )
-                })}
+                    })}
 
-                {allPayments.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="w-24 h-24 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
-                      <DollarSign className="w-12 h-12 text-gray-400" />
-                    </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      Nenhum pagamento encontrado
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400">
-                      Não há histórico de pagamentos para este inquilino.
-                    </p>
-                  </div>
+                    {allPayments.length === 0 && !allPaymentsLoading && (
+                      <div className="text-center py-12">
+                        <div className="w-24 h-24 mx-auto bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                          <DollarSign className="w-12 h-12 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                          Nenhum pagamento encontrado
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400">
+                          Não há histórico de pagamentos para este inquilino.
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
