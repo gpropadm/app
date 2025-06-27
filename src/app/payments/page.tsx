@@ -258,7 +258,7 @@ export default function Payments() {
     await fetchAllPaymentsByTenant(tenantName)
   }
 
-  const viewReceipt = (payment: Payment) => {
+  const viewReceipt = async (payment: Payment) => {
     console.log('🔍 Visualizando comprovante:', {
       paymentId: payment.id,
       receiptUrl: payment.receiptUrl,
@@ -286,8 +286,26 @@ export default function Payments() {
       }
     }
     
+    // If still no URL, check database directly
     if (!receiptUrl) {
-      console.log('❌ Nenhum comprovante encontrado')
+      console.log('🔍 Verificando banco de dados diretamente...')
+      try {
+        const response = await fetch(`/api/payments/check-receipts?paymentId=${payment.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          console.log('🗄️ Dados do banco:', data.payment)
+          receiptUrl = data.payment?.first_receipt_url
+          if (receiptUrl) {
+            console.log('✅ URL encontrada no banco:', receiptUrl)
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ Erro ao verificar banco:', error)
+      }
+    }
+    
+    if (!receiptUrl) {
+      console.log('❌ Nenhum comprovante encontrado em lugar algum')
       showNotification('error', 'Nenhum comprovante foi anexado a este pagamento')
       return
     }
