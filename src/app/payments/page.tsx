@@ -295,7 +295,7 @@ export default function Payments() {
       // Usar a URL real do servidor (já foi feito upload no handleFileUpload)
       const receiptUrl = uploadedFileUrl // Esta é a URL real do servidor
 
-      const response = await fetch('/api/payments/test-mark-paid', {
+      const response = await fetch('/api/payments/sql-mark-paid', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
