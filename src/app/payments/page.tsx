@@ -206,7 +206,7 @@ export default function Payments() {
     setAllPaymentsLoading(true)
     try {
       console.log('🔄 Buscando histórico de pagamentos para:', tenantName)
-      const response = await fetch('/api/payments/all-months')
+      const response = await fetch('/api/payments/all-months-simple')
       
       if (response.ok) {
         const data = await response.json()
