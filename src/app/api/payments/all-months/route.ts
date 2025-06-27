@@ -8,6 +8,14 @@ export async function GET(request: NextRequest) {
     const user = await requireAuth(request)
     console.log('👤 Usuário autenticado:', { id: user.id, email: user.email })
     
+    // Check if maintenance table exists
+    try {
+      const maintenanceCount = await prisma.maintenance.count()
+      console.log('🔧 Tabela maintenances existe com', maintenanceCount, 'registros')
+    } catch (tableError) {
+      console.warn('⚠️ Tabela maintenances pode não existir:', tableError)
+    }
+    
     // First get user's contracts
     const userContracts = await prisma.contract.findMany({
       where: { userId: user.id },
@@ -68,26 +76,38 @@ export async function GET(request: NextRequest) {
             select: { name: true, email: true, phone: true }
           })
 
-          // Calculate maintenance deductions for this contract
-          const maintenances = await prisma.maintenance.findMany({
-            where: {
-              contractId: contract.id,
-              deductFromOwner: true,
-              status: 'COMPLETED',
-              completedDate: {
-                gte: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth() - 1, 1),
-                lt: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth(), 1)
+          // Calculate maintenance deductions for this contract - with error handling
+          let maintenances = []
+          let maintenanceDeductions = 0
+          
+          try {
+            // Check if maintenance table exists and has the required fields
+            maintenances = await prisma.maintenance.findMany({
+              where: {
+                contractId: contract.id,
+                deductFromOwner: true,
+                status: 'COMPLETED',
+                completedDate: {
+                  not: null, // Only get completed maintenances with actual completion date
+                  gte: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth() - 1, 1),
+                  lt: new Date(payment.dueDate.getFullYear(), payment.dueDate.getMonth(), 1)
+                }
+              },
+              select: {
+                id: true,
+                amount: true,
+                title: true,
+                completedDate: true
               }
-            },
-            select: {
-              id: true,
-              amount: true,
-              title: true,
-              completedDate: true
-            }
-          })
-
-          const maintenanceDeductions = maintenances.reduce((total, maintenance) => total + maintenance.amount, 0)
+            })
+            
+            maintenanceDeductions = maintenances.reduce((total, maintenance) => total + maintenance.amount, 0)
+          } catch (maintenanceError) {
+            console.warn('⚠️ Erro ao buscar maintenances para contrato', contract.id, ':', maintenanceError)
+            // Continue without maintenance deductions
+            maintenances = []
+            maintenanceDeductions = 0
+          }
           
           return {
             ...payment,
