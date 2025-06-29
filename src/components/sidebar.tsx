@@ -40,6 +40,7 @@ const menuItems = [
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
+  { icon: Wallet, label: 'Gateway', href: '/gateway' },
   { icon: UserPlus, label: 'Usuários', href: '/users', adminOnly: true },
   { icon: Wallet, label: 'Config Gateway', href: '/admin/gateway-settings', adminOnly: true },
   { icon: TestTube, label: 'Teste Gateway', href: '/gateway-test', adminOnly: true },
