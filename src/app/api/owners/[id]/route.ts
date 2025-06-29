@@ -68,14 +68,14 @@ export async function PUT(
       console.log('🏦 Processing bank account with Prisma...')
       try {
         // Check if owner has existing bank account
-        const existingBankAccounts = await prisma.bankAccounts.findMany({
+        const existingBankAccounts = await prisma.bankAccount.findMany({
           where: { ownerId: id }
         })
         
         if (existingBankAccounts.length > 0) {
           // Update existing bank account
           console.log('🏦 Updating existing bank account with Prisma')
-          await prisma.bankAccounts.updateMany({
+          await prisma.bankAccount.updateMany({
             where: { ownerId: id },
             data: {
               bankName: data.bankAccount.bankName,
@@ -93,7 +93,7 @@ export async function PUT(
           console.log('🏦 Creating new bank account with Prisma')
           const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
           
-          await prisma.bankAccounts.create({
+          await prisma.bankAccount.create({
             data: {
               id: bankId,
               ownerId: id,
