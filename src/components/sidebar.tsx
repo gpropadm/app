@@ -21,7 +21,8 @@ import {
   UserPlus,
   Power,
   TrendingDown,
-  CreditCard
+  CreditCard,
+  Shield
 } from 'lucide-react'
 
 // OPÇÃO 1: Ícones mais modernos
@@ -38,6 +39,7 @@ const menuItems = [
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
   { icon: UserPlus, label: 'Usuários', href: '/users' },
+  { icon: Shield, label: 'Backup', href: '/admin/backup' },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
 
@@ -148,6 +150,10 @@ export function Sidebar() {
               if (item.href === '/users' && !isAdmin) {
                 return null
               }
+              // Ocultar página de backup se não for admin
+              if (item.href === '/admin/backup' && !isAdmin) {
+                return null
+              }
               
               const isActive = pathname === item.href
               return (
@@ -199,6 +205,10 @@ export function Sidebar() {
             {menuItems.map((item) => {
               // Ocultar página de usuários se não for admin
               if (item.href === '/users' && !isAdmin) {
+                return null
+              }
+              // Ocultar página de backup se não for admin
+              if (item.href === '/admin/backup' && !isAdmin) {
                 return null
               }
               
