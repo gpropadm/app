@@ -54,13 +54,24 @@ export default function Properties() {
 
   const fetchProperties = async () => {
     try {
+      console.log('🏠 Fetching properties...')
       const response = await fetch('/api/properties')
+      console.log('📡 Properties response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
-        setProperties(data)
+        console.log('✅ Properties data:', data)
+        setProperties(Array.isArray(data) ? data : [])
+      } else {
+        const errorData = await response.json()
+        console.error('❌ Properties API error:', errorData)
+        showError('Erro ao carregar imóveis', errorData.error || 'Erro desconhecido')
+        setProperties([])
       }
     } catch (error) {
-      console.error('Error fetching properties:', error)
+      console.error('❌ Network error fetching properties:', error)
+      showError('Erro de conexão', 'Não foi possível carregar os imóveis')
+      setProperties([])
     } finally {
       setLoading(false)
     }

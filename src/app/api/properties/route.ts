@@ -7,8 +7,11 @@ import { checkForPropertyMatches } from '@/lib/property-matching-service'
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🏠 GET /api/properties - Starting...')
     const user = await requireAuth(request)
+    console.log('✅ User authenticated:', { id: user.id, email: user.email })
     
+    console.log('📊 Fetching properties for user:', user.id)
     const properties = await prisma.property.findMany({
       where: {
         userId: user.id
@@ -26,6 +29,8 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    console.log(`✅ Found ${properties.length} properties for user ${user.id}`)
+
     // Parse JSON strings back to arrays for SQLite compatibility
     const formattedProperties = properties.map(property => ({
       ...property,
@@ -34,9 +39,15 @@ export async function GET(request: NextRequest) {
       availableFor: property.availableFor ? JSON.parse(property.availableFor) : ['RENT']
     }))
 
+    console.log('📤 Returning formatted properties')
     return NextResponse.json(formattedProperties)
   } catch (error) {
-    console.error('Error fetching properties:', error)
+    console.error('❌ Error fetching properties:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack?.substring(0, 500) : 'No stack'
+    })
+    
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
         { error: 'Não autorizado' },
@@ -44,7 +55,10 @@ export async function GET(request: NextRequest) {
       )
     }
     return NextResponse.json(
-      { error: 'Erro ao buscar imóveis' },
+      { 
+        error: 'Erro ao buscar imóveis',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     )
   }
