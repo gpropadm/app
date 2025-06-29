@@ -75,7 +75,7 @@ export default function AdminBackup() {
     try {
       setDownloading(true)
       
-      const response = await fetch('/api/backup/download')
+      const response = await fetch('/api/backup/working')
       
       if (!response.ok) {
         throw new Error(`Erro ${response.status}: ${response.statusText}`)
