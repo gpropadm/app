@@ -70,8 +70,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('📋 POST /api/contracts - Starting contract creation...')
     const user = await requireAuth(request)
+    console.log('✅ User authenticated:', { id: user.id, email: user.email })
+    
     const data = await request.json()
+    console.log('📝 Contract data received:', data)
     
     // Get property to access companyId and verify ownership
     const property = await prisma.property.findUnique({
@@ -96,6 +100,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized access to tenant' }, { status: 403 })
     }
 
+    console.log('🚀 Creating contract with data:', {
+      propertyId: data.propertyId,
+      tenantId: data.tenantId,
+      companyId: property.companyId,
+      userId: user.id,
+      startDate: new Date(data.startDate),
+      endDate: new Date(data.endDate),
+      rentAmount: data.rentAmount,
+      depositAmount: data.depositAmount
+    })
+    
     const contract = await prisma.contract.create({
       data: {
         propertyId: data.propertyId,
@@ -135,7 +150,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(contract, { status: 201 })
   } catch (error) {
-    console.error('Error creating contract:', error)
+    console.error('❌ Error creating contract:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack?.substring(0, 1000) : 'No stack'
+    })
+    
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
         { error: 'Não autorizado' },
@@ -143,7 +163,11 @@ export async function POST(request: NextRequest) {
       )
     }
     return NextResponse.json(
-      { error: 'Erro ao criar contrato', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Erro ao criar contrato', 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
