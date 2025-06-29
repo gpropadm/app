@@ -22,7 +22,9 @@ import {
   Power,
   TrendingDown,
   CreditCard,
-  Shield
+  Shield,
+  Wallet,
+  TestTube
 } from 'lucide-react'
 
 // OPÇÃO 1: Ícones mais modernos
@@ -38,8 +40,10 @@ const menuItems = [
   { icon: Zap, label: 'Leads', href: '/leads' },
   { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
-  { icon: UserPlus, label: 'Usuários', href: '/users' },
-  { icon: Shield, label: 'Backup', href: '/admin/backup' },
+  { icon: UserPlus, label: 'Usuários', href: '/users', adminOnly: true },
+  { icon: Wallet, label: 'Config Gateway', href: '/admin/gateway-settings', adminOnly: true },
+  { icon: TestTube, label: 'Teste Gateway', href: '/gateway-test', adminOnly: true },
+  { icon: Shield, label: 'Backup', href: '/admin/backup', adminOnly: true },
   { icon: Settings, label: 'Configurações', href: '/settings' }
 ]
 
@@ -146,12 +150,8 @@ export function Sidebar() {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {menuItems.map((item) => {
-              // Ocultar página de usuários se não for admin
-              if (item.href === '/users' && !isAdmin) {
-                return null
-              }
-              // Ocultar página de backup se não for admin
-              if (item.href === '/admin/backup' && !isAdmin) {
+              // Ocultar itens adminOnly se não for admin
+              if (item.adminOnly && !isAdmin) {
                 return null
               }
               
@@ -203,12 +203,8 @@ export function Sidebar() {
         <nav className="flex-1 py-4 flex flex-col">
           <ul className="space-y-1 flex-1">
             {menuItems.map((item) => {
-              // Ocultar página de usuários se não for admin
-              if (item.href === '/users' && !isAdmin) {
-                return null
-              }
-              // Ocultar página de backup se não for admin
-              if (item.href === '/admin/backup' && !isAdmin) {
+              // Ocultar itens adminOnly se não for admin
+              if (item.adminOnly && !isAdmin) {
                 return null
               }
               
