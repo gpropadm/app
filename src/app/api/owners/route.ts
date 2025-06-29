@@ -15,8 +15,7 @@ export async function GET(request: NextRequest) {
         userId: user.id // Only return owners that belong to the current user
       },
       include: {
-        properties: true,
-        bankAccounts: true
+        properties: true
       },
       orderBy: {
         createdAt: 'desc'
