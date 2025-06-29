@@ -40,14 +40,19 @@ export async function GET(request: NextRequest) {
       return 0
     })
     
-    const bankAccountCount = await prisma.bankAccounts.count({
-      where: { 
-        owner: { companyId: user.companyId }
+    let bankAccountCount = 0
+    try {
+      if (prisma.bankAccounts && typeof prisma.bankAccounts.count === 'function') {
+        bankAccountCount = await prisma.bankAccounts.count({
+          where: { 
+            owner: { companyId: user.companyId }
+          }
+        })
       }
-    }).catch(error => {
+    } catch (error) {
       console.error('Erro ao contar bankAccounts:', error)
-      return 0
-    })
+      bankAccountCount = 0
+    }
     
     // Tabelas opcionais - contar com segurança
     let leadCount = 0
