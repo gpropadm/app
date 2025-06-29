@@ -39,7 +39,9 @@ export function PartnershipAlert({ partnerships, onDismiss, onViewPartnerships }
       setIsVisible(true)
       
       // 🎵 Play custom sound when alert appears
-      notificationSounds.playByType('custom')
+      if (notificationSounds.isAudioAvailable()) {
+        notificationSounds.playByType('custom')
+      }
       
       // Auto-rotate through partnerships if there are multiple
       if (partnerships.length > 1) {
@@ -47,7 +49,9 @@ export function PartnershipAlert({ partnerships, onDismiss, onViewPartnerships }
           setCurrentPartnershipIndex((prev) => {
             const newIndex = (prev + 1) % partnerships.length
             // Play sound for each new partnership
-            notificationSounds.playByType('custom')
+            if (notificationSounds.isAudioAvailable()) {
+              notificationSounds.playByType('custom')
+            }
             return newIndex
           })
         }, 4000) // Change every 4 seconds

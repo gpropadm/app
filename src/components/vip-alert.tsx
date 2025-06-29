@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Crown, Sparkles, X, Phone, Eye, Star, Diamond } from 'lucide-react'
+import { notificationSounds } from '@/lib/notification-sounds'
 
 interface VipAlertProps {
   vipLeads: {
@@ -24,6 +25,7 @@ export function VipAlert({ vipLeads, onDismiss, onViewLeads }: VipAlertProps) {
 
   // 🎵 Audio files for different VIP levels
   const playVipSound = (vipLevel: string) => {
+    if (!notificationSounds.isAudioAvailable()) return
     try {
       let soundFile = ''
       switch (vipLevel) {

@@ -6,9 +6,17 @@ export class NotificationSounds {
   private audioQueue: (() => void)[] = []
 
   constructor() {
-    // Initialize Web Audio API
-    if (typeof window !== 'undefined') {
-      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    // Initialize Web Audio API only in browser environment
+    if (typeof window !== 'undefined' && (window.AudioContext || (window as any).webkitAudioContext)) {
+      try {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+      } catch (error) {
+        console.warn('🔇 Audio API not available:', error)
+        this.audioContext = null
+      }
+    } else {
+      // Server-side or audio not supported
+      this.audioContext = null
     }
   }
 

@@ -27,9 +27,11 @@ export function MatchAlert({ matches, onDismiss, onViewMatches }: MatchAlertProp
       setIsVisible(true)
       
       // 🎵 Play match sound for each match (queued automatically with 2s interval)
-      matches.forEach((_, index) => {
-        notificationSounds.playByType('match')
-      })
+      if (notificationSounds.isAudioAvailable()) {
+        matches.forEach((_, index) => {
+          notificationSounds.playByType('match')
+        })
+      }
       
       // Auto-rotate through matches if there are multiple
       if (matches.length > 1) {

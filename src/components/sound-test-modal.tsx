@@ -26,7 +26,9 @@ export function SoundTestModal({ isOpen, onClose }: SoundTestModalProps) {
 
   const playSound = (soundType: string) => {
     setPlayingSound(soundType)
-    notificationSounds.playSoundWithLog(soundType)
+    if (notificationSounds.isAudioAvailable()) {
+      notificationSounds.playSoundWithLog(soundType)
+    }
     
     // Clear playing state after 2 seconds
     setTimeout(() => {
