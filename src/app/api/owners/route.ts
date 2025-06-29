@@ -161,17 +161,39 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Owner created successfully:', owner.id)
     
-    // Bank account creation temporarily disabled until database schema is synchronized
+    // Create bank account
     if (data.bankAccount && data.bankAccount.bankName) {
-      console.log('🏦 Bank account data received but creation disabled until schema sync')
-      console.log('📋 Bank data:', data.bankAccount)
+      console.log('🏦 Creating bank account...')
+      try {
+        const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
+        
+        await prisma.bankAccount.create({
+          data: {
+            id: bankId,
+            ownerId: owner.id,
+            bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '000',
+            accountType: data.bankAccount.accountType || 'CORRENTE',
+            agency: data.bankAccount.agency,
+            account: data.bankAccount.account,
+            accountDigit: data.bankAccount.accountDigit || '',
+            pixKey: data.bankAccount.pixKey || '',
+            isDefault: true,
+            isActive: true
+          }
+        })
+        console.log('✅ Bank account created:', bankId)
+      } catch (bankError) {
+        console.error('⚠️ Bank account creation failed:', bankError)
+      }
     }
     
-    // Fetch the complete owner without bank accounts until schema sync
+    // Fetch the complete owner with bank accounts
     const completeOwner = await prisma.owner.findUnique({
       where: { id: owner.id },
       include: {
-        properties: true
+        properties: true,
+        bankAccounts: true
       }
     })
 
