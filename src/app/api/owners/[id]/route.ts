@@ -37,18 +37,26 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('🔄 PUT /api/owners/[id] - Starting update...')
     const { id } = await params
+    console.log('📝 Owner ID:', id)
+    
     const data = await request.json()
+    console.log('📊 Update data received:', data)
     
     // First, handle bank account separately if needed
     if (data.bankAccount) {
+      console.log('🏦 Processing bank account update...')
       const existingOwner = await prisma.owner.findUnique({
         where: { id },
         include: { bankAccounts: true }
       })
 
+      console.log('👤 Existing owner:', existingOwner?.id, 'Bank accounts:', existingOwner?.bankAccounts?.length || 0)
+      
       if (existingOwner?.bankAccounts && existingOwner.bankAccounts.length > 0) {
         // Update existing bank account
+        console.log('🏦 Updating existing bank account:', existingOwner.bankAccounts[0].id)
         await prisma.bankAccounts.update({
           where: { id: existingOwner.bankAccounts[0].id },
           data: {
@@ -59,8 +67,10 @@ export async function PUT(
             pixKey: data.bankAccount.pixKey
           }
         })
+        console.log('✅ Bank account updated successfully')
       } else {
         // Create new bank account
+        console.log('🏦 Creating new bank account for owner:', id)
         await prisma.bankAccounts.create({
           data: {
             ownerId: id,
@@ -71,6 +81,7 @@ export async function PUT(
             pixKey: data.bankAccount.pixKey
           }
         })
+        console.log('✅ New bank account created successfully')
       }
     } else {
       // Remove bank account if it exists and data.bankAccount is null
@@ -82,6 +93,7 @@ export async function PUT(
     }
 
     // Update owner data
+    console.log('👤 Updating owner basic data...')
     const owner = await prisma.owner.update({
       where: { id },
       data: {
@@ -100,11 +112,16 @@ export async function PUT(
       }
     })
 
+    console.log('✅ Owner updated successfully:', owner.id)
     return NextResponse.json(owner)
   } catch (error) {
-    console.error('Error updating owner:', error)
+    console.error('❌ Error updating owner:', error)
     return NextResponse.json(
-      { error: 'Erro ao atualizar proprietário' },
+      { 
+        error: 'Erro ao atualizar proprietário',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack?.substring(0, 1000) : undefined
+      },
       { status: 500 }
     )
   }
