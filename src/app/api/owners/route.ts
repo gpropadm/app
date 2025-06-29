@@ -124,29 +124,15 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Owner created successfully:', owner.id)
     
-    // Create bank account if provided
+    // Bank account temporarily disabled - will be re-enabled after fixing schema
     if (data.bankAccount && data.bankAccount.bankName) {
-      console.log('🏦 Creating bank account...')
-      try {
-        await prisma.bankAccounts.create({
-          data: {
-            ownerId: owner.id,
-            bankName: data.bankAccount.bankName,
-            bankCode: data.bankAccount.bankCode || '000',
-            accountType: data.bankAccount.accountType,
-            agency: data.bankAccount.agency,
-            account: data.bankAccount.account,
-            accountDigit: data.bankAccount.accountDigit || null,
-            pixKey: data.bankAccount.pixKey || null,
-            isDefault: true,
-            isActive: true
-          }
-        })
-        console.log('✅ Bank account created successfully')
-      } catch (bankError) {
-        console.error('⚠️ Bank account creation failed:', bankError)
-        // Continue without failing the owner creation
-      }
+      console.log('🏦 Bank account data received but temporarily disabled due to schema issues')
+      console.log('📝 Bank data would be:', {
+        bankName: data.bankAccount.bankName,
+        accountType: data.bankAccount.accountType,
+        agency: data.bankAccount.agency,
+        account: data.bankAccount.account
+      })
     }
     
     // Fetch the complete owner with bank account
