@@ -135,26 +135,23 @@ export async function POST(request: NextRequest) {
         // Generate unique ID for bank account
         const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
         
-        // Use raw SQL to insert bank account
-        await prisma.$executeRawUnsafe(`
-          INSERT INTO "BankAccount" (
-            id, "ownerId", "bankName", "bankCode", "accountType", 
-            agency, account, "accountDigit", "pixKey", "isDefault", "isActive"
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        `,
-          bankId,
-          owner.id,
-          data.bankAccount.bankName,
-          data.bankAccount.bankCode || '000',
-          data.bankAccount.accountType,
-          data.bankAccount.agency,
-          data.bankAccount.account,
-          data.bankAccount.accountDigit || null,
-          data.bankAccount.pixKey || null,
-          true,
-          true
-        )
-        console.log('✅ Bank account created with raw SQL:', bankId)
+        // Use Prisma client instead of raw SQL
+        await prisma.bankAccounts.create({
+          data: {
+            id: bankId,
+            ownerId: owner.id,
+            bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '000',
+            accountType: data.bankAccount.accountType,
+            agency: data.bankAccount.agency,
+            account: data.bankAccount.account,
+            accountDigit: data.bankAccount.accountDigit || null,
+            pixKey: data.bankAccount.pixKey || null,
+            isDefault: true,
+            isActive: true
+          }
+        })
+        console.log('✅ Bank account created with Prisma:', bankId)
       } catch (bankError) {
         console.error('⚠️ Bank account creation failed:', bankError)
         // Continue without failing owner creation
