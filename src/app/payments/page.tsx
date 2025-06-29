@@ -147,10 +147,14 @@ export default function Payments() {
 
   const fetchPayments = async () => {
     try {
+      console.log('💰 Fetching payments...')
       const response = await fetch('/api/payments')
+      console.log('📡 Payments response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
         console.log('📊 Dados recebidos da API:', data)
+        console.log('📊 Type of data:', typeof data, 'Array?', Array.isArray(data))
         
         const mappedPayments = data.map((payment: any) => ({
           ...payment,
@@ -195,9 +199,14 @@ export default function Payments() {
         })
         
         setPayments(mappedPayments)
+      } else {
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ Erro ao buscar pagamentos:', response.status, errorData)
+        setPayments([])
       }
     } catch (error) {
-      console.error('Erro ao carregar pagamentos:', error)
+      console.error('❌ Network error fetching payments:', error)
+      setPayments([])
     } finally {
       setLoading(false)
     }
