@@ -131,9 +131,11 @@ export async function POST(request: NextRequest) {
         data: {
           ownerId: owner.id,
           bankName: data.bankAccount.bankName,
+          bankCode: data.bankAccount.bankCode || '',
           accountType: data.bankAccount.accountType,
           agency: data.bankAccount.agency,
           account: data.bankAccount.account,
+          accountDigit: data.bankAccount.accountDigit || null,
           pixKey: data.bankAccount.pixKey || null
         }
       })

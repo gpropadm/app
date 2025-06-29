@@ -22,9 +22,11 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
     zipCode: '',
     bankAccount: {
       bankName: '',
+      bankCode: '',
       accountType: 'Conta Corrente',
       agency: '',
       account: '',
+      accountDigit: '',
       pixKey: ''
     }
   })
@@ -46,9 +48,11 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
           zipCode: owner.zipCode || '',
           bankAccount: (owner.bankAccounts && owner.bankAccounts.length > 0) ? owner.bankAccounts[0] : {
             bankName: '',
+            bankCode: '',
             accountType: 'Conta Corrente',
             agency: '',
             account: '',
+            accountDigit: '',
             pixKey: ''
           }
         })
@@ -91,9 +95,11 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
       zipCode: '',
       bankAccount: {
         bankName: '',
+        bankCode: '',
         accountType: 'Conta Corrente',
         agency: '',
         account: '',
+        accountDigit: '',
         pixKey: ''
       }
     })
@@ -363,6 +369,23 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Código do Banco
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankAccount.bankCode}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      bankAccount: { ...prev.bankAccount, bankCode: e.target.value }
+                    }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="001"
+                    maxLength={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tipo de Conta
                   </label>
                   <select
@@ -405,15 +428,32 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
                     value={formData.bankAccount.account}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      bankAccount: { ...prev.bankAccount, account: formatAccount(e.target.value) }
+                      bankAccount: { ...prev.bankAccount, account: e.target.value }
                     }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="12345-6"
-                    maxLength={10}
+                    placeholder="12345"
+                    maxLength={15}
                   />
                 </div>
 
-                <div className="md:col-span-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Dígito da Conta
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.bankAccount.accountDigit}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      bankAccount: { ...prev.bankAccount, accountDigit: e.target.value }
+                    }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="6"
+                    maxLength={2}
+                  />
+                </div>
+
+                <div className="md:col-span-3">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Chave PIX (Opcional)
                   </label>

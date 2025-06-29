@@ -61,10 +61,12 @@ export async function PUT(
           where: { id: existingOwner.bankAccounts[0].id },
           data: {
             bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '',
             accountType: data.bankAccount.accountType,
             agency: data.bankAccount.agency,
             account: data.bankAccount.account,
-            pixKey: data.bankAccount.pixKey
+            accountDigit: data.bankAccount.accountDigit || null,
+            pixKey: data.bankAccount.pixKey || null
           }
         })
         console.log('✅ Bank account updated successfully')
@@ -75,10 +77,12 @@ export async function PUT(
           data: {
             ownerId: id,
             bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '',
             accountType: data.bankAccount.accountType,
             agency: data.bankAccount.agency,
             account: data.bankAccount.account,
-            pixKey: data.bankAccount.pixKey
+            accountDigit: data.bankAccount.accountDigit || null,
+            pixKey: data.bankAccount.pixKey || null
           }
         })
         console.log('✅ New bank account created successfully')
