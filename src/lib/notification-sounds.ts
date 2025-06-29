@@ -572,6 +572,32 @@ export class NotificationSounds {
       this.playByType(type as any)
     }
   }
+
+  // 🎼 Testar todos os sons sequencialmente
+  testAllSounds() {
+    if (!this.isAudioAvailable()) {
+      console.log('🔇 Áudio indisponível para testar sons')
+      return
+    }
+
+    const sounds = ['urgent', 'partnership', 'vip-gold', 'vip-platinum', 'vip-diamond', 'match', 'night', 'high-value']
+    let currentIndex = 0
+
+    const playNext = () => {
+      if (currentIndex < sounds.length) {
+        const soundType = sounds[currentIndex]
+        console.log(`🎵 Testando som ${currentIndex + 1}/${sounds.length}: ${soundType}`)
+        this.playByType(soundType as any)
+        currentIndex++
+        setTimeout(playNext, 1000) // Espera 1 segundo entre os sons
+      } else {
+        console.log('🎼 Teste de todos os sons concluído!')
+      }
+    }
+
+    console.log('🎼 Iniciando teste de todos os sons...')
+    playNext()
+  }
 }
 
 // Singleton instance
