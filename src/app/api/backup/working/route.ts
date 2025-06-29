@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     console.log('📊 Fetching basic data...')
     
     const users = await prisma.user.findMany({
-      where: { companyId: user.companyId },
       select: {
         id: true,
         email: true,
@@ -27,26 +26,16 @@ export async function GET(request: NextRequest) {
       }
     })
     
-    const companies = await prisma.company.findMany({
-      where: { id: user.companyId }
-    })
+    const companies = await prisma.company.findMany()
     
-    const owners = await prisma.owner.findMany({
-      where: { companyId: user.companyId }
-    })
+    const owners = await prisma.owner.findMany()
     
-    const properties = await prisma.property.findMany({
-      where: { companyId: user.companyId }
-    })
+    const properties = await prisma.property.findMany()
     
     // Tentar buscar contas bancárias com segurança
     let bankAccounts = []
     try {
-      bankAccounts = await prisma.bankAccounts.findMany({
-        where: { 
-          owner: { companyId: user.companyId }
-        }
-      })
+      bankAccounts = await prisma.bankAccounts.findMany()
     } catch (error) {
       console.log('BankAccounts error (ignored):', error.message)
     }
@@ -57,7 +46,7 @@ export async function GET(request: NextRequest) {
         timestamp: new Date().toISOString(),
         version: "1.0.0",
         environment: "production",
-        companyId: user.companyId,
+        companyId: 'ALL_COMPANIES',
         requestedBy: {
           userId: user.id,
           email: user.email,

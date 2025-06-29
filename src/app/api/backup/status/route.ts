@@ -12,30 +12,22 @@ export async function GET(request: NextRequest) {
     // Contar dados básicos
     console.log('📊 Contando dados básicos...')
     
-    const userCount = await prisma.user.count({
-      where: { companyId: user.companyId }
-    }).catch(error => {
+    const userCount = await prisma.user.count().catch(error => {
       console.error('Erro ao contar users:', error)
       return 0
     })
     
-    const companyCount = await prisma.company.count({
-      where: { id: user.companyId }
-    }).catch(error => {
+    const companyCount = await prisma.company.count().catch(error => {
       console.error('Erro ao contar companies:', error)
       return 0
     })
     
-    const ownerCount = await prisma.owner.count({
-      where: { companyId: user.companyId }
-    }).catch(error => {
+    const ownerCount = await prisma.owner.count().catch(error => {
       console.error('Erro ao contar owners:', error)
       return 0
     })
     
-    const propertyCount = await prisma.property.count({
-      where: { companyId: user.companyId }
-    }).catch(error => {
+    const propertyCount = await prisma.property.count().catch(error => {
       console.error('Erro ao contar properties:', error)
       return 0
     })
@@ -43,11 +35,7 @@ export async function GET(request: NextRequest) {
     let bankAccountCount = 0
     try {
       if (prisma.bankAccounts && typeof prisma.bankAccounts.count === 'function') {
-        bankAccountCount = await prisma.bankAccounts.count({
-          where: { 
-            owner: { companyId: user.companyId }
-          }
-        })
+        bankAccountCount = await prisma.bankAccounts.count()
       }
     } catch (error) {
       console.error('Erro ao contar bankAccounts:', error)
@@ -63,9 +51,7 @@ export async function GET(request: NextRequest) {
     
     try {
       if (prisma.lead && typeof prisma.lead.count === 'function') {
-        leadCount = await prisma.lead.count({
-          where: { companyId: user.companyId }
-        })
+        leadCount = await prisma.lead.count()
       }
     } catch (error) {
       console.log('Erro ao contar leads:', error.message)
@@ -73,9 +59,7 @@ export async function GET(request: NextRequest) {
     
     try {
       if (prisma.contract && typeof prisma.contract.count === 'function') {
-        contractCount = await prisma.contract.count({
-          where: { property: { companyId: user.companyId } }
-        })
+        contractCount = await prisma.contract.count()
       }
     } catch (error) {
       console.log('Erro ao contar contracts:', error.message)
@@ -83,9 +67,7 @@ export async function GET(request: NextRequest) {
     
     try {
       if (prisma.payment && typeof prisma.payment.count === 'function') {
-        paymentCount = await prisma.payment.count({
-          where: { contract: { property: { companyId: user.companyId } } }
-        })
+        paymentCount = await prisma.payment.count()
       }
     } catch (error) {
       console.log('Erro ao contar payments:', error.message)
@@ -93,9 +75,7 @@ export async function GET(request: NextRequest) {
     
     try {
       if (prisma.tenant && typeof prisma.tenant.count === 'function') {
-        tenantCount = await prisma.tenant.count({
-          where: { companyId: user.companyId }
-        })
+        tenantCount = await prisma.tenant.count()
       }
     } catch (error) {
       console.log('Erro ao contar tenants:', error.message)
@@ -103,9 +83,7 @@ export async function GET(request: NextRequest) {
     
     try {
       if (prisma.maintenance && typeof prisma.maintenance.count === 'function') {
-        maintenanceCount = await prisma.maintenance.count({
-          where: { property: { companyId: user.companyId } }
-        })
+        maintenanceCount = await prisma.maintenance.count()
       }
     } catch (error) {
       console.log('Erro ao contar maintenances:', error.message)
@@ -114,18 +92,14 @@ export async function GET(request: NextRequest) {
     const totalRecords = userCount + companyCount + ownerCount + propertyCount + bankAccountCount
     
     // Informações adicionais
-    const company = await prisma.company.findUnique({
-      where: { id: user.companyId }
-    })
+    const companies = await prisma.company.findMany()
     
     const lastUser = await prisma.user.findFirst({
-      where: { companyId: user.companyId },
       orderBy: { updatedAt: 'desc' },
       select: { updatedAt: true, name: true }
     })
     
     const lastOwner = await prisma.owner.findFirst({
-      where: { companyId: user.companyId },
       orderBy: { updatedAt: 'desc' },
       select: { updatedAt: true, name: true }
     })
@@ -133,8 +107,8 @@ export async function GET(request: NextRequest) {
     const backupStatus = {
       timestamp: new Date().toISOString(),
       companyInfo: {
-        id: user.companyId,
-        name: company?.name || 'N/A',
+        id: 'ALL_COMPANIES',
+        name: `TODAS AS EMPRESAS (${companies.length})`,
         totalRecords
       },
       counts: {
