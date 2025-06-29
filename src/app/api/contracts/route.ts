@@ -131,8 +131,8 @@ export async function POST(request: NextRequest) {
             owner: true
           }
         },
-        tenant: true,
-        payments: true
+        tenant: true
+        // payments: true // Desabilitado temporariamente devido a problemas de schema
       }
     })
 
