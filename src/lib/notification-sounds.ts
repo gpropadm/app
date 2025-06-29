@@ -4,6 +4,7 @@ export class NotificationSounds {
   private audioContext: AudioContext | null = null
   private isPlaying: boolean = false
   private audioQueue: (() => void)[] = []
+  private isTestingAllSounds: boolean = false
 
   constructor() {
     // Initialize Web Audio API only in browser environment
@@ -588,6 +589,12 @@ export class NotificationSounds {
       return
     }
 
+    if (this.isTestingAllSounds) {
+      console.log('⚠️ Teste de sons já em andamento, ignorando...')
+      return
+    }
+
+    this.isTestingAllSounds = true
     const sounds = ['urgent', 'partnership', 'vip-gold', 'vip-platinum', 'vip-diamond', 'match', 'night', 'high-value']
     let currentIndex = 0
 
@@ -600,6 +607,7 @@ export class NotificationSounds {
         setTimeout(playNext, 1000) // Espera 1 segundo entre os sons
       } else {
         console.log('🎼 Teste de todos os sons concluído!')
+        this.isTestingAllSounds = false
       }
     }
 
@@ -611,7 +619,11 @@ export class NotificationSounds {
 // Singleton instance
 export const notificationSounds = new NotificationSounds()
 
-// Expose globally for console testing (browser only)
+// Expose globally for console testing (browser only) - APENAS QUANDO SOLICITADO
 if (typeof window !== 'undefined') {
-  (window as any).notificationSounds = notificationSounds
+  // Evitar múltiplas instâncias
+  if (!(window as any).notificationSounds) {
+    (window as any).notificationSounds = notificationSounds
+    console.log('🎵 NotificationSounds disponível via window.notificationSounds')
+  }
 }
