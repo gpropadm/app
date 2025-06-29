@@ -127,19 +127,26 @@ export async function POST(request: NextRequest) {
     // Create bank account if provided
     if (data.bankAccount && data.bankAccount.bankName) {
       console.log('🏦 Creating bank account...')
-      await prisma.bankAccounts.create({
-        data: {
-          ownerId: owner.id,
-          bankName: data.bankAccount.bankName,
-          bankCode: data.bankAccount.bankCode || '',
-          accountType: data.bankAccount.accountType,
-          agency: data.bankAccount.agency,
-          account: data.bankAccount.account,
-          accountDigit: data.bankAccount.accountDigit || null,
-          pixKey: data.bankAccount.pixKey || null
-        }
-      })
-      console.log('✅ Bank account created successfully')
+      try {
+        await prisma.bankAccounts.create({
+          data: {
+            ownerId: owner.id,
+            bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '000',
+            accountType: data.bankAccount.accountType,
+            agency: data.bankAccount.agency,
+            account: data.bankAccount.account,
+            accountDigit: data.bankAccount.accountDigit || null,
+            pixKey: data.bankAccount.pixKey || null,
+            isDefault: true,
+            isActive: true
+          }
+        })
+        console.log('✅ Bank account created successfully')
+      } catch (bankError) {
+        console.error('⚠️ Bank account creation failed:', bankError)
+        // Continue without failing the owner creation
+      }
     }
     
     // Fetch the complete owner with bank account

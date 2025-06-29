@@ -44,8 +44,8 @@ export async function PUT(
     const data = await request.json()
     console.log('📊 Update data received:', data)
     
-    // Simplified update - just owner data first, skip bank account for now
-    console.log('👤 Updating owner basic data only...')
+    // Update owner basic data
+    console.log('👤 Updating owner basic data...')
     const owner = await prisma.owner.update({
       where: { id },
       data: {
@@ -62,10 +62,71 @@ export async function PUT(
 
     console.log('✅ Owner updated successfully:', owner.id)
     
-    // Return without complex includes to avoid schema issues
+    // Handle bank account separately
+    let bankAccounts = []
+    if (data.bankAccount && data.bankAccount.bankName) {
+      console.log('🏦 Processing bank account...')
+      try {
+        // Check if owner has existing bank account
+        const existingBankAccounts = await prisma.bankAccounts.findMany({
+          where: { ownerId: id }
+        })
+        
+        if (existingBankAccounts.length > 0) {
+          // Update existing
+          console.log('🏦 Updating existing bank account')
+          const updated = await prisma.bankAccounts.update({
+            where: { id: existingBankAccounts[0].id },
+            data: {
+              bankName: data.bankAccount.bankName,
+              bankCode: data.bankAccount.bankCode || '000',
+              accountType: data.bankAccount.accountType,
+              agency: data.bankAccount.agency,
+              account: data.bankAccount.account,
+              accountDigit: data.bankAccount.accountDigit || null,
+              pixKey: data.bankAccount.pixKey || null
+            }
+          })
+          bankAccounts = [updated]
+        } else {
+          // Create new
+          console.log('🏦 Creating new bank account')
+          const created = await prisma.bankAccounts.create({
+            data: {
+              ownerId: id,
+              bankName: data.bankAccount.bankName,
+              bankCode: data.bankAccount.bankCode || '000',
+              accountType: data.bankAccount.accountType,
+              agency: data.bankAccount.agency,
+              account: data.bankAccount.account,
+              accountDigit: data.bankAccount.accountDigit || null,
+              pixKey: data.bankAccount.pixKey || null,
+              isDefault: true,
+              isActive: true
+            }
+          })
+          bankAccounts = [created]
+        }
+        console.log('✅ Bank account processed successfully')
+      } catch (bankError) {
+        console.error('⚠️ Bank account processing failed:', bankError)
+      }
+    } else {
+      console.log('🏦 No bank account data, removing existing if any...')
+      try {
+        await prisma.bankAccounts.deleteMany({
+          where: { ownerId: id }
+        })
+        console.log('✅ Existing bank accounts removed')
+      } catch (deleteError) {
+        console.error('⚠️ Bank account deletion failed:', deleteError)
+      }
+    }
+    
+    // Return owner with bank accounts
     return NextResponse.json({
       ...owner,
-      bankAccounts: [],
+      bankAccounts: bankAccounts,
       properties: []
     })
     
