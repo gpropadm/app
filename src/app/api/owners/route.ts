@@ -4,8 +4,12 @@ import { requireAuth } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await requireAuth(request)
+    console.log('🔍 GET /api/owners - Starting...')
     
+    const user = await requireAuth(request)
+    console.log('✅ User authenticated:', { id: user.id, email: user.email, companyId: user.companyId })
+    
+    console.log('📊 Fetching owners for user:', user.id)
     const owners = await prisma.owner.findMany({
       where: {
         userId: user.id // Only return owners that belong to the current user
@@ -19,9 +23,17 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    console.log(`✅ Found ${owners.length} owners for user ${user.id}`)
     return NextResponse.json(owners)
+    
   } catch (error) {
-    console.error('Error fetching owners:', error)
+    console.error('❌ Error fetching owners:', error)
+    console.error('❌ Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack?.substring(0, 500) : 'No stack',
+      name: error instanceof Error ? error.name : 'Unknown'
+    })
+    
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
         { error: 'Não autorizado' },
@@ -29,7 +41,11 @@ export async function GET(request: NextRequest) {
       )
     }
     return NextResponse.json(
-      { error: 'Erro ao buscar proprietários', details: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        error: 'Erro ao buscar proprietários', 
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
