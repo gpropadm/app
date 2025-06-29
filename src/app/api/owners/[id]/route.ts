@@ -87,25 +87,75 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    console.log('🗑️ DELETE /api/owners/[id] - Starting deletion...')
     const { id } = await params
+    console.log('📝 Owner ID to delete:', id)
     
-    // First delete bank account if it exists
-    await prisma.bankAccounts.deleteMany({
-      where: { 
-        ownerId: id
-      }
+    // Check if owner exists first
+    const existingOwner = await prisma.owner.findUnique({
+      where: { id }
     })
     
-    // Then delete the owner
+    if (!existingOwner) {
+      console.log('❌ Owner not found:', id)
+      return NextResponse.json(
+        { error: 'Proprietário não encontrado' },
+        { status: 404 }
+      )
+    }
+    
+    console.log('👤 Owner found:', existingOwner.name)
+    
+    // Delete bank accounts first (if any)
+    try {
+      console.log('🏦 Deleting bank accounts...')
+      const deletedBankAccounts = await prisma.bankAccounts.deleteMany({
+        where: { 
+          ownerId: id
+        }
+      })
+      console.log('✅ Deleted bank accounts:', deletedBankAccounts.count)
+    } catch (bankError) {
+      console.log('⚠️ Bank account deletion failed (continuing):', bankError)
+    }
+    
+    // Check for properties that might block deletion
+    try {
+      const propertiesCount = await prisma.property.count({
+        where: { ownerId: id }
+      })
+      
+      if (propertiesCount > 0) {
+        console.log('❌ Cannot delete owner with properties:', propertiesCount)
+        return NextResponse.json(
+          { error: `Não é possível excluir proprietário que possui ${propertiesCount} imóvel(is) cadastrado(s)` },
+          { status: 400 }
+        )
+      }
+    } catch (propError) {
+      console.log('⚠️ Property check failed (continuing):', propError)
+    }
+    
+    // Delete the owner
+    console.log('👤 Deleting owner...')
     await prisma.owner.delete({
       where: { id }
     })
-
-    return NextResponse.json({ message: 'Proprietário deletado com sucesso' })
+    
+    console.log('✅ Owner deleted successfully:', id)
+    return NextResponse.json({ 
+      message: 'Proprietário deletado com sucesso',
+      deletedId: id 
+    })
+    
   } catch (error) {
-    console.error('Error deleting owner:', error)
+    console.error('❌ Error deleting owner:', error)
     return NextResponse.json(
-      { error: 'Erro ao deletar proprietário' },
+      { 
+        error: 'Erro ao deletar proprietário',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack?.substring(0, 500) : undefined
+      },
       { status: 500 }
     )
   }
