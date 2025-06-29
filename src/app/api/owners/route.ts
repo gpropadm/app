@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
         userId: user.id // Only return owners that belong to the current user
       },
       include: {
-        properties: true
+        properties: true,
+        bankAccounts: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
         const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
         
         // Use Prisma client instead of raw SQL
-        await prisma.bankAccounts.create({
+        await prisma.bankAccount.create({
           data: {
             id: bankId,
             ownerId: owner.id,
