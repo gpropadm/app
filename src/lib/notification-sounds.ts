@@ -610,3 +610,8 @@ export class NotificationSounds {
 
 // Singleton instance
 export const notificationSounds = new NotificationSounds()
+
+// Expose globally for console testing (browser only)
+if (typeof window !== 'undefined') {
+  (window as any).notificationSounds = notificationSounds
+}

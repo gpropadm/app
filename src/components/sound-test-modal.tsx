@@ -136,10 +136,10 @@ export function SoundTestModal({ isOpen, onClose }: SoundTestModalProps) {
               💡 Como usar no console:
             </h4>
             <code className="text-sm text-blue-800 dark:text-blue-200 block">
-              notificationSounds.playByType('red') // Toca som específico
+              window.notificationSounds.playByType('red') // Toca som específico
             </code>
             <code className="text-sm text-blue-800 dark:text-blue-200 block mt-1">
-              notificationSounds.getAvailableSounds() // Lista todos os sons
+              window.notificationSounds.getAvailableSounds() // Lista todos os sons
             </code>
           </div>
         </div>
