@@ -161,35 +161,40 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Owner created successfully:', owner.id)
     
-    // Store bank account data in owner notes temporarily
+    // Create bank account in bank_accounts table
     if (data.bankAccount && data.bankAccount.bankName) {
-      console.log('🏦 Storing bank data in owner record...')
-      const bankData = {
-        bankName: data.bankAccount.bankName,
-        bankCode: data.bankAccount.bankCode || '000',
-        accountType: data.bankAccount.accountType || 'CORRENTE', 
-        agency: data.bankAccount.agency,
-        account: data.bankAccount.account,
-        accountDigit: data.bankAccount.accountDigit || '',
-        pixKey: data.bankAccount.pixKey || ''
+      console.log('🏦 Creating bank account in bank_accounts table...')
+      try {
+        const bankAccount = await prisma.bankAccount.create({
+          data: {
+            ownerId: owner.id,
+            bankName: data.bankAccount.bankName,
+            bankCode: data.bankAccount.bankCode || '000',
+            accountType: data.bankAccount.accountType || 'CORRENTE',
+            agency: data.bankAccount.agency,
+            account: data.bankAccount.account,
+            accountDigit: data.bankAccount.accountDigit || '',
+            pixKey: data.bankAccount.pixKey || '',
+            isDefault: true,
+            isActive: true
+          }
+        })
+        console.log('✅ Bank account created:', bankAccount.id)
+      } catch (bankError) {
+        console.error('❌ Bank account creation failed:', bankError)
+        console.error('Bank error details:', {
+          message: bankError instanceof Error ? bankError.message : 'Unknown error',
+          data: data.bankAccount
+        })
       }
-      
-      // Update owner with bank data in a JSON field or notes
-      await prisma.owner.update({
-        where: { id: owner.id },
-        data: {
-          // Store bank data as JSON string in address field temporarily
-          address: `${data.address || ''} [BANK:${JSON.stringify(bankData)}]`
-        }
-      })
-      console.log('✅ Bank data stored in owner record')
     }
     
-    // Fetch the complete owner without bank accounts (table doesn't exist)
+    // Fetch the complete owner with bank accounts
     const completeOwner = await prisma.owner.findUnique({
       where: { id: owner.id },
       include: {
-        properties: true
+        properties: true,
+        bankAccounts: true
       }
     })
 
