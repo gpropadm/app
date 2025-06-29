@@ -9,53 +9,102 @@ export async function GET(request: NextRequest) {
     
     console.log('📊 Verificando status dos dados...', { userId: user.id })
     
-    // Contar todos os dados da empresa
-    const [
-      userCount,
-      companyCount,
-      ownerCount,
-      propertyCount,
-      bankAccountCount,
-      leadCount,
-      contractCount,
-      paymentCount,
-      tenantCount,
-      maintenanceCount
-    ] = await Promise.all([
-      prisma.user.count({
-        where: { companyId: user.companyId }
-      }),
-      prisma.company.count({
-        where: { id: user.companyId }
-      }),
-      prisma.owner.count({
-        where: { companyId: user.companyId }
-      }),
-      prisma.property.count({
-        where: { companyId: user.companyId }
-      }),
-      prisma.bankAccounts.count({
-        where: { 
-          owner: { companyId: user.companyId }
-        }
-      }),
-      // Tabelas opcionais
-      prisma.lead ? prisma.lead.count({
-        where: { companyId: user.companyId }
-      }).catch(() => 0) : 0,
-      prisma.contract ? prisma.contract.count({
-        where: { property: { companyId: user.companyId } }
-      }).catch(() => 0) : 0,
-      prisma.payment ? prisma.payment.count({
-        where: { contract: { property: { companyId: user.companyId } } }
-      }).catch(() => 0) : 0,
-      prisma.tenant ? prisma.tenant.count({
-        where: { companyId: user.companyId }
-      }).catch(() => 0) : 0,
-      prisma.maintenance ? prisma.maintenance.count({
-        where: { property: { companyId: user.companyId } }
-      }).catch(() => 0) : 0
-    ])
+    // Contar dados básicos
+    console.log('📊 Contando dados básicos...')
+    
+    const userCount = await prisma.user.count({
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao contar users:', error)
+      return 0
+    })
+    
+    const companyCount = await prisma.company.count({
+      where: { id: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao contar companies:', error)
+      return 0
+    })
+    
+    const ownerCount = await prisma.owner.count({
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao contar owners:', error)
+      return 0
+    })
+    
+    const propertyCount = await prisma.property.count({
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao contar properties:', error)
+      return 0
+    })
+    
+    const bankAccountCount = await prisma.bankAccounts.count({
+      where: { 
+        owner: { companyId: user.companyId }
+      }
+    }).catch(error => {
+      console.error('Erro ao contar bankAccounts:', error)
+      return 0
+    })
+    
+    // Tabelas opcionais - contar com segurança
+    let leadCount = 0
+    let contractCount = 0
+    let paymentCount = 0
+    let tenantCount = 0
+    let maintenanceCount = 0
+    
+    try {
+      if (prisma.lead && typeof prisma.lead.count === 'function') {
+        leadCount = await prisma.lead.count({
+          where: { companyId: user.companyId }
+        })
+      }
+    } catch (error) {
+      console.log('Erro ao contar leads:', error.message)
+    }
+    
+    try {
+      if (prisma.contract && typeof prisma.contract.count === 'function') {
+        contractCount = await prisma.contract.count({
+          where: { property: { companyId: user.companyId } }
+        })
+      }
+    } catch (error) {
+      console.log('Erro ao contar contracts:', error.message)
+    }
+    
+    try {
+      if (prisma.payment && typeof prisma.payment.count === 'function') {
+        paymentCount = await prisma.payment.count({
+          where: { contract: { property: { companyId: user.companyId } } }
+        })
+      }
+    } catch (error) {
+      console.log('Erro ao contar payments:', error.message)
+    }
+    
+    try {
+      if (prisma.tenant && typeof prisma.tenant.count === 'function') {
+        tenantCount = await prisma.tenant.count({
+          where: { companyId: user.companyId }
+        })
+      }
+    } catch (error) {
+      console.log('Erro ao contar tenants:', error.message)
+    }
+    
+    try {
+      if (prisma.maintenance && typeof prisma.maintenance.count === 'function') {
+        maintenanceCount = await prisma.maintenance.count({
+          where: { property: { companyId: user.companyId } }
+        })
+      }
+    } catch (error) {
+      console.log('Erro ao contar maintenances:', error.message)
+    }
     
     const totalRecords = userCount + companyCount + ownerCount + propertyCount + bankAccountCount
     

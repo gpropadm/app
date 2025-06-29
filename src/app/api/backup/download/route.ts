@@ -17,63 +17,102 @@ export async function GET(request: NextRequest) {
 
     console.log('🛡️ Iniciando backup para download...', { userId: user.id, email: user.email })
     
-    // Buscar todos os dados
-    const [
-      users,
-      companies,
-      owners,
-      properties,
-      bankAccounts,
-      leads,
-      contracts,
-      payments,
-      tenants,
-      maintenances
-    ] = await Promise.all([
-      prisma.user.findMany({ 
-        where: { companyId: user.companyId },
-        include: { company: true } 
-      }),
-      prisma.company.findMany({
-        where: { id: user.companyId }
-      }),
-      prisma.owner.findMany({ 
-        where: { companyId: user.companyId },
-        include: { 
-          properties: true, 
-          bankAccounts: true 
-        } 
-      }),
-      prisma.property.findMany({ 
-        where: { companyId: user.companyId },
-        include: { 
-          owner: true,
-          tenants: true,
-          contracts: true 
-        } 
-      }),
-      prisma.bankAccounts.findMany({
-        where: { 
-          owner: { companyId: user.companyId }
-        }
-      }),
-      // Tabelas opcionais - verificar se existem
-      prisma.lead ? prisma.lead.findMany({ 
-        where: { companyId: user.companyId } 
-      }).catch(() => []) : [],
-      prisma.contract ? prisma.contract.findMany({
-        where: { property: { companyId: user.companyId } }
-      }).catch(() => []) : [],
-      prisma.payment ? prisma.payment.findMany({
-        where: { contract: { property: { companyId: user.companyId } } }
-      }).catch(() => []) : [],
-      prisma.tenant ? prisma.tenant.findMany({
-        where: { companyId: user.companyId }
-      }).catch(() => []) : [],
-      prisma.maintenance ? prisma.maintenance.findMany({
-        where: { property: { companyId: user.companyId } }
-      }).catch(() => []) : []
-    ])
+    // Buscar dados básicos primeiro
+    console.log('📊 Buscando dados básicos...')
+    
+    const users = await prisma.user.findMany({ 
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao buscar users:', error)
+      return []
+    })
+    
+    const companies = await prisma.company.findMany({
+      where: { id: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao buscar companies:', error)
+      return []
+    })
+    
+    const owners = await prisma.owner.findMany({ 
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao buscar owners:', error)
+      return []
+    })
+    
+    const properties = await prisma.property.findMany({ 
+      where: { companyId: user.companyId }
+    }).catch(error => {
+      console.error('Erro ao buscar properties:', error)
+      return []
+    })
+    
+    const bankAccounts = await prisma.bankAccounts.findMany({
+      where: { 
+        owner: { companyId: user.companyId }
+      }
+    }).catch(error => {
+      console.error('Erro ao buscar bankAccounts:', error)
+      return []
+    })
+    
+    // Tabelas opcionais - tentar buscar mas não falhar se não existirem
+    let leads = []
+    let contracts = []
+    let payments = []
+    let tenants = []
+    let maintenances = []
+    
+    try {
+      if (prisma.lead && typeof prisma.lead.findMany === 'function') {
+        leads = await prisma.lead.findMany({ 
+          where: { companyId: user.companyId } 
+        })
+      }
+    } catch (error) {
+      console.log('Tabela lead não encontrada ou erro:', error.message)
+    }
+    
+    try {
+      if (prisma.contract && typeof prisma.contract.findMany === 'function') {
+        contracts = await prisma.contract.findMany({
+          where: { property: { companyId: user.companyId } }
+        })
+      }
+    } catch (error) {
+      console.log('Tabela contract não encontrada ou erro:', error.message)
+    }
+    
+    try {
+      if (prisma.payment && typeof prisma.payment.findMany === 'function') {
+        payments = await prisma.payment.findMany({
+          where: { contract: { property: { companyId: user.companyId } } }
+        })
+      }
+    } catch (error) {
+      console.log('Tabela payment não encontrada ou erro:', error.message)
+    }
+    
+    try {
+      if (prisma.tenant && typeof prisma.tenant.findMany === 'function') {
+        tenants = await prisma.tenant.findMany({
+          where: { companyId: user.companyId }
+        })
+      }
+    } catch (error) {
+      console.log('Tabela tenant não encontrada ou erro:', error.message)
+    }
+    
+    try {
+      if (prisma.maintenance && typeof prisma.maintenance.findMany === 'function') {
+        maintenances = await prisma.maintenance.findMany({
+          where: { property: { companyId: user.companyId } }
+        })
+      }
+    } catch (error) {
+      console.log('Tabela maintenance não encontrada ou erro:', error.message)
+    }
     
     // Criar objeto de backup
     const backupData = {
