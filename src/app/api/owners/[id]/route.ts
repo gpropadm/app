@@ -178,7 +178,7 @@ export async function DELETE(
     // Delete bank accounts first (if any)
     try {
       console.log('🏦 Deleting bank accounts...')
-      const deletedBankAccounts = await prisma.bankAccounts.deleteMany({
+      const deletedBankAccounts = await prisma.bankAccount.deleteMany({
         where: { 
           ownerId: id
         }
