@@ -11,7 +11,7 @@ export async function GET(
       where: { id },
       include: {
         properties: true,
-        bankAccount: true
+        bankAccounts: true
       }
     })
 
@@ -44,13 +44,13 @@ export async function PUT(
     if (data.bankAccount) {
       const existingOwner = await prisma.owner.findUnique({
         where: { id },
-        include: { bankAccount: true }
+        include: { bankAccounts: true }
       })
 
-      if (existingOwner?.bankAccount) {
+      if (existingOwner?.bankAccounts && existingOwner.bankAccounts.length > 0) {
         // Update existing bank account
-        await prisma.bankAccount.update({
-          where: { ownerId: id },
+        await prisma.bankAccounts.update({
+          where: { id: existingOwner.bankAccounts[0].id },
           data: {
             bankName: data.bankAccount.bankName,
             accountType: data.bankAccount.accountType,
@@ -61,7 +61,7 @@ export async function PUT(
         })
       } else {
         // Create new bank account
-        await prisma.bankAccount.create({
+        await prisma.bankAccounts.create({
           data: {
             ownerId: id,
             bankName: data.bankAccount.bankName,
@@ -74,8 +74,10 @@ export async function PUT(
       }
     } else {
       // Remove bank account if it exists and data.bankAccount is null
-      await prisma.bankAccount.deleteMany({
-        where: { ownerId: id }
+      await prisma.bankAccounts.deleteMany({
+        where: { 
+          owner: { id: id }
+        }
       })
     }
 
@@ -94,7 +96,7 @@ export async function PUT(
       },
       include: {
         properties: true,
-        bankAccount: true
+        bankAccounts: true
       }
     })
 
@@ -116,8 +118,10 @@ export async function DELETE(
     const { id } = await params
     
     // First delete bank account if it exists
-    await prisma.bankAccount.deleteMany({
-      where: { ownerId: id }
+    await prisma.bankAccounts.deleteMany({
+      where: { 
+        owner: { id: id }
+      }
     })
     
     // Then delete the owner

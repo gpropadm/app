@@ -352,15 +352,15 @@ export default function Owners() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {owner.bankAccount ? (
+                      {owner.bankAccounts && owner.bankAccounts.length > 0 ? (
                         <div className="text-sm text-gray-900 dark:text-white">
-                          <div className="font-medium">{owner.bankAccount.bankName}</div>
-                          <div className="text-gray-500 dark:text-gray-400">{owner.bankAccount.accountType}</div>
+                          <div className="font-medium">{owner.bankAccounts[0].bankName}</div>
+                          <div className="text-gray-500 dark:text-gray-400">{owner.bankAccounts[0].accountType}</div>
                           <div className="text-gray-500 dark:text-gray-400">
-                            Ag: {owner.bankAccount.agency} | Conta: {owner.bankAccount.account}
+                            Ag: {owner.bankAccounts[0].agency} | Conta: {owner.bankAccounts[0].account}
                           </div>
-                          {owner.bankAccount.pixKey && (
-                            <div className="text-gray-500 dark:text-gray-400">PIX: {owner.bankAccount.pixKey}</div>
+                          {owner.bankAccounts[0].pixKey && (
+                            <div className="text-gray-500 dark:text-gray-400">PIX: {owner.bankAccounts[0].pixKey}</div>
                           )}
                         </div>
                       ) : (
@@ -369,11 +369,11 @@ export default function Owners() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        owner.bankAccount 
+                        (owner.bankAccounts && owner.bankAccounts.length > 0) 
                           ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400' 
                           : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
                       }`}>
-                        {owner.bankAccount ? 'Completo' : 'Pendente'}
+                        {(owner.bankAccounts && owner.bankAccounts.length > 0) ? 'Completo' : 'Pendente'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

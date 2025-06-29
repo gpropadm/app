@@ -44,7 +44,7 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
           city: owner.city || '',
           state: owner.state || '',
           zipCode: owner.zipCode || '',
-          bankAccount: owner.bankAccount || {
+          bankAccount: (owner.bankAccounts && owner.bankAccounts.length > 0) ? owner.bankAccounts[0] : {
             bankName: '',
             accountType: 'Conta Corrente',
             agency: '',
@@ -52,7 +52,7 @@ export function OwnerForm({ isOpen, onClose, onSubmit, owner }: OwnerFormProps) 
             pixKey: ''
           }
         })
-        setIncludeBankAccount(!!owner.bankAccount)
+        setIncludeBankAccount(owner.bankAccounts && owner.bankAccounts.length > 0)
       } else {
         resetForm()
       }
