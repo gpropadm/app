@@ -26,7 +26,12 @@
     "vercel:prod": "vercel deploy --prod",
     "analyze": "ANALYZE=true npm run build",
     "setup-db": "node scripts/setup-db.js",
-    "init-prod": "node scripts/init-production.js"
+    "init-prod": "node scripts/init-production.js",
+    "backup": "node scripts/backup-database.js",
+    "backup:list": "node scripts/restore-database.js --list",
+    "backup:restore": "node scripts/restore-database.js latest --force",
+    "backup:schedule": "node scripts/backup-scheduler.js start daily",
+    "backup:status": "node scripts/backup-scheduler.js status"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
