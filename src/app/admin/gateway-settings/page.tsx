@@ -221,64 +221,77 @@ export default function AdminGatewaySettings() {
                   </select>
                 </div>
 
-                {/* Credenciais PJBank */}
-                <div className="space-y-4 mb-6">
-                  <h3 className="text-md font-semibold">Credenciais PJBank</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Credencial (CNPJ Token)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.pjbank_credencial}
-                      onChange={(e) => handleInputChange('pjbank_credencial', e.target.value)}
-                      placeholder="1234567890abcdef..."
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                    />
+                {/* Credenciais condicionais baseadas na seleção */}
+                {formData.gateway_preference === 'pjbank' && (
+                  <div className="space-y-4 mb-6">
+                    <h3 className="text-md font-semibold text-blue-600">🏦 Credenciais PJBank</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Credencial (CNPJ Token) *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.pjbank_credencial}
+                        onChange={(e) => handleInputChange('pjbank_credencial', e.target.value)}
+                        placeholder="1234567890abcdef..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Chave Token *
+                      </label>
+                      <input
+                        type="password"
+                        value={formData.pjbank_chave}
+                        onChange={(e) => handleInputChange('pjbank_chave', e.target.value)}
+                        placeholder="abcdef1234567890..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        required
+                      />
+                    </div>
+                    <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
+                      💡 <strong>Dica:</strong> Essas credenciais são fornecidas pelo PJBank após aprovação da conta empresarial.
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Chave Token
-                    </label>
-                    <input
-                      type="password"
-                      value={formData.pjbank_chave}
-                      onChange={(e) => handleInputChange('pjbank_chave', e.target.value)}
-                      placeholder="abcdef1234567890..."
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                    />
-                  </div>
-                </div>
+                )}
 
-                {/* Credenciais Asaas */}
-                <div className="space-y-4 mb-6">
-                  <h3 className="text-md font-semibold">Credenciais Asaas</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      API Key
-                    </label>
-                    <input
-                      type="password"
-                      value={formData.asaas_api_key}
-                      onChange={(e) => handleInputChange('asaas_api_key', e.target.value)}
-                      placeholder="$aact_YTU5YjRlMjM5N2QyZjI4ZjY0NzFiMjN..."
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                    />
+                {formData.gateway_preference === 'asaas' && (
+                  <div className="space-y-4 mb-6">
+                    <h3 className="text-md font-semibold text-green-600">💳 Credenciais Asaas</h3>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        API Key *
+                      </label>
+                      <input
+                        type="password"
+                        value={formData.asaas_api_key}
+                        onChange={(e) => handleInputChange('asaas_api_key', e.target.value)}
+                        placeholder="$aact_YTU5YjRlMjM5N2QyZjI4ZjY0NzFiMjN..."
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ambiente *
+                      </label>
+                      <select
+                        value={formData.asaas_environment}
+                        onChange={(e) => handleInputChange('asaas_environment', e.target.value)}
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        required
+                      >
+                        <option value="sandbox">Sandbox (Teste)</option>
+                        <option value="production">Produção</option>
+                      </select>
+                    </div>
+                    <div className="bg-green-50 p-3 rounded-lg text-sm text-green-800">
+                      💡 <strong>Dica:</strong> Use o ambiente Sandbox para testes e Produção apenas quando aprovado pelo cliente.
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ambiente
-                    </label>
-                    <select
-                      value={formData.asaas_environment}
-                      onChange={(e) => handleInputChange('asaas_environment', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-lg"
-                    >
-                      <option value="sandbox">Sandbox (Teste)</option>
-                      <option value="production">Produção</option>
-                    </select>
-                  </div>
-                </div>
+                )}
 
                 {/* Botões */}
                 <div className="flex space-x-4 mb-6">
