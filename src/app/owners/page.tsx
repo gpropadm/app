@@ -18,13 +18,13 @@ interface Owner {
   state: string
   zipCode: string
   properties: Record<string, any>[]
-  bankAccount: {
+  bankAccounts: {
     bankName: string
     accountType: string
     agency: string
     account: string
     pixKey?: string
-  } | null
+  }[]
 }
 
 export default function Owners() {
@@ -266,7 +266,7 @@ export default function Owners() {
               <div>
                 <p className="text-sm font-medium text-gray-600">Com Conta Bancária</p>
                 <p className="text-2xl font-bold text-gray-900 mt-2">
-                  {owners.filter(owner => owner.bankAccount).length}
+                  {owners.filter(owner => owner.bankAccounts && owner.bankAccounts.length > 0).length}
                 </p>
               </div>
               <div className="bg-purple-50 p-3 rounded-lg">
@@ -417,11 +417,11 @@ export default function Owners() {
                   </div>
                 </div>
                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                  owner.bankAccount 
+                  (owner.bankAccounts && owner.bankAccounts.length > 0) 
                     ? 'bg-green-100 text-green-800' 
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
-                  {owner.bankAccount ? 'Completo' : 'Pendente'}
+                  {(owner.bankAccounts && owner.bankAccounts.length > 0) ? 'Completo' : 'Pendente'}
                 </span>
               </div>
 
@@ -446,8 +446,8 @@ export default function Owners() {
 
               <div className="flex items-center justify-between">
                 <div className="text-xs text-gray-500">
-                  {owner.bankAccount ? (
-                    <span>{owner.bankAccount.bankName} - {owner.bankAccount.accountType}</span>
+                  {(owner.bankAccounts && owner.bankAccounts.length > 0) ? (
+                    <span>{owner.bankAccounts[0].bankName} - {owner.bankAccounts[0].accountType}</span>
                   ) : (
                     <span>Dados bancários pendentes</span>
                   )}

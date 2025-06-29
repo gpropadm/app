@@ -10,6 +10,10 @@ export async function GET(request: NextRequest) {
       where: {
         userId: user.id // Only return owners that belong to the current user
       },
+      include: {
+        properties: true,
+        bankAccounts: true
+      },
       orderBy: {
         createdAt: 'desc'
       }
@@ -124,15 +128,37 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Owner created successfully:', owner.id)
     
-    // Bank account temporarily disabled - will be re-enabled after fixing schema
+    // Create bank account using raw SQL to avoid schema issues
     if (data.bankAccount && data.bankAccount.bankName) {
-      console.log('🏦 Bank account data received but temporarily disabled due to schema issues')
-      console.log('📝 Bank data would be:', {
-        bankName: data.bankAccount.bankName,
-        accountType: data.bankAccount.accountType,
-        agency: data.bankAccount.agency,
-        account: data.bankAccount.account
-      })
+      console.log('🏦 Creating bank account with raw SQL...')
+      try {
+        // Generate unique ID for bank account
+        const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
+        
+        // Use raw SQL to insert bank account
+        await prisma.$executeRawUnsafe(`
+          INSERT INTO "BankAccount" (
+            id, "ownerId", "bankName", "bankCode", "accountType", 
+            agency, account, "accountDigit", "pixKey", "isDefault", "isActive"
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        `,
+          bankId,
+          owner.id,
+          data.bankAccount.bankName,
+          data.bankAccount.bankCode || '000',
+          data.bankAccount.accountType,
+          data.bankAccount.agency,
+          data.bankAccount.account,
+          data.bankAccount.accountDigit || null,
+          data.bankAccount.pixKey || null,
+          true,
+          true
+        )
+        console.log('✅ Bank account created with raw SQL:', bankId)
+      } catch (bankError) {
+        console.error('⚠️ Bank account creation failed:', bankError)
+        // Continue without failing owner creation
+      }
     }
     
     // Fetch the complete owner with bank account

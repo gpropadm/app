@@ -62,16 +62,81 @@ export async function PUT(
 
     console.log('✅ Owner updated successfully:', owner.id)
     
-    // Bank account temporarily disabled - will be re-enabled after fixing schema
+    // Handle bank account with raw SQL
     let bankAccounts = []
     if (data.bankAccount && data.bankAccount.bankName) {
-      console.log('🏦 Bank account data received but temporarily disabled due to schema issues')
-      console.log('📝 Bank data would be:', {
-        bankName: data.bankAccount.bankName,
-        accountType: data.bankAccount.accountType,
-        agency: data.bankAccount.agency,
-        account: data.bankAccount.account
-      })
+      console.log('🏦 Processing bank account with raw SQL...')
+      try {
+        // Check if owner has existing bank account
+        const existingBankAccounts = await prisma.$queryRawUnsafe(`
+          SELECT * FROM "BankAccount" WHERE "ownerId" = $1
+        `, id)
+        
+        if (Array.isArray(existingBankAccounts) && existingBankAccounts.length > 0) {
+          // Update existing bank account
+          console.log('🏦 Updating existing bank account with raw SQL')
+          await prisma.$executeRawUnsafe(`
+            UPDATE "BankAccount" 
+            SET "bankName" = $2, "bankCode" = $3, "accountType" = $4, 
+                agency = $5, account = $6, "accountDigit" = $7, "pixKey" = $8
+            WHERE "ownerId" = $1
+          `,
+            id,
+            data.bankAccount.bankName,
+            data.bankAccount.bankCode || '000',
+            data.bankAccount.accountType,
+            data.bankAccount.agency,
+            data.bankAccount.account,
+            data.bankAccount.accountDigit || null,
+            data.bankAccount.pixKey || null
+          )
+          console.log('✅ Bank account updated with raw SQL')
+        } else {
+          // Create new bank account
+          console.log('🏦 Creating new bank account with raw SQL')
+          const bankId = `ba_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
+          
+          await prisma.$executeRawUnsafe(`
+            INSERT INTO "BankAccount" (
+              id, "ownerId", "bankName", "bankCode", "accountType", 
+              agency, account, "accountDigit", "pixKey", "isDefault", "isActive"
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+          `,
+            bankId,
+            id,
+            data.bankAccount.bankName,
+            data.bankAccount.bankCode || '000',
+            data.bankAccount.accountType,
+            data.bankAccount.agency,
+            data.bankAccount.account,
+            data.bankAccount.accountDigit || null,
+            data.bankAccount.pixKey || null,
+            true,
+            true
+          )
+          console.log('✅ New bank account created with raw SQL')
+        }
+        
+        // Fetch updated bank accounts
+        const updatedBankAccounts = await prisma.$queryRawUnsafe(`
+          SELECT * FROM "BankAccount" WHERE "ownerId" = $1
+        `, id)
+        
+        bankAccounts = Array.isArray(updatedBankAccounts) ? updatedBankAccounts : []
+        
+      } catch (bankError) {
+        console.error('⚠️ Bank account processing failed:', bankError)
+      }
+    } else {
+      console.log('🏦 No bank account data, removing existing if any...')
+      try {
+        await prisma.$executeRawUnsafe(`
+          DELETE FROM "BankAccount" WHERE "ownerId" = $1
+        `, id)
+        console.log('✅ Existing bank accounts removed')
+      } catch (deleteError) {
+        console.error('⚠️ Bank account deletion failed:', deleteError)
+      }
     }
     
     // Return owner with bank accounts
