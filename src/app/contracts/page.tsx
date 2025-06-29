@@ -104,6 +104,8 @@ export default function Contracts() {
 
   const handleCreateContract = async (data: any) => {
     try {
+      console.log('📋 Creating contract with data:', data)
+      
       const response = await fetch('/api/contracts', {
         method: 'POST',
         headers: {
@@ -112,16 +114,21 @@ export default function Contracts() {
         body: JSON.stringify(data),
       })
 
+      console.log('📡 Contract creation response status:', response.status)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log('✅ Contract created successfully:', result)
         await fetchContracts()
         setShowForm(false)
         showSuccess('Contrato criado!', 'O contrato foi cadastrado com sucesso.')
       } else {
         const errorData = await response.json()
-        showError('Erro ao criar contrato', errorData.error || 'Tente novamente.')
+        console.error('❌ Contract creation failed:', errorData)
+        showError('Erro ao criar contrato', errorData.error || errorData.details || 'Tente novamente.')
       }
     } catch (error) {
-      console.error('Error creating contract:', error)
+      console.error('❌ Network error creating contract:', error)
       showError('Erro ao criar contrato', 'Verifique sua conexão e tente novamente.')
     }
   }
