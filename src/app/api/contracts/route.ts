@@ -136,17 +136,8 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // 🚀 GERAR PAGAMENTOS AUTOMATICAMENTE
-    if (contract.status === 'ACTIVE') {
-      console.log('📅 Gerando pagamentos automaticamente para novo contrato:', contract.id)
-      try {
-        await generatePaymentsForContract(contract.id)
-        console.log('✅ Pagamentos gerados com sucesso!')
-      } catch (error) {
-        console.error('❌ Erro ao gerar pagamentos:', error)
-        // Não falhar a criação do contrato se a geração de pagamentos falhar
-      }
-    }
+    // 🚀 GERAÇÃO DE PAGAMENTOS DESABILITADA TEMPORARIAMENTE (gateway em desenvolvimento)
+    console.log('⚠️ Geração automática de pagamentos desabilitada - gateway em desenvolvimento')
 
     return NextResponse.json(contract, { status: 201 })
   } catch (error) {
