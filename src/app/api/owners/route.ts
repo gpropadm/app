@@ -10,18 +10,35 @@ export async function GET(request: NextRequest) {
     console.log('✅ User authenticated:', { id: user.id, email: user.email, companyId: user.companyId })
     
     console.log('📊 Fetching owners for user:', user.id)
-    const owners = await prisma.owner.findMany({
-      where: {
-        userId: user.id // Only return owners that belong to the current user
-      },
-      include: {
-        properties: true,
-        bankAccounts: true
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+    // Try with bankAccounts first, fallback without if column missing
+    let owners
+    try {
+      owners = await prisma.owner.findMany({
+        where: {
+          userId: user.id
+        },
+        include: {
+          properties: true,
+          bankAccounts: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+    } catch (bankError) {
+      console.warn('⚠️ Bank accounts query failed, trying without:', bankError)
+      owners = await prisma.owner.findMany({
+        where: {
+          userId: user.id
+        },
+        include: {
+          properties: true
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      })
+    }
 
     console.log(`✅ Found ${owners.length} owners for user ${user.id}`)
     return NextResponse.json(owners)
