@@ -76,7 +76,7 @@ export async function PUT(
       // Remove bank account if it exists and data.bankAccount is null
       await prisma.bankAccounts.deleteMany({
         where: { 
-          owner: { id: id }
+          ownerId: id
         }
       })
     }
@@ -120,7 +120,7 @@ export async function DELETE(
     // First delete bank account if it exists
     await prisma.bankAccounts.deleteMany({
       where: { 
-        owner: { id: id }
+        ownerId: id
       }
     })
     

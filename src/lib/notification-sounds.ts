@@ -617,11 +617,21 @@ export class NotificationSounds {
 }
 
 // Singleton instance
-export const notificationSounds = new NotificationSounds()
+let notificationSoundsInstance: NotificationSounds | null = null
+
+// Get or create singleton instance
+export const getNotificationSounds = () => {
+  if (!notificationSoundsInstance) {
+    notificationSoundsInstance = new NotificationSounds()
+  }
+  return notificationSoundsInstance
+}
+
+export const notificationSounds = getNotificationSounds()
 
 // Expose globally for console testing (browser only) - APENAS QUANDO SOLICITADO
 if (typeof window !== 'undefined') {
-  // Evitar múltiplas instâncias
+  // Evitar múltiplas instâncias - usar singleton global
   if (!(window as any).notificationSounds) {
     (window as any).notificationSounds = notificationSounds
     console.log('🎵 NotificationSounds disponível via window.notificationSounds')
