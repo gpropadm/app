@@ -82,6 +82,21 @@ export default function Expenses() {
     return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0
   }
 
+  // Função para formatar data sem problemas de fuso horário
+  const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    
+    // Se a data vem no formato YYYY-MM-DD, usar diretamente
+    if (dateString.includes('-') && dateString.length === 10) {
+      const [year, month, day] = dateString.split('-')
+      return `${day}/${month}/${year}`
+    }
+    
+    // Para outros formatos, usar toLocaleDateString com configuração UTC
+    const date = new Date(dateString + 'T00:00:00')
+    return date.toLocaleDateString('pt-BR')
+  }
+
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -457,7 +472,7 @@ export default function Expenses() {
                         <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Data:</div>
                         <div className="flex items-center text-gray-900 dark:text-white">
                           <Calendar className="w-4 h-4 mr-2" />
-                          <span className="font-medium">{new Date(expense.date).toLocaleDateString('pt-BR')}</span>
+                          <span className="font-medium">{formatDate(expense.date)}</span>
                         </div>
                       </div>
                       <div>
