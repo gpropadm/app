@@ -30,15 +30,14 @@ import {
 // OPÇÃO 1: Ícones mais modernos
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-  { icon: Building, label: 'Imóveis', href: '/properties' },
   { icon: Users, label: 'Proprietários', href: '/owners' },
+  { icon: Building, label: 'Imóveis', href: '/properties' },
   { icon: User, label: 'Inquilinos', href: '/tenants' },
   { icon: FileText, label: 'Contratos', href: '/contracts' },
   { icon: Receipt, label: 'Pagamentos', href: '/payments' },
   { icon: TrendingDown, label: 'Despesas', href: '/expenses' },
   { icon: Calculator, label: 'Financeiro', href: '/financial' },
   { icon: Zap, label: 'Leads', href: '/leads' },
-  { icon: MessageSquare, label: 'Chat OLX', href: '/olx-chat' },
   { icon: CreditCard, label: 'PIX Pagamento', href: '/pix' },
   { icon: Wallet, label: 'Gateway', href: '/gateway' },
   { icon: UserPlus, label: 'Usuários', href: '/users', adminOnly: true },
