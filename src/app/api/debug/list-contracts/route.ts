@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
     
     console.log('📋 Listing contracts for user:', { id: user.id, email: user.email, isAdmin: userIsAdmin })
     
-    // Get user's contracts (both admin and regular users can see their own contracts)
+    // Get contracts based on user permissions
     const contracts = await prisma.contract.findMany({
-      where: { userId: user.id },
+      where: userIsAdmin ? {} : { userId: user.id },
       include: {
         property: {
           select: {
@@ -43,8 +43,10 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
+      userInfo: { id: user.id, email: user.email, isAdmin: userIsAdmin },
       contracts: contracts.map(contract => ({
         id: contract.id,
+        userId: contract.userId,
         status: contract.status,
         startDate: contract.startDate,
         endDate: contract.endDate,
@@ -52,7 +54,8 @@ export async function GET(request: NextRequest) {
         property: contract.property,
         tenant: contract.tenant,
         paymentsCount: contract.payments.length,
-        payments: contract.payments
+        payments: contract.payments,
+        canAccess: userIsAdmin || contract.userId === user.id
       }))
     })
     
