@@ -71,13 +71,22 @@ export default function Expenses() {
 
   // Função para mostrar notificações
   const showNotification = (type: 'success' | 'error', message: string) => {
+    console.log('🔔 Showing notification:', { type, message })
     setNotification({ type, message })
-    setTimeout(() => setNotification(null), 4000) // Remove após 4 segundos
+    setTimeout(() => {
+      console.log('🔔 Removing notification')
+      setNotification(null)
+    }, 4000) // Remove após 4 segundos
   }
 
   useEffect(() => {
     fetchExpenses()
   }, [filterYear, filterMonth])
+
+  // Debug notification state
+  useEffect(() => {
+    console.log('🔔 Notification state changed:', notification)
+  }, [notification])
 
   const initializeExpensesTable = async () => {
     try {
@@ -136,6 +145,8 @@ export default function Expenses() {
       })
 
       if (response.ok) {
+        const responseData = await response.json()
+        console.log('✅ Response data:', responseData)
         await fetchExpenses()
         setShowModal(false)
         setEditingExpense(null)
@@ -147,7 +158,9 @@ export default function Expenses() {
           type: 'operational',
           notes: ''
         })
-        showNotification('success', editingExpense ? 'Despesa atualizada com sucesso!' : 'Despesa criada com sucesso!')
+        const message = responseData.message || (editingExpense ? 'Despesa atualizada com sucesso!' : 'Despesa criada com sucesso!')
+        console.log('📝 About to show notification:', message)
+        showNotification('success', message)
       } else {
         const errorData = await response.json()
         
@@ -216,8 +229,12 @@ export default function Expenses() {
       })
 
       if (response.ok) {
+        const responseData = await response.json()
+        console.log('✅ Delete response data:', responseData)
         await fetchExpenses()
-        showNotification('success', 'Despesa excluída com sucesso!')
+        const message = responseData.message || 'Despesa excluída com sucesso!'
+        console.log('📝 About to show delete notification:', message)
+        showNotification('success', message)
       } else {
         showNotification('error', 'Erro ao excluir despesa')
       }
@@ -632,7 +649,7 @@ export default function Expenses() {
         {/* Notification Toast */}
         {notification && (
           <div 
-            className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-out animate-in slide-in-from-right max-w-md ${
+            className={`fixed top-4 right-4 z-[9999] px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-out animate-in slide-in-from-right max-w-md ${
               notification.type === 'success' 
                 ? 'bg-green-600 text-white' 
                 : 'bg-red-600 text-white'
