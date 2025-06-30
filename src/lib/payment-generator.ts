@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/db'
 import { addOneMonth } from './date-utils'
-
-const prisma = new PrismaClient()
 
 export async function generatePaymentsForContract(contractId: string) {
   console.log('🔄 Gerando pagamentos automaticamente para contrato:', contractId)
@@ -71,7 +69,8 @@ export async function generatePaymentsForContract(contractId: string) {
           amount: contract.rentAmount,
           dueDate: paymentDate,
           status,
-          paidDate
+          paidDate,
+          gateway: 'MANUAL' // Default gateway
         }
       })
       
