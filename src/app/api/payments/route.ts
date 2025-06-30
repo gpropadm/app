@@ -35,16 +35,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([])
     }
     
-    // Get current month date range + next 2 months to show recent contracts
+    // Get current month date range ONLY
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth() + 1
     
-    // Get payments for current month + next 2 months (to catch new contracts)
+    // Get payments for current month only
     const startDate = new Date(currentYear, currentMonth - 1, 1) // First day of current month
-    const endDate = new Date(currentYear, currentMonth + 2, 1) // First day of month +3
+    const endDate = new Date(currentYear, currentMonth, 1) // First day of next month
     
-    console.log('🗓️ Searching payments between:', startDate.toISOString(), 'and', endDate.toISOString())
+    console.log('🗓️ Searching payments for current month only:', startDate.toISOString(), 'to', endDate.toISOString())
     
     const allPayments = await prisma.payment.findMany({
       where: {
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log(`📊 Encontrados ${allPayments.length} pagamentos do mês ${currentMonth}/${currentYear} para o usuário ${user.email} (Admin: ${userIsAdmin})`)
+    console.log(`📊 Encontrados ${allPayments.length} pagamentos do mês atual (${currentMonth}/${currentYear}) para o usuário ${user.email} (Admin: ${userIsAdmin})`)
 
     // Now enrich with basic contract info
     const enrichedPayments = await Promise.all(
