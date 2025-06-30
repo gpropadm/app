@@ -14,7 +14,10 @@ import {
   Edit,
   Receipt,
   TrendingDown,
-  Filter
+  Filter,
+  CheckCircle,
+  AlertTriangle,
+  X
 } from 'lucide-react'
 
 interface Expense {
@@ -55,6 +58,7 @@ export default function Expenses() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1)
   const [filterYear, setFilterYear] = useState(new Date().getFullYear())
+  const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
 
   const [formData, setFormData] = useState({
     description: '',
@@ -64,6 +68,12 @@ export default function Expenses() {
     type: 'operational',
     notes: ''
   })
+
+  // Função para mostrar notificações
+  const showNotification = (type: 'success' | 'error', message: string) => {
+    setNotification({ type, message })
+    setTimeout(() => setNotification(null), 4000) // Remove após 4 segundos
+  }
 
   useEffect(() => {
     fetchExpenses()
@@ -137,7 +147,7 @@ export default function Expenses() {
           type: 'operational',
           notes: ''
         })
-        alert(editingExpense ? 'Despesa atualizada!' : 'Despesa criada!')
+        showNotification('success', editingExpense ? 'Despesa atualizada com sucesso!' : 'Despesa criada com sucesso!')
       } else {
         const errorData = await response.json()
         
@@ -165,17 +175,17 @@ export default function Expenses() {
                 type: 'operational',
                 notes: ''
               })
-              alert(editingExpense ? 'Despesa atualizada!' : 'Despesa criada!')
+              showNotification('success', editingExpense ? 'Despesa atualizada com sucesso!' : 'Despesa criada com sucesso!')
               return
             }
           }
         }
         
-        alert(errorData.error || 'Erro ao salvar despesa')
+        showNotification('error', errorData.error || 'Erro ao salvar despesa')
       }
     } catch (error) {
       console.error('Error saving expense:', error)
-      alert('Erro ao salvar despesa')
+      showNotification('error', 'Erro ao salvar despesa')
     }
   }
 
@@ -207,13 +217,13 @@ export default function Expenses() {
 
       if (response.ok) {
         await fetchExpenses()
-        alert('Despesa excluída!')
+        showNotification('success', 'Despesa excluída com sucesso!')
       } else {
-        alert('Erro ao excluir despesa')
+        showNotification('error', 'Erro ao excluir despesa')
       }
     } catch (error) {
       console.error('Error deleting expense:', error)
-      alert('Erro ao excluir despesa')
+      showNotification('error', 'Erro ao excluir despesa')
     } finally {
       setExpenseToDelete(null)
     }
@@ -618,6 +628,64 @@ export default function Expenses() {
           confirmText="Sim, excluir"
           cancelText="Cancelar"
         />
+
+        {/* Notification Toast */}
+        {notification && (
+          <div 
+            className={`fixed top-4 right-4 z-50 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 ease-out animate-in slide-in-from-right max-w-md ${
+              notification.type === 'success' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-red-600 text-white'
+            }`}
+          >
+            <div className="flex items-center">
+              {notification.type === 'success' ? (
+                <CheckCircle className="w-5 h-5 mr-2" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 mr-2" />
+              )}
+              <span className="font-medium">{notification.message}</span>
+              <button
+                onClick={() => setNotification(null)}
+                className="ml-4 text-white hover:text-gray-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mt-2 h-1 bg-white/20 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-white/60 rounded-full transition-all duration-4000 ease-linear"
+                style={{ 
+                  width: '100%',
+                  animation: 'shrink 4s linear forwards'
+                }}
+              />
+            </div>
+          </div>
+        )}
+
+        <style jsx>{`
+          @keyframes shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+          }
+          @keyframes animate-in {
+            from {
+              opacity: 0;
+              transform: translateX(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+          .animate-in {
+            animation: animate-in 0.3s ease-out;
+          }
+          .slide-in-from-right {
+            animation: animate-in 0.3s ease-out;
+          }
+        `}</style>
       </div>
     </DashboardLayout>
   )
