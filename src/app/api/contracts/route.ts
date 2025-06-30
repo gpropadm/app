@@ -96,12 +96,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify that the tenant exists and belongs to the current user (unless admin)
+    console.log('🔍 Looking for tenant with ID:', data.tenantId)
+    
     const tenant = await prisma.tenant.findUnique({
       where: { id: data.tenantId }
     })
 
+    console.log('🔍 Tenant found:', tenant ? `Yes - ${tenant.name} (${tenant.email})` : 'No')
+
     if (!tenant) {
-      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 })
+      // Let's also check what tenants are available
+      const allTenants = await prisma.tenant.findMany({
+        select: { id: true, name: true, email: true }
+      })
+      console.log('📋 Available tenants:', allTenants)
+      
+      return NextResponse.json({ 
+        error: 'Tenant not found',
+        requestedId: data.tenantId,
+        availableTenants: allTenants
+      }, { status: 404 })
     }
 
     if (!userIsAdmin && tenant.userId !== user.id) {
