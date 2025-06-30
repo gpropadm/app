@@ -55,3 +55,25 @@ export async function requireAuthWithCompany(request: NextRequest) {
   
   return user
 }
+
+export async function isUserAdmin(userId: string): Promise<boolean> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, role: true }
+    })
+    
+    if (!user) return false
+    
+    // Check explicit admin role
+    const isExplicitAdmin = user.role === 'ADMIN'
+    
+    // Check fallback admin criteria (ID = 1 or email contains admin)
+    const isFallbackAdmin = user.id === '1' || user.email?.toLowerCase().includes('admin')
+    
+    return isExplicitAdmin || isFallbackAdmin
+  } catch (error) {
+    console.error('Error checking admin status:', error)
+    return false
+  }
+}

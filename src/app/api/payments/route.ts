@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/auth-middleware'
+import { requireAuth, isUserAdmin } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,17 +8,32 @@ export async function GET(request: NextRequest) {
     const user = await requireAuth(request)
     console.log('👤 Usuário autenticado:', { id: user.id, email: user.email })
     
-    // First check if user has contracts
-    const userContracts = await prisma.contract.findMany({
-      where: { userId: user.id },
-      select: { id: true }
-    })
+    // Check if user is admin
+    const userIsAdmin = await isUserAdmin(user.id)
+    console.log('🔐 Usuário é admin:', userIsAdmin)
     
-    console.log(`📊 Usuário tem ${userContracts.length} contratos`)
+    let contractIds: string[] = []
     
-    if (userContracts.length === 0) {
-      console.log('📭 Nenhum contrato encontrado, retornando array vazio')
-      return NextResponse.json([])
+    if (userIsAdmin) {
+      // Admin can see all payments - get all contract IDs
+      const allContracts = await prisma.contract.findMany({
+        select: { id: true }
+      })
+      contractIds = allContracts.map(c => c.id)
+      console.log(`🔧 Admin: carregando ${contractIds.length} contratos do sistema`)
+    } else {
+      // Regular user - only their contracts
+      const userContracts = await prisma.contract.findMany({
+        where: { userId: user.id },
+        select: { id: true }
+      })
+      contractIds = userContracts.map(c => c.id)
+      console.log(`👤 Usuário regular: ${contractIds.length} contratos próprios`)
+      
+      if (contractIds.length === 0) {
+        console.log('📭 Nenhum contrato encontrado, retornando array vazio')
+        return NextResponse.json([])
+      }
     }
 
     // Check if payments table exists and has data
@@ -36,7 +51,6 @@ export async function GET(request: NextRequest) {
     const currentMonth = currentDate.getMonth() + 1
     
     // Get payments only for current month
-    const contractIds = userContracts.map(c => c.id)
     
     const allPayments = await prisma.payment.findMany({
       where: {
@@ -61,7 +75,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log(`📊 Encontrados ${allPayments.length} pagamentos do mês ${currentMonth}/${currentYear} para o usuário ${user.email}`)
+    console.log(`📊 Encontrados ${allPayments.length} pagamentos do mês ${currentMonth}/${currentYear} para o usuário ${user.email} (Admin: ${userIsAdmin})`)
 
     // Now enrich with basic contract info
     const enrichedPayments = await Promise.all(

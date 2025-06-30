@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/auth-middleware'
+import { requireAuth, isUserAdmin } from '@/lib/auth-middleware'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,16 +8,31 @@ export async function GET(request: NextRequest) {
     const user = await requireAuth(request)
     console.log('User:', user.email)
     
-    // Get user's contracts
-    const userContracts = await prisma.contract.findMany({
-      where: { userId: user.id },
-      select: { id: true }
-    })
+    // Check if user is admin
+    const userIsAdmin = await isUserAdmin(user.id)
+    console.log('🔐 Usuário é admin:', userIsAdmin)
     
-    const contractIds = userContracts.map(c => c.id)
+    let contractIds: string[] = []
     
-    if (contractIds.length === 0) {
-      return NextResponse.json([])
+    if (userIsAdmin) {
+      // Admin can see all payments - get all contract IDs
+      const allContracts = await prisma.contract.findMany({
+        select: { id: true }
+      })
+      contractIds = allContracts.map(c => c.id)
+      console.log(`🔧 Admin: carregando ${contractIds.length} contratos do sistema`)
+    } else {
+      // Regular user - only their contracts
+      const userContracts = await prisma.contract.findMany({
+        where: { userId: user.id },
+        select: { id: true }
+      })
+      contractIds = userContracts.map(c => c.id)
+      console.log(`👤 Usuário regular: ${contractIds.length} contratos próprios`)
+      
+      if (contractIds.length === 0) {
+        return NextResponse.json([])
+      }
     }
     
     // Get payments with minimal data - NO INCLUDES
