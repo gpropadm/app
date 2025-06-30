@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
-import { requireAuth } from '@/lib/auth-middleware'
+import { requireAuth, isUserAdmin } from '@/lib/auth-middleware'
 import { generatePaymentsForContract } from '@/lib/payment-generator'
 
 export async function GET(request: NextRequest) {
@@ -74,6 +74,10 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request)
     console.log('✅ User authenticated:', { id: user.id, email: user.email })
     
+    // Check if user is admin
+    const userIsAdmin = await isUserAdmin(user.id)
+    console.log('🔐 User is admin:', userIsAdmin)
+    
     const data = await request.json()
     console.log('📝 Contract data received:', data)
     
@@ -86,17 +90,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Property not found' }, { status: 404 })
     }
 
-    // Verify that the property belongs to the current user
-    if (property.userId !== user.id) {
+    // Verify that the property belongs to the current user (unless admin)
+    if (!userIsAdmin && property.userId !== user.id) {
       return NextResponse.json({ error: 'Unauthorized access to property' }, { status: 403 })
     }
 
-    // Verify that the tenant belongs to the current user
+    // Verify that the tenant exists and belongs to the current user (unless admin)
     const tenant = await prisma.tenant.findUnique({
       where: { id: data.tenantId }
     })
 
-    if (!tenant || tenant.userId !== user.id) {
+    if (!tenant) {
+      return NextResponse.json({ error: 'Tenant not found' }, { status: 404 })
+    }
+
+    if (!userIsAdmin && tenant.userId !== user.id) {
       return NextResponse.json({ error: 'Unauthorized access to tenant' }, { status: 403 })
     }
 
