@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
           contractId: contract.id,
           amount: contract.rentAmount,
           dueDate: new Date(currentDate),
-          status: 'PENDING',
-          gateway: 'MANUAL' // Default gateway
+          status: 'PENDING'
+          // Removed gateway field - may not exist in current schema
         }
       })
       
