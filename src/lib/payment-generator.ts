@@ -49,29 +49,20 @@ export async function generatePaymentsForContract(contractId: string) {
       const paymentMonth = paymentDate.getMonth()
       const paymentYear = paymentDate.getFullYear()
       
-      // 🎯 NOVA LÓGICA: Todos os meses anteriores ao mês atual = PAID
-      // Mês atual e futuros = PENDING
+      // 🎯 LÓGICA CONFORME SOLICITADO:
+      // - Meses anteriores ao atual = EM ABERTO (OVERDUE)
+      // - Mês atual e futuros = A VENCER (PENDING)
       let status: 'PENDING' | 'PAID' | 'OVERDUE' = 'PENDING'
       let paidDate = null
       
       if (paymentYear < currentYear || (paymentYear === currentYear && paymentMonth < currentMonth)) {
-        // Meses anteriores ao atual = automaticamente PAID
-        status = 'PAID'
-        paidDate = new Date(paymentDate.getTime() - Math.random() * 10 * 86400000) // Pago de 1-10 dias antes do vencimento
-        console.log(`  💰 ${paymentDate.toLocaleDateString('pt-BR')} - PAID (mês anterior ao atual)`)
-      } else if (paymentYear === currentYear && paymentMonth === currentMonth) {
-        // Mês atual: verificar se já venceu
-        if (paymentDate < currentDate) {
-          status = 'OVERDUE'
-          console.log(`  ⚠️  ${paymentDate.toLocaleDateString('pt-BR')} - OVERDUE (mês atual, já vencido)`)
-        } else {
-          status = 'PENDING'
-          console.log(`  ⏳ ${paymentDate.toLocaleDateString('pt-BR')} - PENDING (mês atual, ainda não vencido)`)
-        }
+        // Meses anteriores ao atual = EM ABERTO (OVERDUE)
+        status = 'OVERDUE'
+        console.log(`  🔴 ${paymentDate.toLocaleDateString('pt-BR')} - EM ABERTO (mês anterior ao atual)`)
       } else {
-        // Meses futuros = PENDING
+        // Mês atual e futuros = A VENCER (PENDING)
         status = 'PENDING'
-        console.log(`  📅 ${paymentDate.toLocaleDateString('pt-BR')} - PENDING (mês futuro)`)
+        console.log(`  🟡 ${paymentDate.toLocaleDateString('pt-BR')} - A VENCER (mês atual ou futuro)`)
       }
       
       const payment = await prisma.payment.create({

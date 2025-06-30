@@ -158,8 +158,15 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    // 🚀 GERAÇÃO DE PAGAMENTOS DESABILITADA TEMPORARIAMENTE (gateway em desenvolvimento)
-    console.log('⚠️ Geração automática de pagamentos desabilitada - gateway em desenvolvimento')
+    // 🚀 GERAR PAGAMENTOS AUTOMATICAMENTE
+    console.log('💰 Gerando pagamentos automaticamente para o contrato...')
+    try {
+      await generatePaymentsForContract(contract.id)
+      console.log('✅ Pagamentos gerados com sucesso!')
+    } catch (error) {
+      console.error('❌ Erro ao gerar pagamentos:', error)
+      // Não falhar a criação do contrato por causa dos pagamentos
+    }
 
     return NextResponse.json(contract, { status: 201 })
   } catch (error) {
