@@ -7,9 +7,7 @@ export async function POST(request: NextRequest) {
     const user = await requireAuth(request)
     const userIsAdmin = await isUserAdmin(user.id)
     
-    if (!userIsAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-    }
+    console.log('🔧 User attempting to generate payments:', { id: user.id, email: user.email, isAdmin: userIsAdmin })
     
     const { contractId } = await request.json()
     
@@ -19,9 +17,9 @@ export async function POST(request: NextRequest) {
     
     console.log('🔧 Generating payments for contract:', contractId)
     
-    // Get contract details - admin can access any contract
+    // Get contract details - admin can access any contract, user can access their own contracts
     const contract = await prisma.contract.findFirst({
-      where: { id: contractId },
+      where: userIsAdmin ? { id: contractId } : { id: contractId, userId: user.id },
       include: {
         property: true,
         tenant: true
@@ -29,7 +27,18 @@ export async function POST(request: NextRequest) {
     })
     
     if (!contract) {
-      return NextResponse.json({ error: 'Contract not found' }, { status: 404 })
+      return NextResponse.json({ 
+        error: 'Contract not found or access denied',
+        message: userIsAdmin ? 'Contract does not exist' : 'You can only generate payments for your own contracts'
+      }, { status: 404 })
+    }
+    
+    // Verify user permission
+    if (!userIsAdmin && contract.userId !== user.id) {
+      return NextResponse.json({ 
+        error: 'Access denied',
+        message: 'You can only generate payments for contracts you created'
+      }, { status: 403 })
     }
     
     // Check if payments already exist - using only basic fields

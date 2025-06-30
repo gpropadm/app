@@ -7,13 +7,9 @@ export async function GET(request: NextRequest) {
     const user = await requireAuth(request)
     const userIsAdmin = await isUserAdmin(user.id)
     
-    if (!userIsAdmin) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
-    }
+    console.log('📋 Listing contracts for user:', { id: user.id, email: user.email, isAdmin: userIsAdmin })
     
-    console.log('📋 Listing contracts for admin user:', user.id)
-    
-    // Get admin's contracts
+    // Get user's contracts (both admin and regular users can see their own contracts)
     const contracts = await prisma.contract.findMany({
       where: { userId: user.id },
       include: {
