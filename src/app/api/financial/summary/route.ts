@@ -30,11 +30,24 @@ export async function GET(request: NextRequest) {
           lt: new Date(currentYear, currentMonth, 1) // Primeiro dia do próximo mês
         }
       },
-      include: {
+      select: {
+        id: true,
+        amount: true,
+        paidDate: true,
         contract: {
-          include: {
-            property: true,
-            tenant: true
+          select: {
+            id: true,
+            administrationFeePercentage: true,
+            property: {
+              select: {
+                title: true
+              }
+            },
+            tenant: {
+              select: {
+                name: true
+              }
+            }
           }
         }
       }
@@ -111,8 +124,14 @@ export async function GET(request: NextRequest) {
           lt: new Date(previousYear, previousMonth, 1)
         }
       },
-      include: {
-        contract: true
+      select: {
+        id: true,
+        amount: true,
+        contract: {
+          select: {
+            administrationFeePercentage: true
+          }
+        }
       }
     })
     
