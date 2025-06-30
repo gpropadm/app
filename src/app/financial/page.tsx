@@ -70,15 +70,20 @@ export default function Financial() {
   const fetchFinancialSummary = async () => {
     try {
       setLoading(true)
+      console.log('💰 Fetching financial summary...')
       const response = await fetch('/api/financial/summary')
+      console.log('📡 Financial API response status:', response.status)
+      
       if (response.ok) {
         const data = await response.json()
+        console.log('📊 Financial data received:', data)
         setFinancialData(data)
       } else {
-        console.error('Failed to fetch financial summary')
+        const errorData = await response.json().catch(() => ({}))
+        console.error('❌ Failed to fetch financial summary:', response.status, errorData)
       }
     } catch (error) {
-      console.error('Error fetching financial data:', error)
+      console.error('❌ Error fetching financial data:', error)
     } finally {
       setLoading(false)
     }
@@ -392,6 +397,13 @@ export default function Financial() {
             Atualizar
           </button>
         </div>
+
+        {/* Debug Info */}
+        {!financialData && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-yellow-800">⚠️ Nenhum dado financeiro carregado. Verifique o console para detalhes.</p>
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
