@@ -86,15 +86,31 @@ export default function Expenses() {
   const formatDate = (dateString: string) => {
     if (!dateString) return ''
     
-    // Se a data vem no formato YYYY-MM-DD, usar diretamente
-    if (dateString.includes('-') && dateString.length === 10) {
-      const [year, month, day] = dateString.split('-')
-      return `${day}/${month}/${year}`
+    try {
+      // Se a data vem no formato YYYY-MM-DD, usar diretamente
+      if (dateString.includes('-') && dateString.length === 10) {
+        const [year, month, day] = dateString.split('-')
+        return `${day}/${month}/${year}`
+      }
+      
+      // Se a data vem no formato ISO, extrair apenas a parte da data
+      if (dateString.includes('T')) {
+        const datePart = dateString.split('T')[0]
+        const [year, month, day] = datePart.split('-')
+        return `${day}/${month}/${year}`
+      }
+      
+      // Para outros formatos, tentar parsear
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return dateString // Retorna o original se não conseguir parsear
+      }
+      
+      return date.toLocaleDateString('pt-BR')
+    } catch (error) {
+      console.error('Error formatting date:', error, dateString)
+      return dateString // Retorna o original em caso de erro
     }
-    
-    // Para outros formatos, usar toLocaleDateString com configuração UTC
-    const date = new Date(dateString + 'T00:00:00')
-    return date.toLocaleDateString('pt-BR')
   }
 
   const [formData, setFormData] = useState({
