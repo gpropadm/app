@@ -558,6 +558,19 @@ export default function Payments() {
   const filteredPayments = payments.filter(payment => {
     if (!payment || !payment.tenant || !payment.property) return false
     
+    // 🗓️ FILTRO POR MÊS ATUAL
+    const currentDate = new Date()
+    const currentMonth = currentDate.getMonth()
+    const currentYear = currentDate.getFullYear()
+    
+    const paymentDate = new Date(payment.dueDate)
+    const paymentMonth = paymentDate.getMonth()
+    const paymentYear = paymentDate.getFullYear()
+    
+    // Mostrar apenas pagamentos do mês atual
+    const isCurrentMonth = paymentMonth === currentMonth && paymentYear === currentYear
+    if (!isCurrentMonth) return false
+    
     const matchesSearch = 
       payment.tenant.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
       payment.property.title?.toLowerCase()?.includes(searchTerm.toLowerCase())
@@ -579,21 +592,31 @@ export default function Payments() {
     return matchesSearch && matchesStatus
   })
 
-  // Calcular estatísticas com lógica mais clara
-  const pendingPayments = payments.filter(p => {
+  // Calcular estatísticas APENAS DO MÊS ATUAL
+  const currentDate = new Date()
+  const currentMonth = currentDate.getMonth()
+  const currentYear = currentDate.getFullYear()
+  
+  const currentMonthPayments = payments.filter(p => {
+    if (!p) return false
+    const paymentDate = new Date(p.dueDate)
+    return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear
+  })
+  
+  const pendingPayments = currentMonthPayments.filter(p => {
     if (!p || isPaidStatus(p.status)) return false
     return !isOverdue(p.dueDate) // A vencer = não pago e não vencido
   })
   
-  const overduePayments = payments.filter(p => {
+  const overduePayments = currentMonthPayments.filter(p => {
     if (!p || isPaidStatus(p.status)) return false
     return isOverdue(p.dueDate) // Em atraso = não pago e vencido
   })
   
-  const paidPayments = payments.filter(p => p && isPaidStatus(p.status))
+  const paidPayments = currentMonthPayments.filter(p => p && isPaidStatus(p.status))
 
   const stats = {
-    total: payments.length,
+    total: currentMonthPayments.length,
     pending: pendingPayments.length,
     overdue: overduePayments.length,
     paid: paidPayments.length,
@@ -617,9 +640,9 @@ export default function Payments() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Pagamentos</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Pagamentos - {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Gerencie todos os pagamentos de aluguel
+              Pagamentos do mês atual • Use "Histórico" para ver outros meses
             </p>
           </div>
         </div>
@@ -692,7 +715,7 @@ export default function Payments() {
             </div>
             
             <div className="text-xs text-gray-500 dark:text-gray-400 lg:min-w-max">
-              {filteredPayments.length} de {payments.length} resultados
+              {filteredPayments.length} de {currentMonthPayments.length} resultados (mês atual)
             </div>
             
             <div className="flex flex-wrap gap-3">
