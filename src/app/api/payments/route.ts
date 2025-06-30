@@ -35,12 +35,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json([])
     }
     
-    // Get current month date range
+    // Get current month date range + next 2 months to show recent contracts
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth() + 1
     
-    // Get payments only for current month
+    // Get payments for current month + next 2 months (to catch new contracts)
+    const startDate = new Date(currentYear, currentMonth - 1, 1) // First day of current month
+    const endDate = new Date(currentYear, currentMonth + 2, 1) // First day of month +3
+    
+    console.log('🗓️ Searching payments between:', startDate.toISOString(), 'and', endDate.toISOString())
     
     const allPayments = await prisma.payment.findMany({
       where: {
@@ -48,8 +52,8 @@ export async function GET(request: NextRequest) {
           in: contractIds
         },
         dueDate: {
-          gte: new Date(currentYear, currentMonth - 1, 1), // First day of current month
-          lt: new Date(currentYear, currentMonth, 1) // First day of next month
+          gte: startDate,
+          lt: endDate
         }
       },
       select: {
