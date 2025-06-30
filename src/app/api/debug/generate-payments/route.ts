@@ -18,18 +18,33 @@ export async function POST(request: NextRequest) {
     }
     
     console.log('🔧 Generating payments for contract:', contractId)
+    console.log('🔧 User ID:', user.id, 'Is Admin:', userIsAdmin)
     
-    // Get contract details
-    const contract = await prisma.contract.findUnique({
-      where: { id: contractId },
+    // Get contract details - admin can access any contract, regular user only their own
+    const contract = await prisma.contract.findFirst({
+      where: userIsAdmin ? { id: contractId } : { id: contractId, userId: user.id },
       include: {
         property: true,
         tenant: true
       }
     })
     
+    console.log('🔍 Contract found:', contract ? `Yes - ${contract.property.title}` : 'No')
+    
     if (!contract) {
-      return NextResponse.json({ error: 'Contract not found' }, { status: 404 })
+      // Let's check what contracts exist
+      const allContracts = await prisma.contract.findMany({
+        select: { id: true, userId: true },
+        where: userIsAdmin ? {} : { userId: user.id }
+      })
+      console.log('📋 Available contracts:', allContracts)
+      
+      return NextResponse.json({ 
+        error: 'Contract not found',
+        requestedId: contractId,
+        availableContracts: allContracts,
+        userCanAccess: userIsAdmin ? 'any contract' : 'only own contracts'
+      }, { status: 404 })
     }
     
     // Check if payments already exist
