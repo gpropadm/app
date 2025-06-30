@@ -59,6 +59,29 @@ export default function Expenses() {
   
   const { toasts, removeToast, showSuccess, showError } = useToast()
 
+  // Função para formatar valor em moeda brasileira
+  const formatCurrency = (value: string) => {
+    // Remove tudo que não é dígito
+    const numericValue = value.replace(/\D/g, '')
+    
+    // Se estiver vazio, retorna vazio
+    if (!numericValue) return ''
+    
+    // Converte para centavos e depois para reais
+    const realValue = parseInt(numericValue) / 100
+    
+    // Formata como moeda brasileira
+    return realValue.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+  }
+
+  // Função para converter valor formatado para número
+  const parseCurrency = (value: string) => {
+    return parseFloat(value.replace(/\./g, '').replace(',', '.')) || 0
+  }
+
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
@@ -124,10 +147,16 @@ export default function Expenses() {
       const method = editingExpense ? 'PUT' : 'POST'
       const url = editingExpense ? `/api/expenses/${editingExpense.id}` : '/api/expenses'
       
+      // Converter valor formatado para número antes de enviar
+      const dataToSend = {
+        ...formData,
+        amount: parseCurrency(formData.amount)
+      }
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(dataToSend)
       })
 
       if (response.ok) {
@@ -158,7 +187,7 @@ export default function Expenses() {
             const retryResponse = await fetch(url, {
               method,
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(formData)
+              body: JSON.stringify(dataToSend)
             })
             
             if (retryResponse.ok) {
@@ -191,11 +220,21 @@ export default function Expenses() {
 
   const handleEdit = (expense: Expense) => {
     setEditingExpense(expense)
+    
+    // Formatar data para o input (YYYY-MM-DD)
+    const formattedDate = expense.date ? new Date(expense.date).toISOString().split('T')[0] : ''
+    
+    // Formatar valor para moeda brasileira
+    const formattedAmount = expense.amount.toLocaleString('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })
+    
     setFormData({
       description: expense.description,
-      amount: expense.amount.toString(),
+      amount: formattedAmount,
       category: expense.category,
-      date: expense.date,
+      date: formattedDate,
       type: expense.type,
       notes: expense.notes || ''
     })
@@ -525,14 +564,19 @@ export default function Expenses() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Valor *
                     </label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.amount}
-                      onChange={(e) => setFormData(prev => ({ ...prev, amount: e.target.value }))}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      required
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400">
+                        R$
+                      </span>
+                      <input
+                        type="text"
+                        value={formData.amount}
+                        onChange={(e) => setFormData(prev => ({ ...prev, amount: formatCurrency(e.target.value) }))}
+                        placeholder="0,00"
+                        className="w-full pl-12 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        required
+                      />
+                    </div>
                   </div>
 
                   <div>
