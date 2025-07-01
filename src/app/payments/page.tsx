@@ -74,6 +74,7 @@ export default function Payments() {
   const [processingPayment, setProcessingPayment] = useState(false)
   const [allPaymentsLoading, setAllPaymentsLoading] = useState(false)
   const [notification, setNotification] = useState<{type: 'success' | 'error', message: string} | null>(null)
+  const [generatingPayments, setGeneratingPayments] = useState(false)
 
   // Função para mostrar notificações
   const showNotification = (type: 'success' | 'error', message: string) => {
@@ -144,6 +145,39 @@ export default function Payments() {
   useEffect(() => {
     fetchPayments()
   }, [])
+
+  const generateMissingPayments = async () => {
+    setGeneratingPayments(true)
+    try {
+      console.log('🔄 Generating missing payments...')
+      const response = await fetch('/api/payments/generate-missing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('✅ Generated payments:', data)
+        
+        if (data.totalPaymentsCreated > 0) {
+          showNotification('success', `${data.totalPaymentsCreated} pagamentos gerados com sucesso!`)
+          // Refresh payments list
+          await fetchPayments()
+        } else {
+          showNotification('success', 'Todos os contratos já possuem pagamentos!')
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({ error: 'Erro desconhecido' }))
+        console.error('❌ Error generating payments:', errorData)
+        showNotification('error', `Erro ao gerar pagamentos: ${errorData.error || 'Erro desconhecido'}`)
+      }
+    } catch (error) {
+      console.error('❌ Network error:', error)
+      showNotification('error', 'Erro de conexão ao gerar pagamentos')
+    } finally {
+      setGeneratingPayments(false)
+    }
+  }
 
   const fetchPayments = async () => {
     try {
@@ -646,6 +680,38 @@ export default function Payments() {
             </p>
           </div>
         </div>
+
+        {/* Generate Missing Payments Button - Show only if no payments */}
+        {stats.total === 0 && !loading && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border-2 border-dashed border-blue-300 dark:border-blue-600 p-6 text-center">
+            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Zap className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
+              Nenhum pagamento encontrado
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Parece que você tem contratos mas não há pagamentos gerados. Clique no botão abaixo para gerar automaticamente.
+            </p>
+            <button
+              onClick={generateMissingPayments}
+              disabled={generatingPayments}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-500 text-white rounded-lg transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none disabled:cursor-not-allowed"
+            >
+              {generatingPayments ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Gerando Pagamentos...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-5 h-5 mr-2" />
+                  Gerar Pagamentos dos Contratos
+                </>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
