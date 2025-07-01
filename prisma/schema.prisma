@@ -208,9 +208,9 @@ model Payment {
   gatewayFee        Float?        // Taxa cobrada pelo gateway
   splitData         String?       // JSON com dados completos do split
   
-  // Webhooks e rastreamento
-  webhookReceived   Boolean       @default(false)
-  lastWebhookAt     DateTime?
+  // Webhooks e rastreamento - TEMPORARIAMENTE DESABILITADO
+  // webhookReceived   Boolean       @default(false)
+  // lastWebhookAt     DateTime?
   
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
