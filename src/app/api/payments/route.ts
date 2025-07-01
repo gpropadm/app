@@ -50,6 +50,10 @@ export async function GET(request: NextRequest) {
         amount: true,
         dueDate: true,
         status: true,
+        paidDate: true,
+        paymentMethod: true,
+        receipts: true,
+        notes: true,
         createdAt: true
       },
       orderBy: {
@@ -116,24 +120,26 @@ export async function GET(request: NextRequest) {
 
           const maintenanceDeductions = maintenances.reduce((total, maintenance) => total + maintenance.amount, 0)
           
+          // Mapear receipts para receiptUrl para compatibilidade
+          let receiptUrl = null
+          if (payment.receipts) {
+            try {
+              if (typeof payment.receipts === 'string') {
+                const parsed = JSON.parse(payment.receipts)
+                receiptUrl = parsed?.[0]?.url || null
+              } else {
+                receiptUrl = payment.receipts?.[0]?.url || null
+              }
+            } catch (error) {
+              console.warn('Erro ao parsear receipts:', error)
+            }
+          }
+
           return {
             ...payment,
             maintenanceDeductions,
             maintenances,
-            // Mapear receipts para receiptUrl para compatibilidade
-            receiptUrl: payment.receipts ? (() => {
-              try {
-                if (typeof payment.receipts === 'string') {
-                  const parsed = JSON.parse(payment.receipts)
-                  return parsed?.[0]?.url || null
-                } else {
-                  return payment.receipts?.[0]?.url || null
-                }
-              } catch (error) {
-                console.warn('Erro ao parsear receipts:', error)
-                return null
-              }
-            })() : null,
+            receiptUrl,
             contract: {
               ...contract,
               property: property || { title: 'Propriedade não encontrada', address: '' },
@@ -142,26 +148,30 @@ export async function GET(request: NextRequest) {
           }
         } catch (error) {
           console.error('Error enriching payment:', payment.id, error)
+          
+          // Mapear receipts para receiptUrl mesmo em caso de erro
+          let receiptUrl = null
+          if (payment.receipts) {
+            try {
+              if (typeof payment.receipts === 'string') {
+                const parsed = JSON.parse(payment.receipts)
+                receiptUrl = parsed?.[0]?.url || null
+              } else {
+                receiptUrl = payment.receipts?.[0]?.url || null
+              }
+            } catch (error) {
+              receiptUrl = null
+            }
+          }
+          
           return {
             ...payment,
             maintenanceDeductions: 0,
             maintenances: [],
-            // Mapear receipts para receiptUrl mesmo em caso de erro
-            receiptUrl: payment.receipts ? (() => {
-              try {
-                if (typeof payment.receipts === 'string') {
-                  const parsed = JSON.parse(payment.receipts)
-                  return parsed?.[0]?.url || null
-                } else {
-                  return payment.receipts?.[0]?.url || null
-                }
-              } catch (error) {
-                return null
-              }
-            })() : null,
+            receiptUrl,
             contract: { 
-              property: { title: 'Erro ao carregar' },
-              tenant: { name: 'Erro ao carregar' }
+              property: { title: 'Erro ao carregar', address: '' },
+              tenant: { name: 'Erro ao carregar', email: '', phone: '' }
             }
           }
         }
