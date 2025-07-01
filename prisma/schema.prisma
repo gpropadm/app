@@ -193,7 +193,7 @@ model Payment {
   status            PaymentStatus @default(PENDING)
   paymentMethod     String?       // BOLETO, PIX, DINHEIRO, TRANSFERENCIA, CARTAO
   // gateway           PaymentGateway @default(ASAAS) // Gateway usado para este pagamento - TEMPORARIAMENTE DESABILITADO
-  gatewayPaymentId  String?       // ID do pagamento no gateway
+  // gatewayPaymentId  String?       // ID do pagamento no gateway - TEMPORARIAMENTE DESABILITADO
   boletoUrl         String?
   boletoCode        String?
   pixQrCode         String?
