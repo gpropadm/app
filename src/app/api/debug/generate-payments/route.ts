@@ -5,99 +5,138 @@ import { requireAuth, isUserAdmin } from '@/lib/auth-middleware'
 export async function POST(request: NextRequest) {
   try {
     const user = await requireAuth(request)
-    const userIsAdmin = await isUserAdmin(user.id)
+    console.log('=== GENERATING MISSING PAYMENTS ===')
+    console.log('👤 User:', { id: user.id, email: user.email })
     
-    console.log('🔧 User attempting to generate payments:', { id: user.id, email: user.email, isAdmin: userIsAdmin })
-    
-    const { contractId } = await request.json()
-    
-    if (!contractId) {
-      return NextResponse.json({ error: 'Contract ID required' }, { status: 400 })
-    }
-    
-    console.log('🔧 Generating payments for contract:', contractId)
-    console.log('🔧 User ID:', user.id, 'Is Admin:', userIsAdmin)
-    
-    // Get contract details - admin can access any contract, regular user only their own
-    const contract = await prisma.contract.findFirst({
-      where: userIsAdmin ? { id: contractId } : { id: contractId, userId: user.id },
-      include: {
+    // Get user's contracts (both admin and regular users see only their own contracts)
+    const contracts = await prisma.contract.findMany({
+      where: { 
+        userId: user.id,
+        status: 'ACTIVE'
+      },
+      include: { 
+        tenant: true,
         property: true,
-        tenant: true
+        payments: true
       }
     })
     
-    console.log('🔍 Contract found:', contract ? `Yes - ${contract.property.title}` : 'No')
+    console.log(`📊 Found ${contracts.length} active contracts for user`)
     
-    if (!contract) {
-      return NextResponse.json({ 
+    if (contracts.length === 0) {
+      return NextResponse.json({
         error: 'Contract not found or access denied',
-        message: userIsAdmin ? 'Contract does not exist' : 'You can only generate payments for your own contracts'
+        message: 'No active contracts found for this user'
       }, { status: 404 })
     }
     
-    // Verify user permission
-    if (!userIsAdmin && contract.userId !== user.id) {
-      return NextResponse.json({ 
-        error: 'Access denied',
-        message: 'You can only generate payments for contracts you created'
-      }, { status: 403 })
-    }
+    let totalPaymentsCreated = 0
+    const contractsProcessed = []
     
-    // Check if payments already exist
-    const existingPayments = await prisma.payment.findMany({
-      where: { contractId: contractId }
-    })
-    
-    if (existingPayments.length > 0) {
-      return NextResponse.json({
-        success: false,
-        message: 'Payments already exist for this contract',
-        existingPayments: existingPayments.length
-      })
-    }
-    
-    // Generate payments for the contract duration
-    const startDate = new Date(contract.startDate)
-    const endDate = new Date(contract.endDate)
-    const payments = []
-    
-    let currentDate = new Date(startDate)
-    currentDate.setDate(10) // Set due date to 10th of each month
-    
-    while (currentDate <= endDate) {
-      const payment = await prisma.payment.create({
-        data: {
-          contractId: contract.id,
-          amount: contract.rentAmount,
-          dueDate: new Date(currentDate),
-          status: 'PENDING'
-          // Removed gateway field - may not exist in current schema
+    for (const contract of contracts) {
+      console.log(`\n📝 Analyzing contract: ${contract.tenant.name}`)
+      console.log(`   Period: ${contract.startDate.toLocaleDateString('pt-BR')} to ${contract.endDate.toLocaleDateString('pt-BR')}`)
+      console.log(`   Existing payments: ${contract.payments.length}`)
+      
+      // If already has payments, skip this contract
+      if (contract.payments.length > 0) {
+        console.log(`   ✅ Contract already has ${contract.payments.length} payments - SKIPPING`)
+        contractsProcessed.push({
+          id: contract.id,
+          tenant: contract.tenant.name,
+          property: contract.property.title,
+          status: 'skipped',
+          reason: 'Already has payments',
+          existingPayments: contract.payments.length
+        })
+        continue
+      }
+      
+      console.log(`   🎯 Contract WITHOUT payments - generating...`)
+      
+      const startDate = new Date(contract.startDate)
+      const endDate = new Date(contract.endDate)
+      const dayOfMonth = startDate.getDate()
+      
+      // Generate payments for the entire contract period
+      const currentDate = new Date()
+      const currentMonth = currentDate.getMonth()
+      const currentYear = currentDate.getFullYear()
+      
+      let paymentDate = new Date(startDate)
+      paymentDate.setDate(dayOfMonth)
+      
+      // Adjust to first payment date (same month or next)
+      if (paymentDate < startDate) {
+        paymentDate.setMonth(paymentDate.getMonth() + 1)
+      }
+      
+      const paymentsForThisContract = []
+      
+      while (paymentDate <= endDate) {
+        const paymentMonth = paymentDate.getMonth()
+        const paymentYear = paymentDate.getFullYear()
+        
+        // 🎯 LOGIC: All months before current month = PAID
+        // Current and future months = PENDING
+        let status = 'PENDING'
+        let paidDate = null
+        
+        if (paymentYear < currentYear || (paymentYear === currentYear && paymentMonth < currentMonth)) {
+          // Previous months = automatically PAID
+          status = 'PAID'
+          paidDate = new Date(paymentDate.getTime() - Math.random() * 10 * 86400000) // Paid 1-10 days before due
+          console.log(`     💰 ${paymentDate.toLocaleDateString('pt-BR')} - PAID (previous month)`)
+        } else if (paymentYear === currentYear && paymentMonth === currentMonth) {
+          // Current month: check if already overdue
+          if (paymentDate < currentDate) {
+            status = 'OVERDUE'
+            console.log(`     ⚠️  ${paymentDate.toLocaleDateString('pt-BR')} - OVERDUE (current month, already due)`)
+          } else {
+            status = 'PENDING'
+            console.log(`     ⏳ ${paymentDate.toLocaleDateString('pt-BR')} - PENDING (current month, not due yet)`)
+          }
+        } else {
+          // Future months = PENDING
+          status = 'PENDING'
+          console.log(`     📅 ${paymentDate.toLocaleDateString('pt-BR')} - PENDING (future month)`)
         }
+        
+        const payment = await prisma.payment.create({
+          data: {
+            contractId: contract.id,
+            amount: contract.rentAmount,
+            dueDate: paymentDate,
+            status,
+            paidDate
+          }
+        })
+        
+        paymentsForThisContract.push(payment)
+        
+        // Next month
+        paymentDate = new Date(paymentDate)
+        paymentDate.setMonth(paymentDate.getMonth() + 1)
+      }
+      
+      console.log(`   🎉 ${paymentsForThisContract.length} payments generated for ${contract.tenant.name}`)
+      totalPaymentsCreated += paymentsForThisContract.length
+      
+      contractsProcessed.push({
+        id: contract.id,
+        tenant: contract.tenant.name,
+        property: contract.property.title,
+        status: 'generated',
+        paymentsCreated: paymentsForThisContract.length
       })
-      
-      payments.push(payment)
-      
-      // Move to next month
-      currentDate.setMonth(currentDate.getMonth() + 1)
     }
     
     return NextResponse.json({
       success: true,
-      message: `Generated ${payments.length} payments for contract`,
-      contract: {
-        id: contract.id,
-        property: contract.property.title,
-        tenant: contract.tenant.name,
-        rentAmount: contract.rentAmount
-      },
-      paymentsGenerated: payments.length,
-      payments: payments.map(p => ({
-        id: p.id,
-        amount: p.amount,
-        dueDate: p.dueDate,
-        status: p.status
-      }))
+      message: `Successfully generated ${totalPaymentsCreated} payments for ${contractsProcessed.filter(c => c.status === 'generated').length} contracts`,
+      totalPaymentsCreated,
+      contractsProcessed: contractsProcessed.length,
+      details: contractsProcessed
     })
     
   } catch (error) {
