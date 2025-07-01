@@ -22,10 +22,15 @@ export async function generatePaymentsForContract(contractId: string) {
       return
     }
     
-    // Deletar pagamentos existentes deste contrato
-    await prisma.payment.deleteMany({
+    // ✅ SEGURO: Verificar se já existem pagamentos (NÃO DELETAR!)
+    const existingPayments = await prisma.payment.count({
       where: { contractId }
     })
+    
+    if (existingPayments > 0) {
+      console.log(`⚠️  Contrato já tem ${existingPayments} pagamentos - ABORTANDO para preservar dados`)
+      return null
+    }
     
     const startDate = new Date(contract.startDate)
     const endDate = new Date(contract.endDate)
