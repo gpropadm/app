@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
             amount: contract.rentAmount,
             dueDate: paymentDate,
             status,
-            paidDate
+            ...(paidDate && { paidDate })
           }
         })
         
