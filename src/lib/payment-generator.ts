@@ -11,8 +11,14 @@ export async function generatePaymentsForContract(contractId: string) {
       include: { tenant: true }
     })
     
+    console.log('📋 Contrato encontrado:', contract ? 'SIM' : 'NÃO')
+    if (contract) {
+      console.log('📋 Status do contrato:', contract.status)
+      console.log('📋 Tenant:', contract.tenant?.name || 'N/A')
+    }
+    
     if (!contract || contract.status !== 'ACTIVE') {
-      console.log('❌ Contrato não encontrado ou não ativo')
+      console.log('❌ Contrato não encontrado ou não ativo, status:', contract?.status)
       return
     }
     
@@ -65,6 +71,13 @@ export async function generatePaymentsForContract(contractId: string) {
       
       // Try to create payment with gateway field, fallback if field doesn't exist
       let payment
+      console.log('💰 Tentando criar pagamento:', {
+        contractId,
+        amount: contract.rentAmount,
+        dueDate: paymentDate.toISOString(),
+        status
+      })
+      
       try {
         payment = await prisma.payment.create({
           data: {
@@ -76,18 +89,26 @@ export async function generatePaymentsForContract(contractId: string) {
             gateway: 'MANUAL' // Default gateway
           }
         })
+        console.log('✅ Pagamento criado COM gateway:', payment.id)
       } catch (error) {
         // If gateway field doesn't exist, create without it
-        console.log('⚠️ Gateway field not available, creating payment without gateway')
-        payment = await prisma.payment.create({
-          data: {
-            contractId,
-            amount: contract.rentAmount,
-            dueDate: paymentDate,
-            status,
-            ...(paidDate && { paidDate })
-          }
-        })
+        console.log('⚠️ Gateway field not available, error:', error instanceof Error ? error.message : error)
+        console.log('🔄 Tentando criar pagamento SEM gateway...')
+        try {
+          payment = await prisma.payment.create({
+            data: {
+              contractId,
+              amount: contract.rentAmount,
+              dueDate: paymentDate,
+              status,
+              ...(paidDate && { paidDate })
+            }
+          })
+          console.log('✅ Pagamento criado SEM gateway:', payment.id)
+        } catch (fallbackError) {
+          console.error('❌ Erro também no fallback:', fallbackError instanceof Error ? fallbackError.message : fallbackError)
+          throw fallbackError
+        }
       }
       
       payments.push(payment)

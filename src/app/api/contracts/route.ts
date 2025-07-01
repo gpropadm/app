@@ -159,12 +159,20 @@ export async function POST(request: NextRequest) {
     })
 
     // 🚀 GERAR PAGAMENTOS AUTOMATICAMENTE
-    console.log('💰 Gerando pagamentos automaticamente para o contrato...')
+    console.log('💰 Gerando pagamentos automaticamente para o contrato:', contract.id)
+    console.log('📋 Dados do contrato:', {
+      id: contract.id,
+      startDate: contract.startDate,
+      endDate: contract.endDate,
+      rentAmount: contract.rentAmount,
+      status: contract.status
+    })
     try {
-      await generatePaymentsForContract(contract.id)
-      console.log('✅ Pagamentos gerados com sucesso!')
+      const generatedPayments = await generatePaymentsForContract(contract.id)
+      console.log('✅ Pagamentos gerados com sucesso!', generatedPayments?.length || 0, 'pagamentos')
     } catch (error) {
-      console.error('❌ Erro ao gerar pagamentos:', error)
+      console.error('❌ Erro DETALHADO ao gerar pagamentos:', error)
+      console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'No stack')
       // Não falhar a criação do contrato por causa dos pagamentos
     }
 
