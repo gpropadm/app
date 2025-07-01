@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db'
 import { addOneMonth } from './date-utils'
 
-export async function generatePaymentsForContract(contractId: string) {
+export async function generatePaymentsForContract(contractId: string, forceGenerate: boolean = false) {
   console.log('🔄 Gerando pagamentos automaticamente para contrato:', contractId)
   
   try {
@@ -19,17 +19,17 @@ export async function generatePaymentsForContract(contractId: string) {
     
     if (!contract || contract.status !== 'ACTIVE') {
       console.log('❌ Contrato não encontrado ou não ativo, status:', contract?.status)
-      return
+      return []
     }
     
-    // ✅ SEGURO: Verificar se já existem pagamentos (NÃO DELETAR!)
+    // ✅ SEGURO: Verificar se já existem pagamentos (só quando não forçado)
     const existingPayments = await prisma.payment.count({
       where: { contractId }
     })
     
-    if (existingPayments > 0) {
+    if (existingPayments > 0 && !forceGenerate) {
       console.log(`⚠️  Contrato já tem ${existingPayments} pagamentos - ABORTANDO para preservar dados`)
-      return null
+      return []
     }
     
     const startDate = new Date(contract.startDate)
