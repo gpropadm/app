@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
           const paymentYear = paymentDate.getFullYear()
           
           // Status: meses passados = OVERDUE, outros = PENDING
-          let status = 'PENDING'
+          let status: 'PENDING' | 'OVERDUE' = 'PENDING'
           if (paymentYear < currentYear || (paymentYear === currentYear && paymentMonth < currentMonth)) {
             status = 'OVERDUE'
           }
@@ -88,7 +88,8 @@ export async function GET(request: NextRequest) {
               contractId: contract.id,
               amount: contract.rentAmount,
               dueDate: paymentDate,
-              status: status
+              status: status,
+              gatewayPaymentId: null // Explicitamente null para não depender de gateway
             }
           })
           
