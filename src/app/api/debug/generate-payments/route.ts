@@ -111,15 +111,32 @@ export async function POST(request: NextRequest) {
           console.log(`     📅 ${paymentDate.toLocaleDateString('pt-BR')} - PENDING (future month)`)
         }
         
-        const payment = await prisma.payment.create({
-          data: {
-            contractId: contract.id,
-            amount: contract.rentAmount,
-            dueDate: paymentDate,
-            status,
-            ...(paidDate && { paidDate })
-          }
-        })
+        // Try to create payment with gateway field, fallback if field doesn't exist
+        let payment
+        try {
+          payment = await prisma.payment.create({
+            data: {
+              contractId: contract.id,
+              amount: contract.rentAmount,
+              dueDate: paymentDate,
+              status,
+              ...(paidDate && { paidDate }),
+              gateway: 'MANUAL' // Default gateway
+            }
+          })
+        } catch (error) {
+          // If gateway field doesn't exist, create without it
+          console.log('⚠️ Gateway field not available in debug endpoint, creating payment without gateway')
+          payment = await prisma.payment.create({
+            data: {
+              contractId: contract.id,
+              amount: contract.rentAmount,
+              dueDate: paymentDate,
+              status,
+              ...(paidDate && { paidDate })
+            }
+          })
+        }
         
         paymentsForThisContract.push(payment)
         
