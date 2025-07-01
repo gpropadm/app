@@ -69,47 +69,24 @@ export async function generatePaymentsForContract(contractId: string) {
         console.log(`  🟡 ${paymentDate.toLocaleDateString('pt-BR')} - A VENCER (mês atual ou futuro)`)
       }
       
-      // Try to create payment with gateway field, fallback if field doesn't exist
-      let payment
-      console.log('💰 Tentando criar pagamento:', {
+      // Create payment without gateway field (temporarily removed from schema)
+      console.log('💰 Criando pagamento:', {
         contractId,
         amount: contract.rentAmount,
         dueDate: paymentDate.toISOString(),
         status
       })
       
-      try {
-        payment = await prisma.payment.create({
-          data: {
-            contractId,
-            amount: contract.rentAmount,
-            dueDate: paymentDate,
-            status,
-            ...(paidDate && { paidDate }),
-            gateway: 'MANUAL' // Default gateway
-          }
-        })
-        console.log('✅ Pagamento criado COM gateway:', payment.id)
-      } catch (error) {
-        // If gateway field doesn't exist, create without it
-        console.log('⚠️ Gateway field not available, error:', error instanceof Error ? error.message : error)
-        console.log('🔄 Tentando criar pagamento SEM gateway...')
-        try {
-          payment = await prisma.payment.create({
-            data: {
-              contractId,
-              amount: contract.rentAmount,
-              dueDate: paymentDate,
-              status,
-              ...(paidDate && { paidDate })
-            }
-          })
-          console.log('✅ Pagamento criado SEM gateway:', payment.id)
-        } catch (fallbackError) {
-          console.error('❌ Erro também no fallback:', fallbackError instanceof Error ? fallbackError.message : fallbackError)
-          throw fallbackError
+      const payment = await prisma.payment.create({
+        data: {
+          contractId,
+          amount: contract.rentAmount,
+          dueDate: paymentDate,
+          status,
+          ...(paidDate && { paidDate })
         }
-      }
+      })
+      console.log('✅ Pagamento criado:', payment.id)
       
       payments.push(payment)
       

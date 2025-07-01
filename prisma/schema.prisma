@@ -192,7 +192,7 @@ model Payment {
   paidDate          DateTime?
   status            PaymentStatus @default(PENDING)
   paymentMethod     String?       // BOLETO, PIX, DINHEIRO, TRANSFERENCIA, CARTAO
-  gateway           PaymentGateway @default(ASAAS) // Gateway usado para este pagamento
+  // gateway           PaymentGateway @default(ASAAS) // Gateway usado para este pagamento - TEMPORARIAMENTE DESABILITADO
   gatewayPaymentId  String?       // ID do pagamento no gateway
   boletoUrl         String?
   boletoCode        String?
@@ -317,11 +317,11 @@ enum PaymentStatus {
   CANCELLED
 }
 
-enum PaymentGateway {
-  ASAAS
-  PJBANK
-  MANUAL
-}
+// enum PaymentGateway {
+//   ASAAS
+//   PJBANK
+//   MANUAL
+// }
 
 enum AlertType {
   PAYMENT_DUE
