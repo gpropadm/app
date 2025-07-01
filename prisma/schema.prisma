@@ -202,11 +202,11 @@ model Payment {
   receipts          String?       // JSON array of receipt image URLs
   notes             String?       // Additional payment notes
   
-  // Split de pagamento
-  ownerAmount       Float?        // Valor que vai para o proprietário
-  companyAmount     Float?        // Valor que fica com a imobiliária
-  gatewayFee        Float?        // Taxa cobrada pelo gateway
-  splitData         String?       // JSON com dados completos do split
+  // Split de pagamento - TEMPORARIAMENTE DESABILITADO
+  // ownerAmount       Float?        // Valor que vai para o proprietário - DESABILITADO
+  // companyAmount     Float?        // Valor que fica com a imobiliária - DESABILITADO
+  // gatewayFee        Float?        // Taxa cobrada pelo gateway - DESABILITADO
+  // splitData         String?       // JSON com dados completos do split - DESABILITADO
   
   // Webhooks e rastreamento - TEMPORARIAMENTE DESABILITADO
   // webhookReceived   Boolean       @default(false)
