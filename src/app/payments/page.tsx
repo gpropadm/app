@@ -150,7 +150,7 @@ export default function Payments() {
     setGeneratingPayments(true)
     try {
       console.log('🔄 Generating missing payments...')
-      const response = await fetch('/api/payments/generate-missing', {
+      const response = await fetch('/api/payments/generate-simple', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       })
