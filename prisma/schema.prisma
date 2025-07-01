@@ -192,26 +192,12 @@ model Payment {
   paidDate          DateTime?
   status            PaymentStatus @default(PENDING)
   paymentMethod     String?       // BOLETO, PIX, DINHEIRO, TRANSFERENCIA, CARTAO
-  // gateway           PaymentGateway @default(ASAAS) // Gateway usado para este pagamento - TEMPORARIAMENTE DESABILITADO
-  // gatewayPaymentId  String?       // ID do pagamento no gateway - TEMPORARIAMENTE DESABILITADO
-  // boletoUrl         String?       // TEMPORARIAMENTE DESABILITADO
-  // boletoCode        String?       // TEMPORARIAMENTE DESABILITADO  
-  // pixQrCode         String?       // TEMPORARIAMENTE DESABILITADO
+  boletoUrl         String?       // Existe no banco
+  boletoCode        String?       // Existe no banco
   penalty           Float?
   interest          Float?
   receipts          String?       // JSON array of receipt image URLs
   notes             String?       // Additional payment notes
-  
-  // Split de pagamento - TEMPORARIAMENTE DESABILITADO
-  // ownerAmount       Float?        // Valor que vai para o proprietário - DESABILITADO
-  // companyAmount     Float?        // Valor que fica com a imobiliária - DESABILITADO
-  // gatewayFee        Float?        // Taxa cobrada pelo gateway - DESABILITADO
-  // splitData         String?       // JSON com dados completos do split - DESABILITADO
-  
-  // Webhooks e rastreamento - TEMPORARIAMENTE DESABILITADO
-  // webhookReceived   Boolean       @default(false)
-  // lastWebhookAt     DateTime?
-  
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   contract          Contract      @relation(fields: [contractId], references: [id])

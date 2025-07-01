@@ -82,14 +82,13 @@ export async function GET(request: NextRequest) {
             status = 'OVERDUE'
           }
           
-          // Criar o pagamento (SEM gatewayPaymentId)
+          // Criar o pagamento com campos que existem no banco
           const payment = await prisma.payment.create({
             data: {
               contractId: contract.id,
               amount: contract.rentAmount,
               dueDate: paymentDate,
               status: status
-              // Removido gatewayPaymentId pois a coluna não existe no banco
             }
           })
           
