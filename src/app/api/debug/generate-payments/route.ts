@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
       include: { 
         tenant: true,
         property: true,
-        payments: true
+        payments: {
+          select: {
+            id: true,
+            amount: true,
+            dueDate: true,
+            status: true,
+            paidDate: true,
+            paymentMethod: true
+          }
+        }
       }
     })
     
