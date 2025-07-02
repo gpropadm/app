@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
             const searchUrl = agentQL.buildSearchUrl(portal, searchCriteria);
             console.log(`Iniciando scraping direto no ${portal}: ${searchUrl}`);
             
-            const leads = await scraper.scrapePortal(portal, searchUrl);
+            const leads = await scraper.scrapePortal(portal, searchUrl, searchCriteria.location);
             
             allLeads.push(...leads);
             results.push({
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
               await scraper.init();
               
               const searchUrl = agentQL.buildSearchUrl(portal, searchCriteria);
-              const leads = await scraper.scrapePortal(portal, searchUrl);
+              const leads = await scraper.scrapePortal(portal, searchUrl, searchCriteria.location);
               
               await scraper.close();
               
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
         for (const portal of portals) {
           try {
             const searchUrl = tempAgentQL.buildSearchUrl(portal, searchCriteria);
-            const leads = await scraper.scrapePortal(portal, searchUrl);
+            const leads = await scraper.scrapePortal(portal, searchUrl, searchCriteria.location);
             
             allLeads.push(...leads);
             results.push({
