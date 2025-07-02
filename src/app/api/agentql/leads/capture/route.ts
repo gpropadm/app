@@ -10,27 +10,58 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    const { portal, searchUrl, filters } = await request.json();
+    const { searchCriteria, portals } = await request.json();
 
-    if (!portal || !searchUrl) {
+    if (!searchCriteria || !searchCriteria.location) {
       return NextResponse.json({ 
-        error: 'Portal e URL de busca são obrigatórios' 
+        error: 'Critérios de busca e localização são obrigatórios' 
+      }, { status: 400 });
+    }
+
+    if (!portals || portals.length === 0) {
+      return NextResponse.json({ 
+        error: 'Selecione pelo menos um portal' 
       }, { status: 400 });
     }
 
     const agentQL = new AgentQLService();
     await agentQL.init();
 
-    const leads = await agentQL.captureLeadsFromPortal(portal, searchUrl, filters);
+    const allLeads = [];
+    const results = [];
+
+    for (const portal of portals) {
+      try {
+        const searchUrl = agentQL.buildSearchUrl(portal, searchCriteria);
+        const leads = await agentQL.captureLeadsFromPortal(portal, searchUrl, searchCriteria);
+        
+        allLeads.push(...leads);
+        results.push({
+          portal,
+          count: leads.length,
+          leads: leads.slice(0, 10), // Primeiros 10 para exibir
+          searchUrl
+        });
+      } catch (error) {
+        console.error(`Erro no portal ${portal}:`, error);
+        results.push({
+          portal,
+          error: `Erro ao buscar no ${portal}`,
+          count: 0,
+          leads: []
+        });
+      }
+    }
     
     await agentQL.close();
 
     // Por enquanto só retorna os dados, sem salvar no banco
     return NextResponse.json({ 
       success: true, 
-      leads,
-      count: leads.length,
-      portal,
+      searchCriteria,
+      results,
+      totalLeads: allLeads.length,
+      allLeads: allLeads.slice(0, 20), // Primeiros 20 para exibir
       capturedAt: new Date()
     });
 

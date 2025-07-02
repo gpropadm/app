@@ -288,15 +288,202 @@ export class AgentQLService {
     return match ? match[0] : contactText;
   }
 
-  private buildSearchUrl(portal: string, propertyType: string, location: string, priceRange: any): string {
+  buildSearchUrl(portal: string, searchCriteria: any): string {
+    const {
+      propertyType,
+      transactionType,
+      location,
+      priceMin,
+      priceMax,
+      bedrooms,
+      bathrooms,
+      area
+    } = searchCriteria;
+
     const baseUrls = {
       olx: 'https://www.olx.com.br/imoveis',
       zapimoveis: 'https://www.zapimoveis.com.br',
       vivareal: 'https://www.vivareal.com.br'
     };
+
+    const baseUrl = baseUrls[portal as keyof typeof baseUrls];
+    if (!baseUrl) return '';
+
+    // Normalizar localização para URL
+    const normalizedLocation = location.toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9\-]/g, '');
+
+    switch (portal.toLowerCase()) {
+      case 'olx':
+        return this.buildOLXUrl(baseUrl, {
+          propertyType,
+          transactionType,
+          location: normalizedLocation,
+          priceMin,
+          priceMax,
+          bedrooms
+        });
+
+      case 'zapimoveis':
+        return this.buildZapUrl(baseUrl, {
+          propertyType,
+          transactionType,
+          location: normalizedLocation,
+          priceMin,
+          priceMax,
+          bedrooms,
+          bathrooms
+        });
+
+      case 'vivareal':
+        return this.buildVivaRealUrl(baseUrl, {
+          propertyType,
+          transactionType,
+          location: normalizedLocation,
+          priceMin,
+          priceMax,
+          bedrooms,
+          area
+        });
+
+      default:
+        return baseUrl;
+    }
+  }
+
+  private buildOLXUrl(baseUrl: string, criteria: any): string {
+    const params = new URLSearchParams();
     
-    // Implementar lógica específica de cada portal
-    return baseUrls[portal as keyof typeof baseUrls] || '';
+    // Tipo de transação
+    if (criteria.transactionType === 'RENT') {
+      params.append('f', 'p'); // Para aluguel
+    }
+
+    // Tipo de imóvel
+    const propertyTypeMap = {
+      'APARTMENT': 'apartamentos',
+      'HOUSE': 'casas',
+      'COMMERCIAL': 'comercial',
+      'LAND': 'terrenos'
+    };
+    const olxPropertyType = propertyTypeMap[criteria.propertyType as keyof typeof propertyTypeMap] || 'apartamentos';
+
+    // Preços
+    if (criteria.priceMin > 0) {
+      params.append('pe', criteria.priceMin.toString());
+    }
+    if (criteria.priceMax > 0) {
+      params.append('ps', criteria.priceMax.toString());
+    }
+
+    // Quartos
+    if (criteria.bedrooms) {
+      params.append('rooms', criteria.bedrooms.toString());
+    }
+
+    // Localização
+    let url = `${baseUrl}/${olxPropertyType}`;
+    if (criteria.location) {
+      url += `/${criteria.location}`;
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${url}?${queryString}` : url;
+  }
+
+  private buildZapUrl(baseUrl: string, criteria: any): string {
+    const params = new URLSearchParams();
+    
+    // Tipo de transação
+    const transactionMap = {
+      'RENT': 'aluguel',
+      'SALE': 'venda'
+    };
+    const transaction = transactionMap[criteria.transactionType as keyof typeof transactionMap] || 'aluguel';
+
+    // Tipo de imóvel
+    const propertyTypeMap = {
+      'APARTMENT': 'apartamento',
+      'HOUSE': 'casa',
+      'COMMERCIAL': 'comercial',
+      'LAND': 'terreno'
+    };
+    const zapPropertyType = propertyTypeMap[criteria.propertyType as keyof typeof propertyTypeMap] || 'apartamento';
+
+    // Preços
+    if (criteria.priceMin > 0) {
+      params.append('preco-minimo', criteria.priceMin.toString());
+    }
+    if (criteria.priceMax > 0) {
+      params.append('preco-maximo', criteria.priceMax.toString());
+    }
+
+    // Quartos
+    if (criteria.bedrooms) {
+      params.append('quartos', criteria.bedrooms.toString());
+    }
+
+    // Banheiros
+    if (criteria.bathrooms) {
+      params.append('banheiros', criteria.bathrooms.toString());
+    }
+
+    // Localização
+    let url = `${baseUrl}/${transaction}/${zapPropertyType}s`;
+    if (criteria.location) {
+      url += `/${criteria.location}`;
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${url}/?${queryString}` : `${url}/`;
+  }
+
+  private buildVivaRealUrl(baseUrl: string, criteria: any): string {
+    const params = new URLSearchParams();
+    
+    // Tipo de transação
+    const transactionMap = {
+      'RENT': 'aluguel',
+      'SALE': 'venda'
+    };
+    const transaction = transactionMap[criteria.transactionType as keyof typeof transactionMap] || 'aluguel';
+
+    // Tipo de imóvel
+    const propertyTypeMap = {
+      'APARTMENT': 'apartamento',
+      'HOUSE': 'casa',
+      'COMMERCIAL': 'comercial',
+      'LAND': 'terreno'
+    };
+    const vivaPropertyType = propertyTypeMap[criteria.propertyType as keyof typeof propertyTypeMap] || 'apartamento';
+
+    // Preços
+    if (criteria.priceMin > 0) {
+      params.append('precoMinimo', criteria.priceMin.toString());
+    }
+    if (criteria.priceMax > 0) {
+      params.append('precoMaximo', criteria.priceMax.toString());
+    }
+
+    // Quartos
+    if (criteria.bedrooms) {
+      params.append('quartos', criteria.bedrooms.toString());
+    }
+
+    // Área
+    if (criteria.area) {
+      params.append('areaMinima', criteria.area.toString());
+    }
+
+    // Localização
+    let url = `${baseUrl}/${transaction}/${vivaPropertyType}`;
+    if (criteria.location) {
+      url += `/${criteria.location}`;
+    }
+
+    const queryString = params.toString();
+    return queryString ? `${url}?${queryString}` : url;
   }
 
   private calculateAveragePrice(properties: any[]): number {

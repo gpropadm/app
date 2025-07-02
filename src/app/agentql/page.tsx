@@ -10,9 +10,15 @@ export default function AgentQLDashboard() {
 
   // Estados para cada funcionalidade
   const [leadCapture, setLeadCapture] = useState({
-    portal: 'olx',
-    searchUrl: '',
-    filters: {}
+    propertyType: 'APARTMENT',
+    transactionType: 'RENT',
+    location: '',
+    priceMin: 0,
+    priceMax: 5000,
+    bedrooms: '',
+    bathrooms: '',
+    area: '',
+    portals: ['olx']
   });
 
   const [registryExtract, setRegistryExtract] = useState({
@@ -47,8 +53,13 @@ export default function AgentQLDashboard() {
   });
 
   const handleLeadCapture = async () => {
-    if (!leadCapture.searchUrl) {
-      alert('Digite a URL de busca do portal');
+    if (!leadCapture.location) {
+      alert('Digite a localização desejada');
+      return;
+    }
+
+    if (leadCapture.priceMax <= leadCapture.priceMin) {
+      alert('Preço máximo deve ser maior que o mínimo');
       return;
     }
 
@@ -57,7 +68,10 @@ export default function AgentQLDashboard() {
       const response = await fetch('/api/agentql/leads/capture', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(leadCapture)
+        body: JSON.stringify({
+          searchCriteria: leadCapture,
+          portals: leadCapture.portals
+        })
       });
 
       const data = await response.json();
@@ -247,37 +261,165 @@ export default function AgentQLDashboard() {
           <div className="bg-white p-6 rounded-lg shadow">
             {activeTab === 'leads' && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Capturar Leads de Portais</h3>
+                <h3 className="text-lg font-semibold">Buscar Imóveis nos Portais</h3>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Portal
-                  </label>
-                  <select
-                    value={leadCapture.portal}
-                    onChange={(e) => setLeadCapture({...leadCapture, portal: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="olx">OLX</option>
-                    <option value="zapimoveis">ZAP Imóveis</option>
-                    <option value="vivareal">Viva Real</option>
-                  </select>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-2">Busca Inteligente</h4>
+                  <p className="text-blue-700 text-sm">
+                    Configure seus critérios e buscaremos automaticamente em todos os portais selecionados
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tipo de Imóvel
+                    </label>
+                    <select
+                      value={leadCapture.propertyType}
+                      onChange={(e) => setLeadCapture({...leadCapture, propertyType: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="APARTMENT">Apartamento</option>
+                      <option value="HOUSE">Casa</option>
+                      <option value="COMMERCIAL">Comercial</option>
+                      <option value="LAND">Terreno</option>
+                      <option value="STUDIO">Quitinete</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Finalidade
+                    </label>
+                    <select
+                      value={leadCapture.transactionType}
+                      onChange={(e) => setLeadCapture({...leadCapture, transactionType: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="RENT">Aluguel</option>
+                      <option value="SALE">Venda</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL de Busca
+                    Localização
                   </label>
                   <input
-                    type="url"
-                    value={leadCapture.searchUrl}
-                    onChange={(e) => setLeadCapture({...leadCapture, searchUrl: e.target.value})}
-                    placeholder="https://..."
+                    type="text"
+                    value={leadCapture.location}
+                    onChange={(e) => setLeadCapture({...leadCapture, location: e.target.value})}
+                    placeholder="Ex: Vila Madalena, São Paulo ou Copacabana, RJ"
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Cole a URL de busca do portal com os filtros aplicados
-                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Preço Mín (R$)
+                    </label>
+                    <input
+                      type="number"
+                      value={leadCapture.priceMin}
+                      onChange={(e) => setLeadCapture({...leadCapture, priceMin: Number(e.target.value)})}
+                      placeholder="500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Preço Máx (R$)
+                    </label>
+                    <input
+                      type="number"
+                      value={leadCapture.priceMax}
+                      onChange={(e) => setLeadCapture({...leadCapture, priceMax: Number(e.target.value)})}
+                      placeholder="5000"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Quartos
+                    </label>
+                    <select
+                      value={leadCapture.bedrooms}
+                      onChange={(e) => setLeadCapture({...leadCapture, bedrooms: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="">Qualquer</option>
+                      <option value="1">1 quarto</option>
+                      <option value="2">2 quartos</option>
+                      <option value="3">3 quartos</option>
+                      <option value="4+">4+ quartos</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Banheiros
+                    </label>
+                    <select
+                      value={leadCapture.bathrooms}
+                      onChange={(e) => setLeadCapture({...leadCapture, bathrooms: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    >
+                      <option value="">Qualquer</option>
+                      <option value="1">1 banheiro</option>
+                      <option value="2">2 banheiros</option>
+                      <option value="3+">3+ banheiros</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Área (m²)
+                    </label>
+                    <input
+                      type="number"
+                      value={leadCapture.area}
+                      onChange={(e) => setLeadCapture({...leadCapture, area: e.target.value})}
+                      placeholder="Ex: 50"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Portais para Buscar
+                  </label>
+                  <div className="space-y-2">
+                    {['olx', 'zapimoveis', 'vivareal'].map(portal => (
+                      <label key={portal} className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={leadCapture.portals.includes(portal)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setLeadCapture({
+                                ...leadCapture, 
+                                portals: [...leadCapture.portals, portal]
+                              });
+                            } else {
+                              setLeadCapture({
+                                ...leadCapture, 
+                                portals: leadCapture.portals.filter(p => p !== portal)
+                              });
+                            }
+                          }}
+                          className="w-4 h-4 text-blue-600"
+                        />
+                        <span className="text-sm text-gray-700">
+                          {portal === 'zapimoveis' ? 'ZAP Imóveis' : portal === 'vivareal' ? 'Viva Real' : 'OLX'}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 <button
@@ -285,7 +427,7 @@ export default function AgentQLDashboard() {
                   disabled={loading}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {loading ? 'Capturando...' : 'Capturar Leads'}
+                  {loading ? 'Buscando...' : `Buscar em ${leadCapture.portals.length} Portal(is)`}
                 </button>
               </div>
             )}
