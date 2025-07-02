@@ -8,6 +8,24 @@ export default function AgentQLDashboard() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
 
+  // Função para formatar preço com máscara
+  const formatPrice = (value: string) => {
+    // Remove tudo exceto números
+    const numbers = value.replace(/\D/g, '');
+    
+    // Converte para número e formata
+    if (numbers === '') return '';
+    
+    const number = parseInt(numbers);
+    return number.toLocaleString('pt-BR');
+  };
+
+  // Função para converter preço formatado de volta para número
+  const parsePrice = (formattedValue: string): number => {
+    const numbers = formattedValue.replace(/\D/g, '');
+    return numbers === '' ? 0 : parseInt(numbers);
+  };
+
   // Estados para cada funcionalidade
   const [leadCapture, setLeadCapture] = useState({
     propertyType: 'APARTMENT',
@@ -20,6 +38,10 @@ export default function AgentQLDashboard() {
     area: '',
     portals: ['olx']
   });
+
+  // Estados para campos formatados
+  const [priceMinFormatted, setPriceMinFormatted] = useState('');
+  const [priceMaxFormatted, setPriceMaxFormatted] = useState('5.000');
 
   const [registryExtract, setRegistryExtract] = useState({
     registryNumber: '',
@@ -321,25 +343,39 @@ export default function AgentQLDashboard() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Preço Mín (R$)
                     </label>
-                    <input
-                      type="number"
-                      value={leadCapture.priceMin}
-                      onChange={(e) => setLeadCapture({...leadCapture, priceMin: Number(e.target.value)})}
-                      placeholder="500"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-gray-500">R$</span>
+                      <input
+                        type="text"
+                        value={priceMinFormatted}
+                        onChange={(e) => {
+                          const formatted = formatPrice(e.target.value);
+                          setPriceMinFormatted(formatted);
+                          setLeadCapture({...leadCapture, priceMin: parsePrice(formatted)});
+                        }}
+                        placeholder="500"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Preço Máx (R$)
                     </label>
-                    <input
-                      type="number"
-                      value={leadCapture.priceMax}
-                      onChange={(e) => setLeadCapture({...leadCapture, priceMax: Number(e.target.value)})}
-                      placeholder="5000"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-2 text-gray-500">R$</span>
+                      <input
+                        type="text"
+                        value={priceMaxFormatted}
+                        onChange={(e) => {
+                          const formatted = formatPrice(e.target.value);
+                          setPriceMaxFormatted(formatted);
+                          setLeadCapture({...leadCapture, priceMax: parsePrice(formatted)});
+                        }}
+                        placeholder="5.000"
+                        className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
                   </div>
                 </div>
 
