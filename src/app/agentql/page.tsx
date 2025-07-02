@@ -875,13 +875,205 @@ export default function AgentQLDashboard() {
                     )}
                   </div>
                 ) : (
-                  <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                    <div className="text-green-800">
-                      <strong>Sucesso!</strong> Dados extraídos com AgentQL
-                    </div>
-                    <pre className="bg-gray-100 p-3 rounded mt-3 text-xs overflow-auto max-h-96">
-                      {JSON.stringify(results, null, 2)}
-                    </pre>
+                  <div className="space-y-6">
+                    {/* Lead Capture Results */}
+                    {results.results && activeTab === 'leads' && (
+                      <div>
+                        <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+                          <div className="text-blue-800">
+                            <strong>✅ Busca Concluída!</strong> Encontrados {results.totalLeads || 0} imóveis
+                          </div>
+                          <div className="text-blue-700 text-sm mt-1">
+                            Critérios: {results.searchCriteria?.propertyType === 'APARTMENT' ? 'Apartamento' : 
+                                       results.searchCriteria?.propertyType === 'HOUSE' ? 'Casa' : 
+                                       results.searchCriteria?.propertyType} • {' '}
+                            {results.searchCriteria?.transactionType === 'RENT' ? 'Aluguel' : 'Venda'} • {' '}
+                            {results.searchCriteria?.location} • {' '}
+                            R$ {results.searchCriteria?.priceMin} - R$ {results.searchCriteria?.priceMax}
+                          </div>
+                        </div>
+                        
+                        {results.results.map((portalResult: any, index: number) => (
+                          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className="text-lg font-semibold capitalize">
+                                {portalResult.portal === 'zapimoveis' ? 'ZAP Imóveis' : 
+                                 portalResult.portal === 'vivareal' ? 'Viva Real' : 'OLX'}
+                              </h4>
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+                                {portalResult.count} imóveis
+                              </span>
+                            </div>
+                            
+                            {portalResult.error ? (
+                              <div className="text-red-600 text-sm">❌ {portalResult.error}</div>
+                            ) : (
+                              <div className="space-y-3">
+                                {portalResult.leads?.slice(0, 3).map((lead: any, leadIndex: number) => (
+                                  <div key={leadIndex} className="border-l-4 border-blue-400 pl-4 py-2 bg-gray-50">
+                                    <div className="font-medium text-gray-900">{lead.title}</div>
+                                    <div className="text-green-600 font-semibold">R$ {lead.price?.toLocaleString('pt-BR')}</div>
+                                    <div className="text-gray-600 text-sm">{lead.location}</div>
+                                    {lead.contact && (
+                                      <div className="text-blue-600 text-sm">📞 {lead.contact}</div>
+                                    )}
+                                  </div>
+                                ))}
+                                {portalResult.count > 3 && (
+                                  <div className="text-gray-500 text-sm">
+                                    ... e mais {portalResult.count - 3} imóveis
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* IPTU Results */}
+                    {results.data && activeTab === 'iptu' && (
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+                          <div className="text-green-800">
+                            <strong>✅ Consulta IPTU Realizada!</strong>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-gray-600 text-sm">Código do Imóvel:</span>
+                              <div className="font-medium">{results.data.propertyCode}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 text-sm">Estado:</span>
+                              <div className="font-medium">{results.data.state}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 text-sm">Valor Anual:</span>
+                              <div className="font-medium text-green-600">R$ {results.data.annualValue?.toLocaleString('pt-BR')}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 text-sm">Status:</span>
+                              <div className={`font-medium ${results.data.status === 'Em dia' ? 'text-green-600' : 'text-red-600'}`}>
+                                {results.data.status}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <span className="text-gray-600 text-sm">Valor Venal:</span>
+                              <div className="font-medium">R$ {results.data.propertyValue?.toLocaleString('pt-BR')}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 text-sm">Área:</span>
+                              <div className="font-medium">{results.data.area}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600 text-sm">Vencimento:</span>
+                              <div className="font-medium">{results.data.dueDate}</div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {results.data.installments && results.data.installments.length > 0 && (
+                          <div className="mt-4">
+                            <h5 className="font-medium text-gray-900 mb-2">Parcelas:</h5>
+                            <div className="space-y-1">
+                              {results.data.installments.map((installment: any, index: number) => (
+                                <div key={index} className="flex justify-between text-sm bg-gray-50 p-2 rounded">
+                                  <span>{installment.parcela}ª parcela</span>
+                                  <span className="font-medium">R$ {installment.valor}</span>
+                                  <span className="text-gray-600">{installment.vencimento}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Market Analysis Results */}
+                    {results.marketData && activeTab === 'market' && (
+                      <div>
+                        <div className="bg-purple-50 border border-purple-200 rounded-md p-4 mb-4">
+                          <div className="text-purple-800">
+                            <strong>✅ Análise de Mercado Concluída!</strong>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {results.insights && (
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                              <h5 className="font-medium text-blue-900 mb-2">📊 Insights do Mercado</h5>
+                              <ul className="space-y-1">
+                                {results.insights.map((insight: string, index: number) => (
+                                  <li key={index} className="text-blue-800 text-sm">• {insight}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {results.marketData.map((portalData: any, index: number) => (
+                            <div key={index} className="bg-white border border-gray-200 rounded-lg p-4">
+                              <div className="flex items-center justify-between mb-3">
+                                <h4 className="text-lg font-semibold capitalize">
+                                  {portalData.portal === 'zapimoveis' ? 'ZAP Imóveis' : 
+                                   portalData.portal === 'vivareal' ? 'Viva Real' : 'OLX'}
+                                </h4>
+                                <div className="text-right">
+                                  <div className="text-sm text-gray-600">{portalData.propertyCount} imóveis</div>
+                                  <div className="font-semibold text-green-600">
+                                    Média: R$ {portalData.averagePrice?.toLocaleString('pt-BR')}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Registry Results */}
+                    {results.data && activeTab === 'registry' && (
+                      <div className="bg-white border border-gray-200 rounded-lg p-4">
+                        <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-4">
+                          <div className="text-green-800">
+                            <strong>✅ Dados do Cartório Extraídos!</strong>
+                          </div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 gap-4">
+                          <div>
+                            <span className="text-gray-600 text-sm">Número da Matrícula:</span>
+                            <div className="font-medium">{results.data.registryNumber}</div>
+                          </div>
+                          {results.data.ownerName && (
+                            <div>
+                              <span className="text-gray-600 text-sm">Proprietário:</span>
+                              <div className="font-medium">{results.data.ownerName}</div>
+                            </div>
+                          )}
+                          {results.data.propertyAddress && (
+                            <div>
+                              <span className="text-gray-600 text-sm">Endereço:</span>
+                              <div className="font-medium">{results.data.propertyAddress}</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Generic Success */}
+                    {results.success && !results.results && !results.data && !results.marketData && (
+                      <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                        <div className="text-green-800">
+                          <strong>✅ Operação realizada com sucesso!</strong>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
