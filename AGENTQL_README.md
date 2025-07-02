@@ -234,10 +234,13 @@ PORTAL_REQUEST_DELAY=2000
 - Rio de Janeiro (RJ) 
 - Belo Horizonte (MG)
 
-**IPTU:**
-- São Paulo (SP)
-- Rio de Janeiro (RJ)
-- Belo Horizonte (MG)
+**IPTU (47 cidades em todas as regiões):**
+
+🌍 **Norte:** Manaus, Belém, Porto Velho, Boa Vista, Rio Branco, Macapá, Palmas
+🏖️ **Nordeste:** Salvador, Fortaleza, Recife, São Luís, Maceió, João Pessoa, Natal, Teresina, Aracaju
+🌾 **Centro-Oeste:** Brasília, Campo Grande, Cuiabá, Goiânia
+🏙️ **Sudeste:** São Paulo, Rio de Janeiro, Belo Horizonte, Vitória, Campinas, Guarulhos, São Bernardo do Campo, Santo André, Osasco, Ribeirão Preto, Sorocaba, Niterói, Campos dos Goytacazes, Juiz de Fora, Contagem, Uberlândia
+❄️ **Sul:** Curitiba, Porto Alegre, Florianópolis, Londrina, Caxias do Sul, Pelotas, Canoas, Santa Maria, Joinville, Blumenau, Maringá, Ponta Grossa, Cascavel
 
 **Portais:**
 - OLX (Nacional)

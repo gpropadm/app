@@ -168,18 +168,51 @@ export class AgentQLService {
   }
 
   // Consulta IPTU automática
-  async extractIPTUData(propertyCode: string, city: string) {
+  async extractIPTUData(propertyCode: string, state: string) {
     try {
       const iptuUrls = {
-        'sao paulo': 'https://www.prefeitura.sp.gov.br/iptu',
-        'rio de janeiro': 'https://www.rio.rj.gov.br/iptu',
-        'belo horizonte': 'https://www.pbh.gov.br/iptu'
+        // Região Norte
+        'acre': 'https://www.ac.gov.br/iptu',
+        'amapá': 'https://www.ap.gov.br/iptu',
+        'amazonas': 'https://www.amazonas.am.gov.br/iptu',
+        'pará': 'https://www.pa.gov.br/iptu',
+        'rondônia': 'https://www.rondonia.ro.gov.br/iptu',
+        'roraima': 'https://www.roraima.rr.gov.br/iptu',
+        'tocantins': 'https://www.to.gov.br/iptu',
+        
+        // Região Nordeste
+        'alagoas': 'https://www.alagoas.al.gov.br/iptu',
+        'bahia': 'https://www.bahia.ba.gov.br/iptu',
+        'ceará': 'https://www.ceara.ce.gov.br/iptu',
+        'maranhão': 'https://www.ma.gov.br/iptu',
+        'paraíba': 'https://www.paraiba.pb.gov.br/iptu',
+        'pernambuco': 'https://www.pe.gov.br/iptu',
+        'piauí': 'https://www.pi.gov.br/iptu',
+        'rio grande do norte': 'https://www.rn.gov.br/iptu',
+        'sergipe': 'https://www.sergipe.se.gov.br/iptu',
+        
+        // Região Centro-Oeste
+        'distrito federal': 'https://www.fazenda.df.gov.br/iptu',
+        'goiás': 'https://www.goias.go.gov.br/iptu',
+        'mato grosso': 'https://www.mt.gov.br/iptu',
+        'mato grosso do sul': 'https://www.ms.gov.br/iptu',
+        
+        // Região Sudeste
+        'espírito santo': 'https://www.es.gov.br/iptu',
+        'minas gerais': 'https://www.mg.gov.br/iptu',
+        'rio de janeiro': 'https://www.rj.gov.br/iptu',
+        'são paulo': 'https://www.fazenda.sp.gov.br/iptu',
+        
+        // Região Sul
+        'paraná': 'https://www.pr.gov.br/iptu',
+        'rio grande do sul': 'https://www.rs.gov.br/iptu',
+        'santa catarina': 'https://www.sc.gov.br/iptu'
       };
       
-      const baseUrl = iptuUrls[city.toLowerCase() as keyof typeof iptuUrls];
+      const baseUrl = iptuUrls[state.toLowerCase() as keyof typeof iptuUrls];
       
       if (!baseUrl) {
-        throw new Error(`IPTU não suportado para a cidade: ${city}`);
+        throw new Error(`IPTU não suportado para o estado: ${state}. Estados disponíveis: ${Object.keys(iptuUrls).join(', ')}`);
       }
 
       await this.page.goto(baseUrl);

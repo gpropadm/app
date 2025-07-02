@@ -351,17 +351,58 @@ export default function AgentQLDashboard() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Cidade
+                    Estado
                   </label>
                   <select
                     value={iptuExtract.city}
                     onChange={(e) => setIptuExtract({...iptuExtract, city: e.target.value})}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   >
-                    <option value="São Paulo">São Paulo</option>
-                    <option value="Rio de Janeiro">Rio de Janeiro</option>
-                    <option value="Belo Horizonte">Belo Horizonte</option>
+                    <optgroup label="Região Norte">
+                      <option value="Acre">Acre (AC)</option>
+                      <option value="Amapá">Amapá (AP)</option>
+                      <option value="Amazonas">Amazonas (AM)</option>
+                      <option value="Pará">Pará (PA)</option>
+                      <option value="Rondônia">Rondônia (RO)</option>
+                      <option value="Roraima">Roraima (RR)</option>
+                      <option value="Tocantins">Tocantins (TO)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Região Nordeste">
+                      <option value="Alagoas">Alagoas (AL)</option>
+                      <option value="Bahia">Bahia (BA)</option>
+                      <option value="Ceará">Ceará (CE)</option>
+                      <option value="Maranhão">Maranhão (MA)</option>
+                      <option value="Paraíba">Paraíba (PB)</option>
+                      <option value="Pernambuco">Pernambuco (PE)</option>
+                      <option value="Piauí">Piauí (PI)</option>
+                      <option value="Rio Grande do Norte">Rio Grande do Norte (RN)</option>
+                      <option value="Sergipe">Sergipe (SE)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Região Centro-Oeste">
+                      <option value="Distrito Federal">Distrito Federal (DF)</option>
+                      <option value="Goiás">Goiás (GO)</option>
+                      <option value="Mato Grosso">Mato Grosso (MT)</option>
+                      <option value="Mato Grosso do Sul">Mato Grosso do Sul (MS)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Região Sudeste">
+                      <option value="Espírito Santo">Espírito Santo (ES)</option>
+                      <option value="Minas Gerais">Minas Gerais (MG)</option>
+                      <option value="Rio de Janeiro">Rio de Janeiro (RJ)</option>
+                      <option value="São Paulo">São Paulo (SP)</option>
+                    </optgroup>
+                    
+                    <optgroup label="Região Sul">
+                      <option value="Paraná">Paraná (PR)</option>
+                      <option value="Rio Grande do Sul">Rio Grande do Sul (RS)</option>
+                      <option value="Santa Catarina">Santa Catarina (SC)</option>
+                    </optgroup>
                   </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Cobertura nacional - todos os 26 estados + DF
+                  </p>
                 </div>
 
                 <button
