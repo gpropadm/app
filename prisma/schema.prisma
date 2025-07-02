@@ -29,6 +29,9 @@ model User {
   leads         Lead[]
   partnershipsSent     PartnershipNotification[] @relation("PartnershipFrom")
   partnershipsReceived PartnershipNotification[] @relation("PartnershipTo")
+  capturedLeads        CapturedLead[]
+  marketAnalyses       MarketAnalysis[]
+  scrapingJobs         ScrapingJob[]
 
   @@map("users")
 }
@@ -59,6 +62,11 @@ model Company {
   notifications Notification[]
   settings      Settings[]
   leads         Lead[]
+  capturedLeads CapturedLead[]
+  registryData  RegistryData[]
+  iptuData      IPTUData[]
+  marketAnalyses MarketAnalysis[]
+  scrapingJobs  ScrapingJob[]
 
   @@map("companies")
 }
@@ -95,6 +103,8 @@ model Property {
   matchedLeads  Lead[]
   maintenances  Maintenance[]
   monthlyReports MonthlyReport[]
+  registryData  RegistryData[]
+  iptuData      IPTUData[]
   owner         Owner          @relation(fields: [ownerId], references: [id])
   company       Company        @relation(fields: [companyId], references: [id])
   user          User           @relation(fields: [userId], references: [id])
@@ -561,6 +571,119 @@ model Expense {
   updatedAt   DateTime @updatedAt
 
   @@map("expenses")
+}
+
+// AgentQL Tables
+model CapturedLead {
+  id          String   @id @default(cuid())
+  source      String   // olx, zapimoveis, vivareal, etc
+  title       String
+  price       Float
+  location    String
+  description String?
+  contact     String?
+  link        String?
+  images      String?  // JSON array
+  status      String   @default("NEW") // NEW, CONTACTED, CONVERTED, IGNORED
+  companyId   String
+  userId      String?
+  capturedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@map("captured_leads")
+}
+
+model RegistryData {
+  id               String    @id @default(cuid())
+  registryNumber   String
+  city             String
+  ownerName        String?
+  propertyAddress  String?
+  area             String?
+  registrationDate String?
+  liens            String?   // JSON array of liens/gravames
+  description      String?
+  status           String    @default("ACTIVE") // ACTIVE, EXPIRED, INVALID
+  propertyId       String?   // Link to existing property if found
+  companyId        String
+  extractedAt      DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  
+  company          Company   @relation(fields: [companyId], references: [id])
+  property         Property? @relation(fields: [propertyId], references: [id])
+
+  @@unique([registryNumber, city])
+  @@map("registry_data")
+}
+
+model IPTUData {
+  id             String    @id @default(cuid())
+  propertyCode   String
+  city           String
+  annualValue    Float?
+  installments   String?   // JSON array
+  dueDate        String?
+  propertyValue  Float?
+  area           String?
+  status         String?
+  propertyId     String?   // Link to existing property if found
+  companyId      String
+  extractedAt    DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  company        Company   @relation(fields: [companyId], references: [id])
+  property       Property? @relation(fields: [propertyId], references: [id])
+
+  @@unique([propertyCode, city])
+  @@map("iptu_data")
+}
+
+model MarketAnalysis {
+  id            String   @id @default(cuid())
+  location      String
+  propertyType  String
+  priceRange    String   // JSON object {min, max}
+  analysisDate  DateTime
+  marketData    String   // JSON array of market data from different portals
+  insights      String   // JSON array of generated insights
+  averagePrice  Float?
+  propertyCount Int?
+  companyId     String
+  userId        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  company       Company  @relation(fields: [companyId], references: [id])
+  user          User?    @relation(fields: [userId], references: [id])
+
+  @@map("market_analysis")
+}
+
+model ScrapingJob {
+  id          String   @id @default(cuid())
+  type        String   // LEAD_CAPTURE, REGISTRY_EXTRACT, IPTU_EXTRACT, MARKET_MONITOR
+  source      String   // olx, cartorio_sp, iptu_sp, etc
+  parameters  String   // JSON object with job parameters
+  status      String   @default("PENDING") // PENDING, RUNNING, COMPLETED, FAILED
+  results     String?  // JSON object with results
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  companyId   String
+  userId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  company     Company  @relation(fields: [companyId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@map("scraping_jobs")
 }
 
 
