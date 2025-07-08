@@ -15,6 +15,7 @@ interface Company {
     pjbank_chave?: string
     asaas_api_key?: string
     asaas_environment?: string
+    asaas_wallet_id?: string
     gateway_preference?: string
   }
 }
@@ -29,7 +30,8 @@ export default function AdminGatewaySettings() {
     pjbank_credencial: '',
     pjbank_chave: '',
     asaas_api_key: '',
-    asaas_environment: 'sandbox'
+    asaas_environment: 'sandbox',
+    asaas_wallet_id: ''
   })
 
   useEffect(() => {
@@ -62,7 +64,8 @@ export default function AdminGatewaySettings() {
           pjbank_credencial: '',
           pjbank_chave: '',
           asaas_api_key: '',
-          asaas_environment: 'sandbox'
+          asaas_environment: 'sandbox',
+          asaas_wallet_id: ''
         })
       }
     } catch (error) {
@@ -286,6 +289,21 @@ export default function AdminGatewaySettings() {
                         <option value="sandbox">Sandbox (Teste)</option>
                         <option value="production">Produção</option>
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Wallet ID (para Split de Pagamentos)
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.asaas_wallet_id}
+                        onChange={(e) => handleInputChange('asaas_wallet_id', e.target.value)}
+                        placeholder="d7ce7ac3-4557-40c6-99a6-5295f706bf09"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Usado para split de pagamentos entre contas Asaas
+                      </p>
                     </div>
                     <div className="bg-green-50 p-3 rounded-lg text-sm text-green-800">
                       💡 <strong>Dica:</strong> Use o ambiente Sandbox para testes e Produção apenas quando aprovado pelo cliente.

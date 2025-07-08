@@ -107,6 +107,11 @@ export async function POST(
         key: 'asaas_environment',
         value: JSON.stringify(data.asaas_environment || 'sandbox'),
         category: 'gateway'
+      },
+      {
+        key: 'asaas_wallet_id',
+        value: JSON.stringify(data.asaas_wallet_id || ''),
+        category: 'gateway'
       }
     ]
     
