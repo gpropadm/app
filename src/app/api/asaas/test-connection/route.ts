@@ -37,14 +37,14 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Configurar empresa no ASAAS
+// Testar API Key fornecida pelo usuário
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.companyId) {
       return NextResponse.json(
-        { error: 'Não autorizado' }, 
+        { success: false, message: 'Não autorizado' }, 
         { status: 401 }
       )
     }
@@ -53,41 +53,35 @@ export async function POST(request: NextRequest) {
     const { asaasApiKey } = body
 
     if (!asaasApiKey) {
-      return NextResponse.json(
-        { error: 'asaasApiKey é obrigatória' },
-        { status: 400 }
-      )
+      return NextResponse.json({
+        success: false,
+        message: 'API Key é obrigatória'
+      }, { status: 400 })
     }
 
-    // Testar API Key antes de salvar
+    // Testar API Key diretamente
     const { AsaasSplitService } = await import('@/lib/asaas-split-service')
     const testService = new AsaasSplitService(asaasApiKey)
     const testResult = await testService.testConnection()
 
     if (!testResult.success) {
-      return NextResponse.json(
-        { error: `API Key inválida: ${testResult.error}` },
-        { status: 400 }
-      )
+      return NextResponse.json({
+        success: false,
+        message: `API Key inválida: ${testResult.error}`
+      })
     }
 
-    // Salvar configuração
+    // Salvar configuração no banco
     const { PrismaClient } = await import('@prisma/client')
     const prisma = new PrismaClient()
 
-    const company = await prisma.company.update({
+    await prisma.company.update({
       where: { id: session.user.companyId },
       data: {
         asaasApiKey: asaasApiKey,
-        asaasWalletId: testResult.accountInfo.walletId,
+        asaasWalletId: testResult.accountInfo?.walletId,
         asaasEnabled: true,
         updatedAt: new Date()
-      },
-      select: {
-        id: true,
-        name: true,
-        asaasEnabled: true,
-        asaasWalletId: true
       }
     })
 
@@ -95,20 +89,14 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Configuração ASAAS salva com sucesso',
-      company: {
-        id: company.id,
-        name: company.name,
-        asaasEnabled: company.asaasEnabled,
-        walletId: company.asaasWalletId
-      },
+      message: 'ASAAS conectado e configurado com sucesso!',
       accountInfo: testResult.accountInfo
     })
   } catch (error) {
-    console.error('Erro ao configurar ASAAS:', error)
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    )
+    console.error('Erro ao testar ASAAS:', error)
+    return NextResponse.json({
+      success: false,
+      message: `Erro interno: ${error.message}`
+    }, { status: 500 })
   }
 }
