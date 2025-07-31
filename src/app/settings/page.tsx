@@ -1526,7 +1526,12 @@ export default function Settings() {
                                   enabled: true, 
                                   walletId: result.accountInfo.walletId 
                                 }))
-                                showSuccess('ASAAS Conectado!', `Conta: ${result.accountInfo.name}`)
+                                showSuccess('ASAAS Conectado e Salvo!', `Conta: ${result.accountInfo.name}`)
+                                
+                                // Recarregar configurações para confirmar que foi salvo
+                                setTimeout(() => {
+                                  loadAsaasSettings()
+                                }, 1000)
                               } else {
                                 showError('Erro na Conexão', result.message)
                               }

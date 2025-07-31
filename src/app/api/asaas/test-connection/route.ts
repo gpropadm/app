@@ -86,19 +86,28 @@ export async function POST(request: NextRequest) {
     console.log('ASAAS Account Info:', accountInfo)
 
     // Salvar configuração no banco
+    console.log('Saving ASAAS config for company:', session.user.companyId)
+    
     const { PrismaClient } = await import('@prisma/client')
     const prisma = new PrismaClient()
 
-    await prisma.company.update({
+    const updatedCompany = await prisma.company.update({
       where: { id: session.user.companyId },
       data: {
         asaasApiKey: asaasApiKey,
         asaasWalletId: accountInfo.walletId,
         asaasEnabled: true,
         updatedAt: new Date()
+      },
+      select: {
+        id: true,
+        name: true,
+        asaasEnabled: true,
+        asaasWalletId: true
       }
     })
 
+    console.log('ASAAS config saved:', updatedCompany)
     await prisma.$disconnect()
 
     return NextResponse.json({
