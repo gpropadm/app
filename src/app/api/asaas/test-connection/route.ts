@@ -59,17 +59,32 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Testar API Key diretamente
-    const { AsaasSplitService } = await import('@/lib/asaas-split-service')
-    const testService = new AsaasSplitService(asaasApiKey)
-    const testResult = await testService.testConnection()
+    // Testar API Key diretamente com fetch simples
+    console.log('Testing ASAAS API Key:', asaasApiKey.substring(0, 20) + '...')
+    
+    const testResponse = await fetch('https://www.asaas.com/api/v3/myAccount', {
+      method: 'GET',
+      headers: {
+        'Authorization': `${asaasApiKey}`,
+        'Content-Type': 'application/json',
+        'User-Agent': 'G-PROP-CRM/1.0'
+      }
+    })
 
-    if (!testResult.success) {
+    console.log('ASAAS Response Status:', testResponse.status)
+    
+    if (!testResponse.ok) {
+      const errorText = await testResponse.text()
+      console.log('ASAAS Error Response:', errorText)
+      
       return NextResponse.json({
         success: false,
-        message: `API Key inválida: ${testResult.error}`
+        message: `ASAAS API Error ${testResponse.status}: ${errorText || 'Unauthorized'}`
       })
     }
+
+    const accountInfo = await testResponse.json()
+    console.log('ASAAS Account Info:', accountInfo)
 
     // Salvar configuração no banco
     const { PrismaClient } = await import('@prisma/client')
@@ -79,7 +94,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.user.companyId },
       data: {
         asaasApiKey: asaasApiKey,
-        asaasWalletId: testResult.accountInfo?.walletId,
+        asaasWalletId: accountInfo.walletId,
         asaasEnabled: true,
         updatedAt: new Date()
       }
@@ -90,7 +105,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'ASAAS conectado e configurado com sucesso!',
-      accountInfo: testResult.accountInfo
+      accountInfo: {
+        name: accountInfo.name,
+        email: accountInfo.email,
+        walletId: accountInfo.walletId
+      }
     })
   } catch (error) {
     console.error('Erro ao testar ASAAS:', error)
