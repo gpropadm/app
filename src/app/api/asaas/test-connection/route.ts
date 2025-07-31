@@ -65,9 +65,8 @@ export async function POST(request: NextRequest) {
     const testResponse = await fetch('https://www.asaas.com/api/v3/myAccount', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${asaasApiKey}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'G-PROP-CRM/1.0'
+        'access_token': asaasApiKey,
+        'Content-Type': 'application/json'
       }
     })
 
