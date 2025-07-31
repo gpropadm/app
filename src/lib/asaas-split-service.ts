@@ -87,7 +87,7 @@ export class AsaasSplitService {
     const response = await fetch(url, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `${this.apiKey}`,
         'Content-Type': 'application/json',
         'User-Agent': 'G-PROP-CRM/1.0',
         ...options.headers,
