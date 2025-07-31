@@ -77,6 +77,12 @@ interface APISettings {
   infosimplesApiKey: string
 }
 
+interface AsaasSettings {
+  apiKey: string
+  enabled: boolean
+  walletId: string
+}
+
 export default function Settings() {
   const { theme, setTheme } = useTheme()
   const { data: session } = useSession()
@@ -140,6 +146,12 @@ export default function Settings() {
 
   const [apiSettings, setApiSettings] = useState<APISettings>({
     infosimplesApiKey: ''
+  })
+
+  const [asaasSettings, setAsaasSettings] = useState<AsaasSettings>({
+    apiKey: '',
+    enabled: false,
+    walletId: ''
   })
 
   useEffect(() => {
@@ -424,6 +436,7 @@ export default function Settings() {
     { id: 'notifications', name: 'Notificações', icon: Bell },
     { id: 'financial', name: 'Financeiro', icon: DollarSign },
     ...(isAdmin ? [{ id: 'payment', name: 'Pagamento PIX', icon: DollarSign }] : []),
+    ...(isAdmin ? [{ id: 'asaas', name: 'ASAAS Split', icon: DollarSign }] : []),
     { id: 'apis', name: 'APIs Externas', icon: Settings },
     { id: 'integrations', name: 'Integrações', icon: Link },
     { id: 'security', name: 'Segurança', icon: Shield },
@@ -1366,6 +1379,150 @@ export default function Settings() {
                       <span className="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                         Não Configurado
                       </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'asaas' && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-medium" style={{color: '#f63c6a'}}>🏦 ASAAS Split de Pagamentos</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Configure o split automático de pagamentos. O ASAAS dividirá automaticamente o aluguel entre proprietário e imobiliária.
+                </p>
+                
+                <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                  <div className="flex items-start space-x-3">
+                    <div className="flex-shrink-0">
+                      <DollarSign className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-medium text-green-900 dark:text-green-100">Como Funciona o Split Automático:</h4>
+                      <div className="mt-3 text-sm text-green-800 dark:text-green-200 space-y-2">
+                        <p>✅ <strong>Inquilino paga boleto/PIX</strong> normalmente</p>
+                        <p>💰 <strong>ASAAS divide automaticamente</strong> o valor</p>
+                        <p>🏠 <strong>Proprietário recebe</strong> o valor do aluguel (descontando sua comissão)</p>
+                        <p>🏢 <strong>Imobiliária recebe</strong> a comissão configurada no contrato</p>
+                        <p>📊 <strong>Tudo automático</strong> - sem trabalho manual!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-lg font-medium text-gray-900 dark:text-white">Status da Configuração</h4>
+                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+                        asaasSettings.enabled && asaasSettings.apiKey
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}>
+                        {asaasSettings.enabled && asaasSettings.apiKey ? '✅ Configurado' : '⚠️ Não Configurado'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          API Key do ASAAS *
+                        </label>
+                        <input
+                          type="password"
+                          value={asaasSettings.apiKey}
+                          onChange={(e) => setAsaasSettings(prev => ({ ...prev, apiKey: e.target.value }))}
+                          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:border-transparent"
+                          style={{
+                            '--focus-ring-color': '#f63c6a',
+                            '--focus-border-color': 'transparent'
+                          } as React.CSSProperties}
+                          onFocus={(e) => {
+                            e.target.style.boxShadow = '0 0 0 2px rgba(246, 60, 106, 0.2)'
+                            e.target.style.borderColor = '#f63c6a'
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.boxShadow = ''
+                            e.target.style.borderColor = '#d1d5db'
+                          }}
+                          placeholder="Cole sua API Key do ASAAS aqui"
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Obtenha sua API Key no painel do ASAAS em Minha Conta → Integrações → API
+                        </p>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch('/api/asaas/test-connection', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ asaasApiKey: asaasSettings.apiKey })
+                              })
+                              const result = await response.json()
+                              
+                              if (result.success) {
+                                setAsaasSettings(prev => ({ 
+                                  ...prev, 
+                                  enabled: true, 
+                                  walletId: result.accountInfo.walletId 
+                                }))
+                                showSuccess('ASAAS Conectado!', `Conta: ${result.accountInfo.name}`)
+                              } else {
+                                showError('Erro na Conexão', result.message)
+                              }
+                            } catch (error) {
+                              showError('Erro', 'Falha ao testar conexão')
+                            }
+                          }}
+                          disabled={!asaasSettings.apiKey}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          🔄 Testar Conexão
+                        </button>
+                        
+                        {asaasSettings.enabled && (
+                          <span className="text-sm text-green-600 font-medium">
+                            ✅ Conectado com sucesso!
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {asaasSettings.enabled && (
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                      <h4 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-3">
+                        🎯 Próximos Passos para Usar o Split:
+                      </h4>
+                      <div className="space-y-3 text-sm text-blue-800 dark:text-blue-200">
+                        <div className="flex items-start space-x-3">
+                          <span className="bg-blue-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                          <p><strong>Configure contas dos proprietários:</strong> Vá em "Proprietários" e clique em "Configurar ASAAS" para cada um</p>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <span className="bg-blue-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">2</span>
+                          <p><strong>Gere boletos com split:</strong> Nos contratos, use "Gerar Boleto com Split" em vez do botão normal</p>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <span className="bg-blue-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                          <p><strong>Automático:</strong> Quando o inquilino pagar, o ASAAS dividirá automaticamente o valor!</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-6">
+                    <h4 className="text-lg font-medium text-yellow-900 dark:text-yellow-100 mb-3">
+                      ⚠️ Importante - Configuração ASAAS:
+                    </h4>
+                    <div className="space-y-2 text-sm text-yellow-800 dark:text-yellow-200">
+                      <p>• <strong>Ambiente:</strong> Use o ambiente de produção do ASAAS para transações reais</p>
+                      <p>• <strong>Webhook:</strong> Configure no ASAAS o webhook: <code className="bg-yellow-100 dark:bg-yellow-800 px-2 py-1 rounded">https://app.gprop.com.br/api/asaas/webhook</code></p>
+                      <p>• <strong>Taxas:</strong> O ASAAS cobra ~1,8% por boleto + R$ 2,00 por transação PIX</p>
+                      <p>• <strong>Split:</strong> Não há taxa adicional para o split - é gratuito!</p>
                     </div>
                   </div>
                 </div>

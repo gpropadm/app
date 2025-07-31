@@ -51,6 +51,12 @@ model Company {
   website       String?
   active        Boolean   @default(true)
   subscription  String    @default("BASIC") // BASIC, PREMIUM, ENTERPRISE
+  
+  // Configurações ASAAS para Split
+  asaasApiKey   String?   // API Key principal da imobiliária no ASAAS
+  asaasWalletId String?   // Wallet ID da imobiliária para receber comissões
+  asaasEnabled  Boolean   @default(false) // Se o split está habilitado
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
@@ -208,6 +214,17 @@ model Payment {
   interest          Float?
   receipts          String?       // JSON array of receipt image URLs
   notes             String?       // Additional payment notes
+  
+  // Campos para ASAAS Split
+  asaasPaymentId    String?       // ID do pagamento no ASAAS
+  asaasCustomerId   String?       // ID do cliente no ASAAS
+  splitData         String?       // JSON com dados do split
+  ownerAmount       Float?        // Valor para o proprietário
+  companyAmount     Float?        // Valor para a imobiliária
+  asaasFee          Float?        // Taxa do ASAAS
+  splitStatus       String?       // Status do split: PENDING, DONE, FAILED
+  pixQrCode         String?       // QR Code PIX do ASAAS
+  
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   contract          Contract      @relation(fields: [contractId], references: [id])
