@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { DashboardLayout } from '@/components/dashboard-layout'
 import { useTheme } from '@/lib/theme-context'
 import { useCompanyLogo } from '@/lib/company-logo-context'
-import { ToastContainer, useToast } from '@/components/toast'
+// import { ToastContainer, useToast } from '@/components/toast'
 import { 
   Building2, 
   Bell, 
@@ -18,7 +18,7 @@ import {
   Moon,
   Sun,
   User,
-  Settings
+  Settings as SettingsIcon
 } from 'lucide-react'
 
 interface CompanySettings {
@@ -87,7 +87,15 @@ export default function Settings() {
   const { theme, setTheme } = useTheme()
   const { data: session } = useSession()
   const { setCompanyLogo } = useCompanyLogo()
-  const { toasts, removeToast, showSuccess, showError } = useToast()
+  // const { toasts, removeToast, showSuccess, showError } = useToast()
+  
+  // Simple toast replacement
+  const showSuccess = (title: string, message?: string) => {
+    alert(`✅ ${title}${message ? ': ' + message : ''}`)
+  }
+  const showError = (title: string, message?: string) => {
+    alert(`❌ ${title}${message ? ': ' + message : ''}`)
+  }
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
@@ -486,7 +494,7 @@ export default function Settings() {
     { id: 'financial', name: 'Financeiro', icon: DollarSign },
     ...(isAdmin ? [{ id: 'payment', name: 'Pagamento PIX', icon: DollarSign }] : []),
     ...(isAdmin ? [{ id: 'asaas', name: 'ASAAS Split', icon: DollarSign }] : []),
-    { id: 'apis', name: 'APIs Externas', icon: Settings },
+    { id: 'apis', name: 'APIs Externas', icon: SettingsIcon },
     { id: 'integrations', name: 'Integrações', icon: Link },
     { id: 'security', name: 'Segurança', icon: Shield },
   ]
@@ -1626,8 +1634,8 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Toast Notifications */}
-        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        {/* Toast Notifications - Temporarily disabled */}
+        {/* <ToastContainer toasts={toasts} onRemove={removeToast} /> */}
       </div>
     </DashboardLayout>
   )
