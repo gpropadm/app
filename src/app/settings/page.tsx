@@ -91,6 +91,11 @@ export default function Settings() {
   const [activeTab, setActiveTab] = useState('profile')
   const [loading, setLoading] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const [dataLoaded, setDataLoaded] = useState({
+    company: false,
+    user: false,
+    asaas: false
+  })
 
   const [companySettings, setCompanySettings] = useState<CompanySettings>({
     name: '',
@@ -155,21 +160,64 @@ export default function Settings() {
   })
 
   useEffect(() => {
-    loadSettings()
-    loadUserProfile()
-  }, [])
+    // Lazy load com cache - só carrega dados quando necessário e não carregados
+    if ((activeTab === 'company' || activeTab === 'user') && !dataLoaded.company) {
+      loadSettings()
+      loadUserProfile()
+    } else if (activeTab === 'asaas' && !dataLoaded.asaas) {
+      // Carrega dados ASAAS apenas quando a aba é acessada e não carregados
+      loadAsaasSettings()
+    }
+  }, [activeTab, dataLoaded])
 
+  // Carregamento inicial mínimo
+  useEffect(() => {
+    if (session?.user) {
+      // Carrega apenas dados essenciais inicialmente
+      loadMinimalUserData()
+    }
+  }, [session])
+
+  const loadMinimalUserData = async () => {
+    try {
+      // Apenas carrega nome e configurações básicas para renderização inicial
+      setUserProfile(prev => ({
+        ...prev,
+        name: session?.user?.name || '',
+        email: session?.user?.email || ''
+      }))
+    } catch (error) {
+      console.error('Erro ao carregar dados mínimos:', error)
+    }
+  }
+
+  const loadAsaasSettings = async () => {
+    try {
+      // Carrega apenas configurações ASAAS específicas
+      const response = await fetch('/api/settings')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.company) {
+          setAsaasSettings({
+            apiKey: data.company.asaasApiKey || '',
+            enabled: data.company.asaasEnabled || false,
+            walletId: data.company.asaasWalletId || ''
+          })
+        }
+        setDataLoaded(prev => ({ ...prev, asaas: true }))
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações ASAAS:', error)
+    }
+  }
 
   const loadSettings = async () => {
     setLoading(true)
     try {
-      console.log('=== LOADING SETTINGS ===')
       const response = await fetch('/api/settings')
-      console.log('Load response status:', response.status)
       
       if (response.ok) {
         const data = await response.json()
-        console.log('Received data:', data)
         
         if (data.company) {
           console.log('Loading company data:', data.company)
@@ -213,6 +261,7 @@ export default function Settings() {
         const errorText = await response.text()
         console.error('Load failed:', response.status, errorText)
       }
+      setDataLoaded(prev => ({ ...prev, company: true }))
     } catch (error) {
       console.error('Error loading settings:', error)
     } finally {
