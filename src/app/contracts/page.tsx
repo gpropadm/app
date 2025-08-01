@@ -22,7 +22,8 @@ import {
   Clock,
   X,
   Trash2,
-  DollarSign
+  DollarSign,
+  CalendarDays
 } from 'lucide-react'
 
 interface Contract {
@@ -294,6 +295,52 @@ Sistema: CRM Imobiliário
     } catch (error) {
       console.error('Error generating boleto:', error)
       showError('Erro', 'Falha ao gerar boleto com split')
+    }
+  }
+
+  const generateMonthlyBoletos = async (contract: Contract) => {
+    const months = prompt('Quantos meses de boletos deseja gerar?', '12')
+    
+    if (!months || isNaN(Number(months)) || Number(months) < 1) {
+      showError('Erro', 'Digite um número válido de meses')
+      return
+    }
+
+    try {
+      showSuccess('Gerando boletos mensais...', `Criando ${months} boletos com split automático`)
+      
+      const response = await fetch('/api/asaas/generate-monthly', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contractId: contract.id,
+          months: Number(months),
+          startFromNextMonth: true
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        showSuccess(
+          'Boletos Gerados!', 
+          `${result.paymentsGenerated} boletos criados para ${result.contractInfo?.tenant}`
+        )
+        
+        if (result.errors && result.errors.length > 0) {
+          console.warn('Alguns erros ocorreram:', result.errors)
+          showError('Atenção', `${result.paymentsGenerated} boletos criados, mas alguns falharam`)
+        }
+        
+        fetchContracts() // Recarregar contratos
+      } else {
+        showError('Erro', result.message || 'Falha ao gerar boletos mensais')
+      }
+    } catch (error) {
+      console.error('Error generating monthly boletos:', error)
+      showError('Erro', 'Falha ao gerar boletos mensais')
     }
   }
 
@@ -655,6 +702,14 @@ Sistema: CRM Imobiliário
                       disabled={contract.status !== 'ACTIVE'}
                     >
                       <DollarSign className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => generateMonthlyBoletos(contract)}
+                      className="p-2 text-orange-600 hover:text-orange-900 hover:bg-orange-50 rounded-lg transition-colors"
+                      title="Gerar Boletos Mensais"
+                      disabled={contract.status !== 'ACTIVE'}
+                    >
+                      <CalendarDays className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => downloadContract(contract)}
