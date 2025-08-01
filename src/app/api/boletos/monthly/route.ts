@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     console.log(`📋 Processando: contractId=${contractId}, months=${months}`)
 
     // Conectar ao banco
-    const { PrismaClient } = await import '@prisma/client')
+    const { PrismaClient } = await import('@prisma/client')
     const prisma = new PrismaClient()
 
     console.log('🔍 Buscando contrato no banco...')
