@@ -1,18 +1,16 @@
-FORCE DEPLOY - Portal Cliente COM ÍCONE BOLETOS ATUALIZADO
-Timestamp: 2025-08-01 17:00:00
-Commit: receipt-icon-update
+FORCE DEPLOY - Página Contratos SEM ÍCONE OLHO E VER DETALHES
+Timestamp: 2025-08-01 17:15:00
+Commit: remove-eye-icon-view-details
 
 Deploy deve incluir:
-- /cliente - Portal do Cliente com ícone de boletos atualizado
-- Ícone Wallet trocado por Receipt (mais apropriado para boletos)
-- Ícone Receipt em todas as seções de boletos
-- Fundo branco mantido
-- Menu sanduíche animado mantido
-- Header escuro slate-700 mantido
-- Cards brancos com bordas escuras mantidos
-- Interface moderna e limpa
-- Modo DEMO ativo
+- /contracts - Página de contratos sem ícone de olho e botão "Ver Detalhes"
+- Removido botão com ícone Eye (olho) "Ver detalhes"
+- Removido botão de texto "Ver Detalhes"
+- Interface mais limpa na lista de contratos
+- Funcionalidade de visualizar detalhes removida dos botões de ação
+- Modal de detalhes ainda funciona via outras formas de acesso
+- Limpeza de imports não utilizados
 
-🧾 ATUALIZAÇÃO: Ícone Receipt para boletos!
+🚫 REMOÇÃO: Ícone olho e botão "Ver Detalhes" da lista de contratos!
 
 Vercel deve detectar este arquivo e fazer novo deploy.

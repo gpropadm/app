@@ -15,7 +15,6 @@ import {
   User,
   Building2,
   Edit,
-  Eye,
   Download,
   AlertTriangle,
   CheckCircle,
@@ -751,13 +750,6 @@ Sistema: CRM Imobiliário
                 <div className="flex items-center justify-end mt-3">
                   <div className="flex space-x-2">
                     <button 
-                      onClick={() => viewContractDetails(contract)}
-                      className="p-2 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Ver detalhes"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-                    <button 
                       onClick={() => generateBoleto(contract)}
                       className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
                       title="Gerar Boleto com Split"
@@ -818,12 +810,6 @@ Sistema: CRM Imobiliário
                       )}
                     </button>
                   </div>
-                  <button 
-                    onClick={() => viewContractDetails(contract)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Ver Detalhes
-                  </button>
                 </div>
               </div>
             )
