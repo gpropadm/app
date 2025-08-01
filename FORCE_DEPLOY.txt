@@ -1,17 +1,18 @@
-FORCE DEPLOY - Portal do Cliente CLEAN DESIGN
-Timestamp: 2025-08-01 16:00:00
-Commit: clean-minimal-design
+FORCE DEPLOY - Portal do Cliente PADRÃO PROFISSIONAL
+Timestamp: 2025-08-01 16:30:00
+Commit: professional-app-design
 
 Deploy deve incluir:
-- /cliente - Portal do Cliente com design CLEAN e minimalista
-- Visual simples e moderno, sem gradientes excessivos
-- Interface limpa e gostosa de usar
-- Cards brancos com bordas sutis
-- Cores azul simples como principal
-- Layout responsivo otimizado
-- UX melhorada e mais intuitiva
+- /cliente - Portal do Cliente seguindo padrão do exemplo
+- Header escuro slate-700 estilo app profissional
+- Cards brancos com bordas escuras (border-2 border-gray-600)
+- Grid 2x2 de ações principais
+- Ícones com background cinza claro
+- Visual idêntico ao exemplo fornecido
+- Sidebar escura slate-800
+- Interface moderna e profissional
 - Modo DEMO ativo
 
-🎨 DESIGN CLEAN: Interface minimalista e moderna!
+📱 DESIGN PROFISSIONAL: Interface seguindo padrão moderno de app!
 
 Vercel deve detectar este arquivo e fazer novo deploy.

@@ -284,136 +284,145 @@ export default function ClientPortal() {
   ]
 
   const renderContent = () => {
-    switch (activeSection) {
-      case 'dashboard':
-        return <DashboardContent contract={contract} nextPayment={nextPayment} setActiveSection={setActiveSection} />
-      case 'boletos':
-        return <BoletosContent contract={contract} />
-      case 'historico':
-        return <HistoricoContent payments={recentPayments} />
-      case 'perfil':
-        return <PerfilContent contract={contract} />
-      case 'manutencoes':
-        return <ManutencoesContent />
-      case 'contato':
-        return <ContatoContent />
-      default:
-        return <DashboardContent contract={contract} nextPayment={nextPayment} setActiveSection={setActiveSection} />
+    // Renderizar o header para todas as seções
+    const renderSectionWithHeader = () => {
+      const sectionTitles: { [key: string]: string } = {
+        'dashboard': 'O que deseja fazer?',
+        'boletos': 'Visualize seus boletos',
+        'historico': 'Acompanhe seus pagamentos', 
+        'perfil': 'Seus dados pessoais',
+        'manutencoes': 'Solicite reparos',
+        'contato': 'Entre em contato'
+      }
+      
+      const sectionContent = () => {
+        switch (activeSection) {
+          case 'dashboard':
+            return <DashboardContent contract={contract} nextPayment={nextPayment} setActiveSection={setActiveSection} />
+          case 'boletos':
+            return <BoletosContent contract={contract} />
+          case 'historico':
+            return <HistoricoContent payments={recentPayments} />
+          case 'perfil':
+            return <PerfilContent contract={contract} />
+          case 'manutencoes':
+            return <ManutencoesContent />
+          case 'contato':
+            return <ContatoContent />
+          default:
+            return <DashboardContent contract={contract} nextPayment={nextPayment} setActiveSection={setActiveSection} />
+        }
+      }
+      
+      if (activeSection === 'dashboard') {
+        return sectionContent()
+      }
+      
+      return (
+        <div>
+          {/* Header para outras seções */}
+          <div className="bg-slate-700 px-6 py-4 -mx-6 -mt-6 mb-6">
+            <div className="text-white">
+              <h2 className="text-xl font-semibold mb-1">{activeSection.charAt(0).toUpperCase() + activeSection.slice(1)}</h2>
+              <p className="text-slate-300">{sectionTitles[activeSection]}</p>
+            </div>
+          </div>
+          {sectionContent()}
+        </div>
+      )
     }
+    
+    return renderSectionWithHeader()
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Clean Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => setIsMenuOpen(true)}
-              className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-            >
-              <Menu className="w-5 h-5" />
-            </button>
-            
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <Home className="w-4 h-4 text-white" />
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                Portal Cliente
-              </h1>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <button className="relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                <Bell className="w-5 h-5 text-gray-600" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-              </button>
-              <button 
-                onClick={() => setActiveSection('perfil')}
-                className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-              >
-                <User className="w-4 h-4" />
-              </button>
-            </div>
+      {/* App Header - Dark */}
+      <div className="bg-slate-700 px-6 pt-12 pb-6">
+        <div className="flex items-center justify-between mb-4">
+          <button 
+            onClick={() => setIsMenuOpen(true)}
+            className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"
+          >
+            <Menu className="w-5 h-5 text-white" />
+          </button>
+          <div className="text-center">
+            <h1 className="text-white font-bold text-lg">Portal</h1>
+            <p className="text-slate-300 text-sm">Cliente</p>
           </div>
         </div>
-      </header>
+        
+        <div className="text-white">
+          <h2 className="text-xl font-semibold mb-1">Olá, {contract.tenant.name.split(' ')[0]}</h2>
+          <p className="text-slate-300">O que deseja fazer?</p>
+        </div>
+      </div>
 
-      {/* Clean Sidebar Menu */}
+      {/* Sidebar Menu */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50">
           <div 
-            className="absolute inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/50 transition-opacity duration-300"
             onClick={() => setIsMenuOpen(false)}
           />
-          <div className="absolute left-0 top-0 h-full w-80 bg-white shadow-xl">
-            {/* Profile Header */}
-            <div className="p-6 bg-blue-600 text-white">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                    <User className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h2 className="font-semibold">{contract.tenant.name}</h2>
-                    <p className="text-blue-100 text-sm">Cliente</p>
-                  </div>
+          <div className="absolute left-0 top-0 h-full w-80 bg-slate-800 transform transition-transform duration-300 ease-in-out">
+            <div className="p-6 pt-16">
+              {/* Profile Section */}
+              <div className="flex items-center space-x-3 mb-8 pb-6 border-b border-slate-600">
+                <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold">{contract.tenant.name}</h3>
+                  <p className="text-slate-300 text-sm">Cliente</p>
                 </div>
                 <button
                   onClick={() => setIsMenuOpen(false)}
-                  className="p-2 rounded-lg hover:bg-white/20 transition-colors"
+                  className="ml-auto p-2 rounded-lg hover:bg-slate-700 text-white transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-            </div>
-            
-            {/* Navigation Menu */}
-            <div className="p-4 space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon
-                const isActive = activeSection === item.id
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setActiveSection(item.id)
-                      setIsMenuOpen(false)
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600'
-                        : 'hover:bg-gray-50 text-gray-700'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                )
-              })}
               
-              <div className="border-t border-gray-200 pt-4 mt-4">
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="font-medium">Sair</span>
-                </button>
-              </div>
+              {/* Menu Items */}
+              <nav className="space-y-2">
+                {menuItems.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveSection(item.id)
+                        setIsMenuOpen(false)
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className="w-full flex items-center space-x-3 text-white hover:bg-slate-700 rounded-lg p-3 transition-colors"
+                    >
+                      <Icon className="w-5 h-5 text-slate-300" />
+                      <span>{item.label}</span>
+                    </button>
+                  )
+                })}
+                
+                <div className="border-t border-slate-600 pt-4 mt-4">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-3 text-red-400 hover:bg-red-900/20 rounded-lg p-3 transition-colors"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span>Sair</span>
+                  </button>
+                </div>
+              </nav>
             </div>
           </div>
         </div>
       )}
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="transition-all duration-300 ease-in-out">
-          {renderContent()}
-        </div>
-      </main>
+      <div className="px-6 py-6 bg-gray-50 flex-1">
+        {renderContent()}
+      </div>
     </div>
   )
 }
@@ -422,157 +431,116 @@ export default function ClientPortal() {
 function DashboardContent({ contract, nextPayment, setActiveSection }: { contract: ClientContract, nextPayment: any, setActiveSection: (section: string) => void }) {
   return (
     <div className="space-y-6">
-      {/* Clean Welcome Card */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-            <Home className="w-8 h-8 text-blue-600" />
-          </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              Olá, {contract.tenant.name.split(' ')[0]}! 👋
-            </h1>
-            <p className="text-gray-600 text-lg font-medium">{contract.property.title}</p>
-            <div className="flex items-center text-gray-500 mt-2">
-              <MapPin className="w-4 h-4 mr-1" />
-              <span className="text-sm">{contract.property.address}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Simple Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">2</p>
-              <p className="text-sm text-gray-600">Pagos</p>
-            </div>
-          </div>
-        </div>
+      {/* Menu Grid - Estilo do exemplo */}
+      <div className="grid grid-cols-2 gap-4">
         
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">1</p>
-              <p className="text-sm text-gray-600">Pendente</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900">R$ 1.4k</p>
-              <p className="text-sm text-gray-600">Aluguel</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-xl font-bold text-gray-900">10</p>
-              <p className="text-sm text-gray-600">Dias</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Clean Next Payment Card */}
-      {nextPayment && (
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Próximo Vencimento</h3>
-              <p className="text-3xl font-bold text-blue-600 mb-1">
-                R$ {nextPayment.amount.toLocaleString('pt-BR')}
-              </p>
-              <p className="text-gray-600">
-                {new Date(nextPayment.dueDate).toLocaleDateString('pt-BR', { 
-                  day: 'numeric', 
-                  month: 'long',
-                  year: 'numeric'
-                })}
-              </p>
-            </div>
-            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-              <Calendar className="w-8 h-8 text-blue-600" />
-            </div>
-          </div>
-          
-          <div className="flex gap-3">
-            <button className="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
-              <Download className="w-4 h-4" />
-              <span>Ver Boleto</span>
-            </button>
-            <button className="flex-1 bg-green-600 text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center space-x-2">
-              <Zap className="w-4 h-4" />
-              <span>Pagar PIX</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Simple Quick Actions */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Boletos */}
         <button 
           onClick={() => setActiveSection('boletos')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left"
+          className="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-600 hover:shadow-md transition-all hover:-translate-y-1"
         >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900">Meus Boletos</p>
-              <p className="text-sm text-gray-600">Ver pagamentos</p>
-            </div>
+          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+            <Wallet className="w-6 h-6 text-gray-600" />
           </div>
+          <h3 className="font-semibold text-gray-800 text-sm">Boletos</h3>
         </button>
         
+        {/* Histórico */}
         <button 
-          onClick={() => setActiveSection('contato')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left"
+          onClick={() => setActiveSection('historico')}
+          className="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-600 hover:shadow-md transition-all hover:-translate-y-1"
         >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900">Suporte</p>
-              <p className="text-sm text-gray-600">Fale conosco</p>
-            </div>
+          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+            <History className="w-6 h-6 text-gray-600" />
           </div>
+          <h3 className="font-semibold text-gray-800 text-sm">Histórico</h3>
         </button>
-
+        
+        {/* Perfil */}
+        <button 
+          onClick={() => setActiveSection('perfil')}
+          className="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-600 hover:shadow-md transition-all hover:-translate-y-1"
+        >
+          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+            <User className="w-6 h-6 text-gray-600" />
+          </div>
+          <h3 className="font-semibold text-gray-800 text-sm">Perfil</h3>
+        </button>
+        
+        {/* Manutenções */}
         <button 
           onClick={() => setActiveSection('manutencoes')}
-          className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left"
+          className="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-600 hover:shadow-md transition-all hover:-translate-y-1"
         >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-              <Settings className="w-5 h-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-gray-900">Manutenções</p>
-              <p className="text-sm text-gray-600">Solicitar</p>
+          <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
+            <Settings className="w-6 h-6 text-gray-600" />
+          </div>
+          <h3 className="font-semibold text-gray-800 text-sm">Manutenções</h3>
+        </button>
+        
+      </div>
+      
+      {/* Contato - Full Width */}
+      <button 
+        onClick={() => setActiveSection('contato')}
+        className="w-full bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all hover:-translate-y-1"
+      >
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <MessageCircle className="w-6 h-6 text-green-600" />
+          </div>
+          <h3 className="font-semibold text-gray-800">Contato & Suporte</h3>
+        </div>
+      </button>
+      
+      {/* Ações rápidas */}
+      <div className="mt-6">
+        <h4 className="text-gray-600 font-medium mb-3 text-sm">Ações rápidas</h4>
+        
+        {/* Próximo Vencimento */}
+        {nextPayment && (
+          <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-gray-800 text-sm">Próximo vencimento</p>
+                  <p className="text-gray-500 text-xs">
+                    R$ {nextPayment.amount.toLocaleString('pt-BR')} - {new Date(nextPayment.dueDate).toLocaleDateString('pt-BR')}
+                  </p>
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <button className="px-3 py-1 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors">
+                  Ver Boleto
+                </button>
+                <button className="px-3 py-1 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors">
+                  PIX
+                </button>
+              </div>
             </div>
           </div>
-        </button>
+        )}
+        
+        {/* Status */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <p className="font-medium text-gray-800 text-sm">Status dos pagamentos</p>
+                <p className="text-gray-500 text-xs">2 pagos, 1 pendente</p>
+              </div>
+            </div>
+            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -580,49 +548,44 @@ function DashboardContent({ contract, nextPayment, setActiveSection }: { contrac
 
 function BoletosContent({ contract }: { contract: ClientContract }) {
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Meus Boletos</h2>
-        <span className="text-sm text-gray-600">{contract.payments.length} boletos</span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-white font-bold text-lg">Meus Boletos</h2>
+        <span className="text-slate-300 text-sm">{contract.payments.length} boletos</span>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3">
         {contract.payments.map((payment) => (
-          <div key={payment.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div key={payment.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+              <div className="flex items-center space-x-3">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   payment.status === 'PAID' ? 'bg-green-100' : payment.status === 'OVERDUE' ? 'bg-red-100' : 'bg-yellow-100'
                 }`}>
                   {payment.status === 'PAID' ? 
-                    <CheckCircle className="w-6 h-6 text-green-600" /> :
+                    <CheckCircle className="w-4 h-4 text-green-600" /> :
                     payment.status === 'OVERDUE' ? 
-                    <AlertCircle className="w-6 h-6 text-red-600" /> :
-                    <Clock className="w-6 h-6 text-yellow-600" />
+                    <AlertCircle className="w-4 h-4 text-red-600" /> :
+                    <Clock className="w-4 h-4 text-yellow-600" />
                   }
                 </div>
                 <div>
-                  <p className="text-lg font-semibold text-gray-900">R$ {payment.amount.toLocaleString('pt-BR')}</p>
-                  <p className="text-gray-600 text-sm">
-                    Vence: {new Date(payment.dueDate).toLocaleDateString('pt-BR')}
+                  <p className="font-medium text-gray-800 text-sm">R$ {payment.amount.toLocaleString('pt-BR')}</p>
+                  <p className="text-gray-500 text-xs">
+                    {new Date(payment.dueDate).toLocaleDateString('pt-BR')}
                   </p>
-                  {payment.paidDate && (
-                    <p className="text-green-600 text-sm">
-                      Pago em: {new Date(payment.paidDate).toLocaleDateString('pt-BR')}
-                    </p>
-                  )}
                 </div>
               </div>
               
-              <div className="flex items-center space-x-3">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              <div className="flex items-center space-x-2">
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
                   payment.status === 'PAID' ? 'bg-green-100 text-green-800' : 
                   payment.status === 'OVERDUE' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
                 }`}>
                   {payment.status === 'PAID' ? 'Pago' : payment.status === 'OVERDUE' ? 'Vencido' : 'Pendente'}
                 </span>
-                <button className="p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
-                  <Download className="w-4 h-4" />
+                <button className="p-2 rounded-lg bg-gray-600 text-white hover:bg-gray-700 transition-colors">
+                  <Download className="w-3 h-3" />
                 </button>
               </div>
             </div>
@@ -631,8 +594,8 @@ function BoletosContent({ contract }: { contract: ClientContract }) {
       </div>
       
       {contract.payments.length === 0 && (
-        <div className="bg-white rounded-lg p-8 text-center shadow-sm border border-gray-200">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-100">
+          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
             <Wallet className="w-6 h-6 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum boleto encontrado</h3>
@@ -647,15 +610,15 @@ function HistoricoContent({ payments }: { payments: any[] }) {
   const sortedPayments = payments.sort((a, b) => new Date(b.dueDate).getTime() - new Date(a.dueDate).getTime())
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Histórico</h2>
-        <span className="text-sm text-gray-600">{payments.length} registros</span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-white font-bold text-lg">Histórico</h2>
+        <span className="text-slate-300 text-sm">{payments.length} registros</span>
       </div>
       
       <div className="space-y-3">
         {sortedPayments.map((payment) => (
-          <div key={payment.id} className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div key={payment.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className={`w-3 h-3 rounded-full ${
@@ -663,18 +626,13 @@ function HistoricoContent({ payments }: { payments: any[] }) {
                   payment.status === 'OVERDUE' ? 'bg-red-500' : 'bg-yellow-500'
                 }`} />
                 <div>
-                  <p className="font-semibold text-gray-900">R$ {payment.amount.toLocaleString('pt-BR')}</p>
-                  <p className="text-sm text-gray-600">
+                  <p className="font-medium text-gray-800 text-sm">R$ {payment.amount.toLocaleString('pt-BR')}</p>
+                  <p className="text-gray-500 text-xs">
                     {new Date(payment.dueDate).toLocaleDateString('pt-BR')}
                   </p>
-                  {payment.paidDate && (
-                    <p className="text-green-600 text-sm">
-                      Pago em: {new Date(payment.paidDate).toLocaleDateString('pt-BR')}
-                    </p>
-                  )}
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
                 payment.status === 'PAID' ? 'bg-green-100 text-green-800' : 
                 payment.status === 'OVERDUE' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'
               }`}>
@@ -686,8 +644,8 @@ function HistoricoContent({ payments }: { payments: any[] }) {
       </div>
       
       {payments.length === 0 && (
-        <div className="bg-white rounded-lg p-8 text-center shadow-sm border border-gray-200">
-          <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center mx-auto mb-4">
+        <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-100">
+          <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
             <History className="w-6 h-6 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum histórico</h3>
@@ -700,11 +658,9 @@ function HistoricoContent({ payments }: { payments: any[] }) {
 
 function PerfilContent({ contract }: { contract: ClientContract }) {
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Meu Perfil</h2>
-      
+    <div className="space-y-4">
       {/* Personal Information */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Dados Pessoais</h3>
         <div className="space-y-4">
           <div>
@@ -723,7 +679,7 @@ function PerfilContent({ contract }: { contract: ClientContract }) {
       </div>
 
       {/* Property Information */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Imóvel</h3>
         <div className="space-y-4">
           <div>
@@ -735,7 +691,7 @@ function PerfilContent({ contract }: { contract: ClientContract }) {
           </div>
           <div>
             <label className="text-sm font-medium text-gray-600">Valor do Aluguel</label>
-            <p className="text-2xl font-bold text-blue-600">
+            <p className="text-2xl font-bold text-gray-800">
               R$ {contract.rentAmount.toLocaleString('pt-BR')}
             </p>
           </div>
@@ -763,25 +719,24 @@ function ManutencoesContent() {
   const [showForm, setShowForm] = useState(false)
   
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Manutenções</h2>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between mb-4">
         <button 
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors"
         >
-          Nova Solicitação
+          {showForm ? 'Cancelar' : 'Nova Solicitação'}
         </button>
       </div>
       
       {/* Request Form */}
       {showForm && (
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Solicitar Manutenção</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Tipo de Problema</label>
-              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <select className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent">
                 <option>Elétrica</option>
                 <option>Hidráulica</option>
                 <option>Pintura</option>
@@ -793,53 +748,45 @@ function ManutencoesContent() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
               <textarea 
                 rows={4} 
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent" 
                 placeholder="Descreva o problema em detalhes..."
               />
             </div>
-            <div className="flex space-x-3">
-              <button className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                Enviar Solicitação
-              </button>
-              <button 
-                onClick={() => setShowForm(false)}
-                className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
+            <button className="w-full bg-gray-600 text-white py-3 rounded-lg font-medium hover:bg-gray-700 transition-colors">
+              Enviar Solicitação
+            </button>
           </div>
         </div>
       )}
       
       {/* Empty State */}
-      <div className="bg-white rounded-lg p-8 text-center shadow-sm border border-gray-200">
-        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center mx-auto mb-4">
-          <Settings className="w-8 h-8 text-gray-400" />
+      {!showForm && (
+        <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-100">
+          <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+            <Settings className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhuma manutenção ativa</h3>
+          <p className="text-gray-600 mb-4">
+            Você não possui solicitações de manutenção no momento.
+          </p>
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhuma manutenção ativa</h3>
-        <p className="text-gray-600 mb-4">
-          Você não possui solicitações de manutenção no momento.
-        </p>
-      </div>
+      )}
     </div>
   )
 }
 
 function ContatoContent() {
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Contato</h2>
-      
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+    <div className="space-y-4">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Fale Conosco</h3>
         
-        <div className="space-y-4">
+        <div className="space-y-3">
           <button 
             onClick={() => window.open('https://wa.me/5561999990000', '_blank')}
-            className="w-full flex items-center space-x-4 p-4 rounded-lg bg-green-50 hover:bg-green-100 transition-colors text-left"
+            className="w-full flex items-center space-x-4 p-4 rounded-xl bg-green-50 hover:bg-green-100 transition-colors text-left"
           >
-            <div className="w-12 h-12 rounded-lg bg-green-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-green-600 flex items-center justify-center">
               <MessageCircle className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -850,9 +797,9 @@ function ContatoContent() {
           
           <button 
             onClick={() => window.open('tel:+556133334444', '_self')}
-            className="w-full flex items-center space-x-4 p-4 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors text-left"
+            className="w-full flex items-center space-x-4 p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-left"
           >
-            <div className="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gray-600 flex items-center justify-center">
               <Phone className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -864,7 +811,7 @@ function ContatoContent() {
       </div>
       
       {/* Business Hours */}
-      <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Horário de Atendimento</h3>
         
         <div className="space-y-3">
@@ -884,14 +831,19 @@ function ContatoContent() {
       </div>
       
       {/* Emergency Contact */}
-      <div className="bg-red-600 rounded-lg p-6 text-white">
-        <h3 className="text-lg font-semibold mb-2">Emergência</h3>
+      <div className="bg-red-600 rounded-xl p-6 text-white">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+            <AlertCircle className="w-4 h-4 text-red-600" />
+          </div>
+          <h3 className="text-lg font-semibold">Emergência</h3>
+        </div>
         <p className="mb-4 text-red-100">
           Para emergências, entre em contato imediatamente:
         </p>
         <button 
           onClick={() => window.open('tel:+556199999000', '_self')}
-          className="flex items-center space-x-3 bg-white/20 px-4 py-3 rounded-lg hover:bg-white/30 transition-colors"
+          className="flex items-center space-x-3 bg-white/20 px-4 py-3 rounded-xl hover:bg-white/30 transition-colors"
         >
           <Phone className="w-5 h-5" />
           <span className="font-semibold">(61) 99999-0000</span>
