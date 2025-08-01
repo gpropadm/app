@@ -1,20 +1,16 @@
-FORCE DEPLOY - CONTRATOS ÍCONES BARCODE + LABELS
-Timestamp: 2025-08-01 18:10:00
-Commit: update-barcode-icons-add-action-labels
+FORCE DEPLOY - CONTRATOS ÍCONES SCANLINE BARCODE
+Timestamp: 2025-08-01 18:15:00
+Commit: update-to-scanline-barcode-icons
 
 Deploy deve incluir:
-- /contracts - Ícones estilo barcode para boletos
-- BarChart3 icon para representar código de barras dos boletos
-- Todos os 6 botões agora têm labels embaixo:
-  * Boleto (azul)
-  * Mensais (verde) 
-  * Auto (verde/cinza)
-  * Baixar (verde)
-  * Editar (rosa)
-  * Excluir (vermelho)
-- Layout consistente com flex-col para todos os botões
-- Visual mais limpo e organizado com identificação clara
+- /contracts - Ícones ScanLine mais fiéis ao código de barras real
+- ScanLine representa melhor as linhas do barcode de boleto
+- Mantém todos os 6 botões com labels:
+  * Boleto, Mensais, Auto (ScanLine)
+  * Baixar, Editar, Excluir (ícones originais)
+- Visual mais próximo do código de barras de boleto bankário
+- Representação mais fiel ao link de referência
 
-✅ ATUALIZAÇÃO: Ícones barcode + labels em todos os botões!
+✅ ATUALIZAÇÃO: Ícones ScanLine mais fiéis ao barcode real!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
