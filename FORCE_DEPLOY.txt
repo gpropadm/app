@@ -1,17 +1,16 @@
-FORCE DEPLOY - CONTRATOS CÍRCULOS COM LABELS
-Timestamp: 2025-08-01 17:50:00
-Commit: add-circle-indicators-with-labels
+FORCE DEPLOY - CONTRATOS MESMO ÍCONE BOLETO
+Timestamp: 2025-08-01 18:05:00
+Commit: use-same-boleto-icon-for-all-actions
 
 Deploy deve incluir:
-- /contracts - Todos os 3 botões principais agora usam círculos
-- Cada botão tem círculo + label embaixo:
-  * "Boleto" - gerar boleto individual (vermelho por padrão)  
-  * "Mensais" - gerar boletos mensais (vermelho por padrão)
-  * "Auto" - geração automática (verde se ativo, vermelho se inativo)
-- Labels em text-xs text-gray-600
-- Layout em coluna (flex-col) para círculo + texto
-- Melhor organização visual das ações
+- /contracts - Mesmo ícone de boleto para todas as 3 ações
+- "Boleto" - FileBarChart icon (azul) 
+- "Mensais" - FileBarChart icon (verde)
+- "Auto" - FileBarChart icon (verde se ativo, cinza se inativo)
+- Ícone representa documento de cobrança/boleto
+- Mantém labels embaixo para diferenciação
+- Cores diferentes para distinguir as funcionalidades
 
-✅ ATUALIZAÇÃO: Círculos indicadores com labels para todas as ações!
+✅ ATUALIZAÇÃO: Mesmo ícone de boleto para todas as ações!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
