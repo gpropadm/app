@@ -1,16 +1,17 @@
-FORCE DEPLOY - Portal do Cliente REDESIGNED
-Timestamp: 2025-08-01 15:30:00
-Commit: modern-redesign
+FORCE DEPLOY - Portal do Cliente CLEAN DESIGN
+Timestamp: 2025-08-01 16:00:00
+Commit: clean-minimal-design
 
 Deploy deve incluir:
-- /cliente - Portal do Cliente com design moderno
-- Layout responsivo mobile-first
-- Menu sanduíche redesenhado
-- Seções atualizadas: Dashboard, Perfil, Boletos, Histórico, Contato, Manutenções
-- Design system moderno com gradientes indigo-purple
-- Navegação smooth entre seções
+- /cliente - Portal do Cliente com design CLEAN e minimalista
+- Visual simples e moderno, sem gradientes excessivos
+- Interface limpa e gostosa de usar
+- Cards brancos com bordas sutis
+- Cores azul simples como principal
+- Layout responsivo otimizado
+- UX melhorada e mais intuitiva
 - Modo DEMO ativo
 
-✨ NOVA VERSÃO: Interface completamente redesenhada!
+🎨 DESIGN CLEAN: Interface minimalista e moderna!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
