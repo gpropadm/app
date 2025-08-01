@@ -1,14 +1,15 @@
-FORCE DEPLOY - CONTRATOS ÍCONES POWER ON/OFF
-Timestamp: 2025-08-01 17:30:00
-Commit: update-auto-generation-icons-power
+FORCE DEPLOY - CONTRATOS ÍCONES CÍRCULO INDICADOR
+Timestamp: 2025-08-01 17:45:00
+Commit: update-auto-generation-circle-indicator
 
 Deploy deve incluir:
-- /contracts - Mudança dos ícones de geração automática
-- Timer/TimerOff → Power/PowerOff
-- Melhor representação visual de ligar/desligar automação
-- Ícone de power button mais familiar para usuários
-- Mantém CreditCard e Calendar para outras ações
+- /contracts - Ícone de círculo para geração automática
+- Circle com cores dinâmicas baseadas no status
+- Verde (fill-green-600) quando geração automática está ATIVA
+- Vermelho (fill-red-600) quando está INATIVA
+- Indicador visual claro de status on/off
+- Interface mais intuitiva com semáforo de cores
 
-✅ ATUALIZAÇÃO: Power/PowerOff para geração automática de boletos!
+✅ ATUALIZAÇÃO: Círculo verde/vermelho para status de geração automática!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
