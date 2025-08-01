@@ -108,15 +108,87 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Wallet ASAAS encontrado:', contract.property.owner.bankAccounts[0].asaasWalletId)
 
+    // Gerar boletos reais
+    const successful = []
+    const failed = []
+
+    for (let i = 0; i < months; i++) {
+      try {
+        const dueDate = new Date()
+        dueDate.setMonth(dueDate.getMonth() + i + 1)
+        dueDate.setDate(10)
+
+        console.log(`📅 Gerando boleto ${i + 1}/${months} para ${dueDate.toLocaleDateString('pt-BR')}`)
+
+        // Verificar se já existe
+        const existing = await prisma.payment.findFirst({
+          where: {
+            contractId: contractId,
+            dueDate: {
+              gte: new Date(dueDate.getFullYear(), dueDate.getMonth(), 1),
+              lt: new Date(dueDate.getFullYear(), dueDate.getMonth() + 1, 1)
+            }
+          }
+        })
+
+        if (existing) {
+          console.log(`⚠️ Boleto já existe para ${dueDate.toLocaleDateString('pt-BR')}`)
+          failed.push(`${dueDate.toLocaleDateString('pt-BR')}: Já existe`)
+          continue
+        }
+
+        // Gerar boleto via API interna
+        console.log(`🎯 Gerando boleto real para ${dueDate.toLocaleDateString('pt-BR')}...`)
+        
+        const boletoPayload = {
+          contractId: contract.id,
+          amount: contract.rentAmount,
+          dueDate: dueDate.toISOString(),
+          description: `Aluguel - ${contract.property.title} - ${dueDate.toLocaleDateString('pt-BR')}`
+        }
+
+        // Usar a API de geração de boleto existente
+        const boletoResponse = await fetch(`${process.env.NEXTAUTH_URL || 'https://app.gprop.com.br'}/api/asaas/generate-boleto`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cookie': request.headers.get('Cookie') || ''
+          },
+          body: JSON.stringify(boletoPayload)
+        })
+
+        const boletoResult = await boletoResponse.json()
+        console.log(`📋 Resultado boleto ${i + 1}:`, boletoResult.success ? 'SUCESSO' : 'FALHA')
+
+        if (boletoResult.success) {
+          successful.push({
+            month: dueDate.toLocaleDateString('pt-BR'),
+            amount: contract.rentAmount,
+            paymentId: boletoResult.paymentId
+          })
+          console.log(`✅ Boleto ${i + 1} criado com sucesso`)
+        } else {
+          failed.push(`${dueDate.toLocaleDateString('pt-BR')}: ${boletoResult.message}`)
+          console.log(`❌ Boleto ${i + 1} falhou:`, boletoResult.message)
+        }
+
+      } catch (error) {
+        console.log(`❌ Erro no boleto ${i + 1}:`, error.message)
+        failed.push(`Boleto ${i + 1}: ${error.message}`)
+      }
+    }
+
     await prisma.$disconnect()
 
-    // Por enquanto, simular sucesso para testar a resposta
-    console.log('📊 SIMULANDO SUCESSO PARA TESTE')
+    console.log('📊 RESULTADO FINAL:')
+    console.log(`✅ Sucessos: ${successful.length}`)
+    console.log(`❌ Falhas: ${failed.length}`)
 
     return NextResponse.json({
-      success: true,
-      paymentsGenerated: 2,
-      message: `2 de ${months} boletos processados com sucesso (SIMULADO)`,
+      success: successful.length > 0,
+      paymentsGenerated: successful.length,
+      message: `${successful.length} de ${months} boletos criados com sucesso`,
+      errors: failed.length > 0 ? failed : undefined,
       contractInfo: {
         tenant: contract.tenant.name,
         owner: contract.property.owner.name,
