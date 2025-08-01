@@ -139,10 +139,10 @@ export class AsaasSplitService {
         birthDate: '1980-01-01', // Data padrão - pode ser atualizada depois
         phone: ownerData.phone,
         address: ownerData.address || 'Não informado',
-        city: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()),
-        province: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()), // Alguns APIs usam province
-        state: ownerData.state || 'SP',
-        postalCode: ownerData.zipCode?.replace(/\D/g, '') || '01310100', // CEP válido é obrigatório
+        city: 'Brasília', // Força cidade válida para DF
+        province: 'Brasília', // Alguns APIs usam province
+        state: ownerData.state || 'DF',
+        postalCode: '70040010', // CEP válido de Brasília - DF
         incomeValue: estimatedIncome,
         monthlyBilling: monthlyBilling
       }
