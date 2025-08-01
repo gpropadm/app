@@ -1,18 +1,18 @@
-FORCE DEPLOY - Portal Cliente COM AJUSTES SOLICITADOS
-Timestamp: 2025-08-01 16:45:00
-Commit: white-bg-animated-menu
+FORCE DEPLOY - Portal Cliente COM ÍCONE BOLETOS ATUALIZADO
+Timestamp: 2025-08-01 17:00:00
+Commit: receipt-icon-update
 
 Deploy deve incluir:
-- /cliente - Portal do Cliente com fundo branco
-- Fundo principal alterado para branco (bg-white)
-- Menu sanduíche animado com transições suaves
-- Botão de menu com animação X quando aberto
-- Toggle do menu com onClick em vez de só abrir
+- /cliente - Portal do Cliente com ícone de boletos atualizado
+- Ícone Wallet trocado por Receipt (mais apropriado para boletos)
+- Ícone Receipt em todas as seções de boletos
+- Fundo branco mantido
+- Menu sanduíche animado mantido
 - Header escuro slate-700 mantido
 - Cards brancos com bordas escuras mantidos
 - Interface moderna e limpa
 - Modo DEMO ativo
 
-🎨 AJUSTES: Fundo branco + Menu animado!
+🧾 ATUALIZAÇÃO: Ícone Receipt para boletos!
 
 Vercel deve detectar este arquivo e fazer novo deploy.

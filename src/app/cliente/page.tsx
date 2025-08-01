@@ -16,7 +16,7 @@ import {
   X,
   User,
   Bell,
-  Wallet,
+  Receipt,
   Settings,
   MessageCircle,
   LogOut,
@@ -275,7 +275,7 @@ export default function ClientPortal() {
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'boletos', label: 'Meus Boletos', icon: Wallet },
+    { id: 'boletos', label: 'Meus Boletos', icon: Receipt },
     { id: 'historico', label: 'Histórico', icon: History },
     { id: 'perfil', label: 'Meu Perfil', icon: User },
     { id: 'manutencoes', label: 'Manutenções', icon: Settings },
@@ -451,7 +451,7 @@ function DashboardContent({ contract, nextPayment, setActiveSection }: { contrac
           className="bg-white rounded-2xl p-6 shadow-sm border-2 border-gray-600 hover:shadow-md transition-all hover:-translate-y-1"
         >
           <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-3 mx-auto">
-            <Wallet className="w-6 h-6 text-gray-600" />
+            <Receipt className="w-6 h-6 text-gray-600" />
           </div>
           <h3 className="font-semibold text-gray-800 text-sm">Boletos</h3>
         </button>
@@ -607,7 +607,7 @@ function BoletosContent({ contract }: { contract: ClientContract }) {
       {contract.payments.length === 0 && (
         <div className="bg-white rounded-xl p-8 text-center shadow-sm border border-gray-100">
           <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-            <Wallet className="w-6 h-6 text-gray-400" />
+            <Receipt className="w-6 h-6 text-gray-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">Nenhum boleto encontrado</h3>
           <p className="text-gray-600">Os boletos aparecerão aqui quando forem gerados.</p>
