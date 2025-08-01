@@ -22,7 +22,7 @@ import {
   X,
   Trash2,
   CreditCard,
-  FileBarChart
+  BarChart3
 } from 'lucide-react'
 
 interface Contract {
@@ -754,7 +754,7 @@ Sistema: CRM Imobiliário
                         title="Gerar Boleto com Split"
                         disabled={contract.status !== 'ACTIVE'}
                       >
-                        <FileBarChart className="w-5 h-5 text-blue-600" />
+                        <BarChart3 className="w-5 h-5 text-blue-600" />
                       </button>
                       <span className="text-xs text-gray-600">Boleto</span>
                     </div>
@@ -765,7 +765,7 @@ Sistema: CRM Imobiliário
                         title="Gerar Boletos Mensais"
                         disabled={contract.status !== 'ACTIVE'}
                       >
-                        <FileBarChart className="w-5 h-5 text-green-600" />
+                        <BarChart3 className="w-5 h-5 text-green-600" />
                       </button>
                       <span className="text-xs text-gray-600">Mensais</span>
                     </div>
@@ -779,39 +779,48 @@ Sistema: CRM Imobiliário
                         }
                         disabled={contract.status !== 'ACTIVE'}
                       >
-                        <FileBarChart className={`w-5 h-5 ${contract.autoGenerateBoletos ? 'text-green-600' : 'text-gray-400'}`} />
+                        <BarChart3 className={`w-5 h-5 ${contract.autoGenerateBoletos ? 'text-green-600' : 'text-gray-400'}`} />
                       </button>
                       <span className="text-xs text-gray-600">Auto</span>
                     </div>
-                    <button 
-                      onClick={() => downloadContract(contract)}
-                      className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors"
-                      title="Baixar contrato"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => openEditForm(contract)}
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      style={{color: '#f63c6a'}}
-                      title="Editar contrato"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteContract(contract)}
-                      disabled={deletingContractId === contract.id}
-                      className={`p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors ${
-                        deletingContractId === contract.id ? 'opacity-50 cursor-not-allowed' : ''
-                      }`}
-                      title="Excluir contrato"
-                    >
-                      {deletingContractId === contract.id ? (
-                        <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Trash2 className="w-4 h-4" />
-                      )}
-                    </button>
+                    <div className="flex flex-col items-center">
+                      <button 
+                        onClick={() => downloadContract(contract)}
+                        className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 rounded-lg transition-colors mb-1"
+                        title="Baixar contrato"
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs text-gray-600">Baixar</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <button 
+                        onClick={() => openEditForm(contract)}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors mb-1"
+                        style={{color: '#f63c6a'}}
+                        title="Editar contrato"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs text-gray-600">Editar</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <button 
+                        onClick={() => handleDeleteContract(contract)}
+                        disabled={deletingContractId === contract.id}
+                        className={`p-2 text-red-600 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors mb-1 ${
+                          deletingContractId === contract.id ? 'opacity-50 cursor-not-allowed' : ''
+                        }`}
+                        title="Excluir contrato"
+                      >
+                        {deletingContractId === contract.id ? (
+                          <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </button>
+                      <span className="text-xs text-gray-600">Excluir</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -888,14 +897,14 @@ Sistema: CRM Imobiliário
                         <span className="font-medium">Geração Automática:</span>
                         {viewingContract.autoGenerateBoletos ? (
                           <div className="flex items-center space-x-1">
-                            <FileBarChart className="w-4 h-4 text-green-600" />
+                            <BarChart3 className="w-4 h-4 text-green-600" />
                             <span className="text-yellow-800 bg-yellow-100 px-2 py-1 rounded-full text-xs font-medium">
                               ATIVA - Dia {viewingContract.autoGenerateDay || 10}
                             </span>
                           </div>
                         ) : (
                           <div className="flex items-center space-x-1">
-                            <FileBarChart className="w-4 h-4 text-gray-400" />
+                            <BarChart3 className="w-4 h-4 text-gray-400" />
                             <span className="text-gray-800 bg-gray-100 px-2 py-1 rounded-full text-xs font-medium">
                               INATIVA
                             </span>

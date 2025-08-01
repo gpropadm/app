@@ -1,16 +1,20 @@
-FORCE DEPLOY - CONTRATOS MESMO ÍCONE BOLETO
-Timestamp: 2025-08-01 18:05:00
-Commit: use-same-boleto-icon-for-all-actions
+FORCE DEPLOY - CONTRATOS ÍCONES BARCODE + LABELS
+Timestamp: 2025-08-01 18:10:00
+Commit: update-barcode-icons-add-action-labels
 
 Deploy deve incluir:
-- /contracts - Mesmo ícone de boleto para todas as 3 ações
-- "Boleto" - FileBarChart icon (azul) 
-- "Mensais" - FileBarChart icon (verde)
-- "Auto" - FileBarChart icon (verde se ativo, cinza se inativo)
-- Ícone representa documento de cobrança/boleto
-- Mantém labels embaixo para diferenciação
-- Cores diferentes para distinguir as funcionalidades
+- /contracts - Ícones estilo barcode para boletos
+- BarChart3 icon para representar código de barras dos boletos
+- Todos os 6 botões agora têm labels embaixo:
+  * Boleto (azul)
+  * Mensais (verde) 
+  * Auto (verde/cinza)
+  * Baixar (verde)
+  * Editar (rosa)
+  * Excluir (vermelho)
+- Layout consistente com flex-col para todos os botões
+- Visual mais limpo e organizado com identificação clara
 
-✅ ATUALIZAÇÃO: Mesmo ícone de boleto para todas as ações!
+✅ ATUALIZAÇÃO: Ícones barcode + labels em todos os botões!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
