@@ -21,6 +21,7 @@ interface AsaasSubAccount {
   name: string
   email: string
   cpfCnpj: string
+  birthDate: string      // Obrigatório - formato YYYY-MM-DD
   loginEmail: string
   phone?: string
   mobilePhone?: string
@@ -135,6 +136,7 @@ export class AsaasSplitService {
         email: `${ownerData.email}`, // Email do proprietário
         loginEmail: `${ownerData.email}`, // Email para login
         cpfCnpj: ownerData.document.replace(/\D/g, ''),
+        birthDate: '1980-01-01', // Data padrão - pode ser atualizada depois
         phone: ownerData.phone,
         address: ownerData.address || 'Não informado',
         city: ownerData.city || 'São Paulo',
