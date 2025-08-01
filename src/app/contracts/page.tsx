@@ -309,7 +309,7 @@ Sistema: CRM Imobiliário
     try {
       showSuccess('Gerando boletos mensais...', `Criando ${months} boletos com split automático`)
       
-      const response = await fetch('/api/asaas/generate-monthly-simple', {
+      const response = await fetch('/api/asaas/generate-monthly-simple?v=' + Date.now(), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
