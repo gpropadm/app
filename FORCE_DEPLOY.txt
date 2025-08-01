@@ -1,10 +1,16 @@
-FORCE DEPLOY - Portal do Cliente
-Timestamp: 2025-08-01 14:55:00
-Commit: 819b713
+FORCE DEPLOY - Portal do Cliente REDESIGNED
+Timestamp: 2025-08-01 15:30:00
+Commit: modern-redesign
 
 Deploy deve incluir:
-- /cliente - Portal do Cliente funcionando
+- /cliente - Portal do Cliente com design moderno
+- Layout responsivo mobile-first
+- Menu sanduíche redesenhado
+- Seções atualizadas: Dashboard, Perfil, Boletos, Histórico, Contato, Manutenções
+- Design system moderno com gradientes indigo-purple
+- Navegação smooth entre seções
 - Modo DEMO ativo
-- Interface responsiva completa
+
+✨ NOVA VERSÃO: Interface completamente redesenhada!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
