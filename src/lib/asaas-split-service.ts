@@ -139,7 +139,7 @@ export class AsaasSplitService {
         birthDate: '1980-01-01', // Data padrão - pode ser atualizada depois
         phone: ownerData.phone,
         address: ownerData.address || 'Não informado',
-        city: ownerData.city || 'São Paulo',
+        city: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()),
         state: ownerData.state || 'SP',
         postalCode: ownerData.zipCode?.replace(/\D/g, '') || '01310100',
         incomeValue: estimatedIncome,
@@ -149,7 +149,9 @@ export class AsaasSplitService {
       console.log('Criando subconta ASAAS para proprietário:', {
         name: subAccountData.name,
         email: subAccountData.email,
-        document: subAccountData.cpfCnpj
+        document: subAccountData.cpfCnpj,
+        city: subAccountData.city,
+        receivedCity: ownerData.city
       })
 
       const response = await this.makeRequest('/accounts', {
