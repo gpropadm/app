@@ -1,15 +1,15 @@
-FORCE DEPLOY - CONTRATOS ÍCONES SEMÂNTICOS
-Timestamp: 2025-08-01 17:20:00
-Commit: update-contract-action-icons-semantic
+FORCE DEPLOY - CONTRATOS ÍCONES ATUALIZADOS V2
+Timestamp: 2025-08-01 17:25:00
+Commit: update-contract-icons-v2
 
 Deploy deve incluir:
-- /contracts - Ícones de ações dos contratos atualizados para serem mais semânticos
-- Gerar boleto com split: DollarSign → Receipt
-- Gerar boletos mensais: CalendarDays → CalendarRange  
-- Ativar geração automática: Zap/ZapOff → RotateCcw/Square
-- Ícones mais intuitivos e com melhor significado visual
-- Melhor experiência do usuário com ícones que representam a função real
+- /contracts - Ícones de ações dos contratos atualizados novamente
+- Gerar boleto com split: Receipt → CreditCard
+- Gerar boletos mensais: CalendarRange → Calendar  
+- Ativar geração automática: RotateCcw/Square → Timer/TimerOff
+- Ícones ainda mais intuitivos e claros
+- CreditCard para pagamentos, Calendar para datas, Timer para automação
 
-✅ ATUALIZAÇÃO: Ícones semânticos nas ações dos contratos!
+✅ ATUALIZAÇÃO V2: Novos ícones mais claros para ações dos contratos!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
