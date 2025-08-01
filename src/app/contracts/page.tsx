@@ -321,7 +321,9 @@ Sistema: CRM Imobiliário
         }),
       })
 
+      console.log('Response status:', response.status)
       const result = await response.json()
+      console.log('Full result:', result)
 
       if (result.success) {
         showSuccess(
@@ -336,11 +338,12 @@ Sistema: CRM Imobiliário
         
         fetchContracts() // Recarregar contratos
       } else {
-        showError('Erro', result.message || 'Falha ao gerar boletos mensais')
+        console.error('API Error:', result)
+        showError('Erro detalhado', result.error || result.message || 'Falha ao gerar boletos mensais')
       }
     } catch (error) {
-      console.error('Error generating monthly boletos:', error)
-      showError('Erro', 'Falha ao gerar boletos mensais')
+      console.error('Network/Parse error:', error)
+      showError('Erro de rede', `Falha na comunicação: ${error.message}`)
     }
   }
 
