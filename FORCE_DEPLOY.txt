@@ -1,16 +1,16 @@
-FORCE DEPLOY - CONTRATOS ÍCONES SCANLINE BARCODE
-Timestamp: 2025-08-01 18:15:00
-Commit: update-to-scanline-barcode-icons
+FORCE DEPLOY - CONTRATOS 3 RISCOS VERTICAIS
+Timestamp: 2025-08-01 18:20:00
+Commit: update-to-three-vertical-lines-icons
 
 Deploy deve incluir:
-- /contracts - Ícones ScanLine mais fiéis ao código de barras real
-- ScanLine representa melhor as linhas do barcode de boleto
-- Mantém todos os 6 botões com labels:
-  * Boleto, Mensais, Auto (ScanLine)
-  * Baixar, Editar, Excluir (ícones originais)
-- Visual mais próximo do código de barras de boleto bankário
-- Representação mais fiel ao link de referência
+- /contracts - Ícones MoreVertical com 3 pontos/riscos verticais
+- Representa melhor código de barras com 3 linhas verticais
+- Visual mais clean e minimalista
+- Mantém todas as cores e funcionalidades:
+  * Boleto (azul), Mensais (verde), Auto (verde/cinza)
+- Ícone mais simples e elegante para as ações de boleto
+- Três pontos verticais como representação simplificada do barcode
 
-✅ ATUALIZAÇÃO: Ícones ScanLine mais fiéis ao barcode real!
+✅ ATUALIZAÇÃO: 3 riscos verticais para ações de boleto!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
