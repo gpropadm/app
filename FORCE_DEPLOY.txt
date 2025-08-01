@@ -1,15 +1,14 @@
-FORCE DEPLOY - CONTRATOS ÍCONES ATUALIZADOS V2
-Timestamp: 2025-08-01 17:25:00
-Commit: update-contract-icons-v2
+FORCE DEPLOY - CONTRATOS ÍCONES POWER ON/OFF
+Timestamp: 2025-08-01 17:30:00
+Commit: update-auto-generation-icons-power
 
 Deploy deve incluir:
-- /contracts - Ícones de ações dos contratos atualizados novamente
-- Gerar boleto com split: Receipt → CreditCard
-- Gerar boletos mensais: CalendarRange → Calendar  
-- Ativar geração automática: RotateCcw/Square → Timer/TimerOff
-- Ícones ainda mais intuitivos e claros
-- CreditCard para pagamentos, Calendar para datas, Timer para automação
+- /contracts - Mudança dos ícones de geração automática
+- Timer/TimerOff → Power/PowerOff
+- Melhor representação visual de ligar/desligar automação
+- Ícone de power button mais familiar para usuários
+- Mantém CreditCard e Calendar para outras ações
 
-✅ ATUALIZAÇÃO V2: Novos ícones mais claros para ações dos contratos!
+✅ ATUALIZAÇÃO: Power/PowerOff para geração automática de boletos!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
