@@ -59,22 +59,63 @@ export default function ClientPortal() {
     setError('')
 
     try {
-      // Limpar telefone (manter apenas números)
-      const cleanPhone = loginData.phone.replace(/\D/g, '')
-      const cleanDocument = loginData.document.replace(/\D/g, '')
-
-      const response = await fetch('/api/cliente/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Por enquanto, simular login bem-sucedido para demonstração
+      // TODO: Implementar API real quando resolver problema de deploy
+      
+      console.log('🧪 Simulando login para demo:', loginData.phone);
+      
+      // Simular dados de contrato para demonstração
+      const mockContract = {
+        id: "demo-contract-001",
+        property: {
+          title: "Casa Demo - 3 quartos",
+          address: "Rua das Flores, 123 - Centro",
+          propertyType: "HOUSE",
+          owner: {
+            name: "Proprietário Demo",
+            email: "proprietario@demo.com",
+            phone: "(61) 99999-0000"
+          }
         },
-        body: JSON.stringify({
-          phone: cleanPhone,
-          document: cleanDocument
-        }),
-      })
+        rentAmount: 1400,
+        startDate: "2025-01-01T00:00:00Z",
+        endDate: "2025-12-31T23:59:59Z",
+        tenant: {
+          name: "Cliente Demo",
+          phone: loginData.phone,
+          document: loginData.document
+        },
+        payments: [
+          {
+            id: "payment-001",
+            amount: 1400,
+            dueDate: "2025-08-10T00:00:00Z",
+            status: "PENDING",
+            boletoUrl: "https://exemplo.com/boleto1.pdf"
+          },
+          {
+            id: "payment-002", 
+            amount: 1400,
+            dueDate: "2025-07-10T00:00:00Z",
+            status: "PAID",
+            paidDate: "2025-07-08T00:00:00Z"
+          },
+          {
+            id: "payment-003",
+            amount: 1400,
+            dueDate: "2025-06-10T00:00:00Z", 
+            status: "PAID",
+            paidDate: "2025-06-05T00:00:00Z"
+          }
+        ]
+      };
 
-      const result = await response.json()
+      // Simular resposta da API
+      const result = {
+        success: true,
+        message: 'Login demo realizado com sucesso',
+        contract: mockContract
+      };
 
       if (result.success) {
         setContract(result.contract)
