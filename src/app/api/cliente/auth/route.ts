@@ -27,23 +27,21 @@ export async function POST(request: NextRequest) {
     });
 
     // Buscar inquilino por telefone e documento
-    // Aceitar CPFs incompletos também (alguns podem ter menos de 11 dígitos)
+    // Problema: telefone pode estar formatado e documento pode ter pontos
     const tenant = await prisma.tenant.findFirst({
       where: {
         AND: [
           {
-            OR: [
-              { phone: cleanPhone },
-              { phone: `+55${cleanPhone}` },
-              { phone: phone }, // Com formatação original
-            ]
+            // Buscar por telefone comparando apenas os números
+            phone: {
+              contains: cleanPhone
+            }
           },
           {
-            OR: [
-              { document: cleanDocument }, // CPF completo
-              { document: { contains: cleanDocument } }, // CPF parcial no banco
-              { document: cleanDocument.substring(0, 8) }, // Primeiros 8 dígitos
-            ]
+            // Buscar por documento comparando apenas os números
+            document: {
+              contains: cleanDocument
+            }
           }
         ]
       },
