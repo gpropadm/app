@@ -5,7 +5,7 @@ import { DashboardLayout } from '@/components/dashboard-layout'
 import { OwnerForm } from '@/components/owner-form'
 import { ConfirmationModal } from '@/components/confirmation-modal'
 import { ToastContainer, useToast } from '@/components/toast'
-import { Plus, Search, Mail, Phone, MapPin, Building2, Edit, Trash2, User } from 'lucide-react'
+import { Plus, Search, Mail, Phone, MapPin, Building2, Edit, Trash2, User, DollarSign } from 'lucide-react'
 
 interface Owner {
   id: string
@@ -160,6 +160,47 @@ export default function Owners() {
   const closeForm = () => {
     setShowForm(false)
     setEditingOwner(null)
+  }
+
+  const setupAsaasAccount = async (owner: Owner) => {
+    try {
+      setLoading(true)
+      showSuccess('Configurando ASAAS...', 'Criando subconta para o proprietário')
+      
+      const response = await fetch('/api/asaas/setup-owner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ownerId: owner.id,
+          ownerData: {
+            name: owner.name,
+            email: owner.email,
+            document: owner.document,
+            phone: owner.phone,
+            address: owner.address,
+            city: owner.city,
+            state: owner.state,
+            zipCode: owner.zipCode
+          }
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        showSuccess('ASAAS Configurado!', `Subconta criada para ${owner.name}`)
+        fetchOwners() // Recarregar lista
+      } else {
+        showError('Erro ao configurar ASAAS', result.message)
+      }
+    } catch (error) {
+      console.error('Error setting up ASAAS:', error)
+      showError('Erro', 'Falha ao configurar ASAAS para o proprietário')
+    } finally {
+      setLoading(false)
+    }
   }
 
 
@@ -387,6 +428,14 @@ export default function Owners() {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button 
+                          onClick={() => setupAsaasAccount(owner)}
+                          className="p-2 text-green-600 hover:text-green-900 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                          title="Configurar ASAAS Split"
+                          disabled={loading}
+                        >
+                          <DollarSign className="w-4 h-4" />
+                        </button>
+                        <button 
                           onClick={() => openDeleteModal(owner)}
                           className="p-2 text-red-600 hover:text-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Deletar proprietário"
@@ -460,6 +509,14 @@ export default function Owners() {
                     title="Editar proprietário"
                   >
                     <Edit className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => setupAsaasAccount(owner)}
+                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    title="Configurar ASAAS Split"
+                    disabled={loading}
+                  >
+                    <DollarSign className="w-4 h-4" />
                   </button>
                   <button 
                     onClick={() => openDeleteModal(owner)}
