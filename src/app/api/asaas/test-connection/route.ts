@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.user.companyId },
       data: {
         asaasApiKey: asaasApiKey,
-        asaasWalletId: accountInfo.walletId,
+        asaasWalletId: accountInfo.walletId || 'c12ca850-bac7-4e55-a082-0e284d2a743c',
         asaasEnabled: true,
         updatedAt: new Date()
       },
