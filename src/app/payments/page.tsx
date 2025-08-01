@@ -57,6 +57,15 @@ interface Payment {
   }
   contract?: {
     id: string
+    property?: {
+      title: string
+      address: string
+    }
+    tenant?: {
+      name: string
+      email: string
+      phone: string
+    }
   }
 }
 
@@ -107,6 +116,15 @@ export default function Payments() {
       if (response.ok) {
         const data = await response.json()
         
+        // Debug: mostrar estrutura dos dados
+        if (!silent && data.length > 0) {
+          console.log('📊 Dados de pagamentos recebidos:', {
+            total: data.length,
+            sample: data[0],
+            statuses: data.map((p: any) => p.status)
+          })
+        }
+        
         // Verifica se há novos pagamentos pagos
         if (silent && payments.length > 0) {
           const newPaidPayments = data.filter((payment: Payment) => 
@@ -116,9 +134,10 @@ export default function Payments() {
           
           if (newPaidPayments.length > 0) {
             newPaidPayments.forEach((payment: Payment) => {
+              const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino'
               showNotification('success', 
                 `Pagamento de R$ ${payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} foi confirmado!`,
-                `🎉 Boleto Pago - ${payment.tenant?.name}`
+                `🎉 Boleto Pago - ${tenantName}`
               )
             })
           }
@@ -126,6 +145,11 @@ export default function Payments() {
         
         setPayments(data)
         setLastRefresh(new Date())
+      } else {
+        console.error('❌ Erro na API:', response.status)
+        if (!silent) {
+          showNotification('error', 'Erro ao carregar pagamentos. Tente novamente.')
+        }
       }
     } catch (error) {
       console.error('Error fetching payments:', error)
@@ -191,9 +215,12 @@ export default function Payments() {
   }
 
   const filteredPayments = payments.filter(payment => {
+    const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || ''
+    const propertyTitle = payment.property?.title || payment.contract?.property?.title || ''
+    
     const matchesSearch = 
-      payment.tenant?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.property?.title.toLowerCase().includes(searchTerm.toLowerCase())
+      tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      propertyTitle.toLowerCase().includes(searchTerm.toLowerCase())
     
     const matchesStatus = filterStatus === 'all' || payment.status?.toUpperCase() === filterStatus.toUpperCase()
 
@@ -281,6 +308,16 @@ export default function Payments() {
                 style={{backgroundColor: '#f63c6a'}}
               >
                 <RefreshCw className="w-4 h-4" />
+              </button>
+              {/* Botão de teste - remover depois */}
+              <button
+                onClick={() => showNotification('success', 
+                  'Pagamento de R$ 1.500,00 foi confirmado!', 
+                  '🎉 Boleto Pago - João Silva'
+                )}
+                className="px-3 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"
+              >
+                Teste
               </button>
             </div>
           </div>
@@ -376,7 +413,7 @@ export default function Payments() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {payment.tenant?.name}
+                        {payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino não informado'}
                       </h3>
                       <div className="flex items-center space-x-2">
                         {getStatusIcon(payment.status)}
@@ -390,7 +427,7 @@ export default function Payments() {
                         <div className="text-xs text-gray-500 mb-1">Propriedade:</div>
                         <div className="flex items-center text-gray-900">
                           <Home className="w-4 h-4 mr-2 text-gray-400" />
-                          <span className="truncate font-medium">{payment.property?.title}</span>
+                          <span className="truncate font-medium">{payment.property?.title || payment.contract?.property?.title || 'Propriedade não informada'}</span>
                         </div>
                       </div>
                       <div>

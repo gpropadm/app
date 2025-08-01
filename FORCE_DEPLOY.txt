@@ -1,19 +1,16 @@
-FORCE DEPLOY - PAYMENTS REMODELADO + NOTIFICAÇÕES TEMPO REAL
-Timestamp: 2025-08-01 18:25:00
-Commit: payments-redesign-real-time-notifications
+FORCE DEPLOY - PAYMENTS DEBUG + CORREÇÃO DADOS
+Timestamp: 2025-08-01 18:30:00
+Commit: payments-fix-data-structure-debug
 
 Deploy deve incluir:
-- /payments - Página completamente remodelada com design moderno
-- Notificações em tempo real quando boletos são pagos
-- Auto-refresh a cada 30 segundos (pode ser desligado)
-- Sistema de notificações toast no canto superior direito
-- Cards modernos com layout limpo e responsivo
-- Stats em tempo real (total, pagos, atraso, valor recebido)
-- Filtros melhorados e busca otimizada
-- Visual consistente com página de contratos
-- Indicador de última atualização
-- Botão manual de refresh
+- /payments - Correção da estrutura de dados dos pagamentos
+- Debug logs para identificar problemas nos dados da API
+- Suporte a diferentes estruturas de dados (contract.tenant, contract.property)
+- Botão de teste para verificar notificações (temporário)
+- Melhor tratamento de dados vazios/ausentes
+- Verificação do status real dos pagamentos
+- Logs no console para debugging
 
-✅ NOVA FEATURE: Sistema completo de monitoramento de pagamentos!
+🔧 CORREÇÃO: Dados de pagamentos e estrutura da API!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
