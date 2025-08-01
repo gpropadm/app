@@ -309,7 +309,7 @@ Sistema: CRM Imobiliário
     try {
       showSuccess('Gerando boletos mensais...', `Criando ${months} boletos com split automático`)
       
-      const response = await fetch('/api/boletos/monthly', {
+      const response = await fetch('/api/test-boletos-debug', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
