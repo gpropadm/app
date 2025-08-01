@@ -21,7 +21,8 @@ import {
   CheckCircle,
   Clock,
   X,
-  Trash2
+  Trash2,
+  DollarSign
 } from 'lucide-react'
 
 interface Contract {
@@ -250,6 +251,50 @@ Sistema: CRM Imobiliário
   const closeContractDetails = () => {
     setShowContractDetails(false)
     setViewingContract(null)
+  }
+
+  const generateBoleto = async (contract: Contract) => {
+    try {
+      const dueDate = new Date()
+      dueDate.setMonth(dueDate.getMonth() + 1)
+      dueDate.setDate(10) // Vencimento dia 10 do próximo mês
+      
+      showSuccess('Gerando boleto...', 'Criando boleto com split automático')
+      
+      const response = await fetch('/api/asaas/generate-boleto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contractId: contract.id,
+          amount: contract.rentAmount,
+          dueDate: dueDate.toISOString(),
+          description: `Aluguel - ${contract.property.title} - ${dueDate.toLocaleDateString('pt-BR')}`
+        }),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        showSuccess('Boleto Gerado!', `Boleto criado com split automático`)
+        
+        // Mostrar detalhes do split
+        console.log('Detalhes do split:', result.splitDetails)
+        
+        // Abrir boleto em nova aba se disponível
+        if (result.boletoUrl) {
+          window.open(result.boletoUrl, '_blank')
+        }
+        
+        fetchContracts() // Recarregar contratos
+      } else {
+        showError('Erro', result.message || 'Falha ao gerar boleto')
+      }
+    } catch (error) {
+      console.error('Error generating boleto:', error)
+      showError('Erro', 'Falha ao gerar boleto com split')
+    }
   }
 
   const filteredContracts = contracts.filter(contract => {
@@ -602,6 +647,14 @@ Sistema: CRM Imobiliário
                       title="Ver detalhes"
                     >
                       <Eye className="w-4 h-4" />
+                    </button>
+                    <button 
+                      onClick={() => generateBoleto(contract)}
+                      className="p-2 text-purple-600 hover:text-purple-900 hover:bg-purple-50 rounded-lg transition-colors"
+                      title="Gerar Boleto com Split"
+                      disabled={contract.status !== 'ACTIVE'}
+                    >
+                      <DollarSign className="w-4 h-4" />
                     </button>
                     <button 
                       onClick={() => downloadContract(contract)}
