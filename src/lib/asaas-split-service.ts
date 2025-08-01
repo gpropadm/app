@@ -131,6 +131,14 @@ export class AsaasSplitService {
       const estimatedIncome = ownerData.estimatedIncome || 5000 // R$ 5.000 padrão
       const monthlyBilling = estimatedIncome * 0.6 // 60% da renda estimada
 
+      // Validar e corrigir CEP para garantir compatibilidade com ASAAS
+      const validatedAddress = this.validateAndFixAddress({
+        address: ownerData.address,
+        city: ownerData.city,
+        state: ownerData.state,
+        zipCode: ownerData.zipCode
+      })
+
       const subAccountData: AsaasSubAccount = {
         name: ownerData.name,
         email: `${ownerData.email}`, // Email do proprietário
@@ -138,11 +146,11 @@ export class AsaasSplitService {
         cpfCnpj: ownerData.document.replace(/\D/g, ''),
         birthDate: '1980-01-01', // Data padrão - pode ser atualizada depois
         phone: ownerData.phone,
-        address: ownerData.address || 'Não informado',
-        city: 'Brasília', // Força cidade válida para DF
-        province: 'Brasília', // Alguns APIs usam province
-        state: ownerData.state || 'DF',
-        postalCode: '70040010', // CEP válido de Brasília - DF
+        address: validatedAddress.address,
+        city: validatedAddress.city,
+        province: validatedAddress.city, // Alguns APIs usam province
+        state: validatedAddress.state,
+        postalCode: validatedAddress.postalCode,
         incomeValue: estimatedIncome,
         monthlyBilling: monthlyBilling
       }
@@ -451,6 +459,65 @@ export class AsaasSplitService {
     } catch (error) {
       console.error('Erro ao validar wallet:', error)
       return false
+    }
+  }
+
+  /**
+   * Valida e corrige endereço para compatibilidade com ASAAS
+   */
+  private validateAndFixAddress(addressData: {
+    address?: string
+    city?: string  
+    state?: string
+    zipCode?: string
+  }) {
+    const state = addressData.state?.toUpperCase() || 'SP'
+    const originalZipCode = addressData.zipCode?.replace(/\D/g, '') || ''
+    
+    // Mapa de CEPs válidos conhecidos por estado para fallback
+    const validZipCodesByState: { [key: string]: { zipCode: string, city: string } } = {
+      'SP': { zipCode: '01310100', city: 'São Paulo' },
+      'RJ': { zipCode: '20040020', city: 'Rio de Janeiro' }, 
+      'DF': { zipCode: '70040010', city: 'Brasília' },
+      'MG': { zipCode: '30112000', city: 'Belo Horizonte' },
+      'RS': { zipCode: '90010150', city: 'Porto Alegre' },
+      'PR': { zipCode: '80010000', city: 'Curitiba' },
+      'SC': { zipCode: '88010002', city: 'Florianópolis' },
+      'BA': { zipCode: '40070110', city: 'Salvador' },
+      'GO': { zipCode: '74003010', city: 'Goiânia' },
+      'PE': { zipCode: '50010000', city: 'Recife' }
+    }
+
+    // Tentar usar dados originais primeiro
+    let finalAddress = addressData.address || 'Endereço não informado'
+    let finalCity = addressData.city || 'Cidade não informada'
+    let finalState = state
+    let finalZipCode = originalZipCode
+
+    // Se não temos dados válidos ou o CEP pode ser problemático, usar fallback
+    if (!originalZipCode || originalZipCode.length !== 8 || 
+        !addressData.city || addressData.city.trim().length < 3) {
+      
+      const fallback = validZipCodesByState[state] || validZipCodesByState['SP']
+      
+      console.log(`Usando endereço fallback para ${state}:`, {
+        original: { city: addressData.city, zipCode: originalZipCode },
+        fallback: { city: fallback.city, zipCode: fallback.zipCode }
+      })
+      
+      finalCity = fallback.city
+      finalZipCode = fallback.zipCode
+      finalAddress = `Endereço não informado - ${fallback.city}`
+    } else {
+      // Capitalizar cidade corretamente
+      finalCity = addressData.city.trim().replace(/\b\w/g, l => l.toUpperCase())
+    }
+
+    return {
+      address: finalAddress,
+      city: finalCity,
+      state: finalState,
+      postalCode: finalZipCode
     }
   }
 
