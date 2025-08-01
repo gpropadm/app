@@ -150,7 +150,7 @@ export class AsaasSplitService {
         document: subAccountData.cpfCnpj
       })
 
-      const response = await this.makeRequest('/subAccounts', {
+      const response = await this.makeRequest('/accounts', {
         method: 'POST',
         body: JSON.stringify(subAccountData),
       })
