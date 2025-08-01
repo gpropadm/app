@@ -142,7 +142,7 @@ export class AsaasSplitService {
         city: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()),
         province: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()), // Alguns APIs usam province
         state: ownerData.state || 'SP',
-        postalCode: ownerData.zipCode?.replace(/\D/g, '') || '01310100',
+        postalCode: ownerData.zipCode?.replace(/\D/g, '') || '01310100', // CEP válido é obrigatório
         incomeValue: estimatedIncome,
         monthlyBilling: monthlyBilling
       }
@@ -153,6 +153,8 @@ export class AsaasSplitService {
         document: subAccountData.cpfCnpj,
         city: subAccountData.city,
         province: subAccountData.province,
+        postalCode: subAccountData.postalCode,
+        receivedZipCode: ownerData.zipCode,
         receivedCity: ownerData.city,
         fullPayload: JSON.stringify(subAccountData, null, 2)
       })
