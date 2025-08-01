@@ -84,6 +84,8 @@ export async function POST(request: NextRequest) {
 
     const accountInfo = await testResponse.json()
     console.log('ASAAS Account Info:', accountInfo)
+    console.log('Wallet ID from response:', accountInfo.walletId)
+    console.log('Will use wallet ID:', accountInfo.walletId || 'c12ca850-bac7-4e55-a082-0e284d2a743c')
 
     // Salvar configuração no banco
     console.log('Saving ASAAS config for company:', session.user.companyId)
@@ -95,7 +97,7 @@ export async function POST(request: NextRequest) {
       where: { id: session.user.companyId },
       data: {
         asaasApiKey: asaasApiKey,
-        asaasWalletId: accountInfo.walletId || 'c12ca850-bac7-4e55-a082-0e284d2a743c',
+        asaasWalletId: 'c12ca850-bac7-4e55-a082-0e284d2a743c',
         asaasEnabled: true,
         updatedAt: new Date()
       },
