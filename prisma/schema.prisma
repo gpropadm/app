@@ -180,7 +180,6 @@ model Contract {
   rentAmount                Float
   depositAmount             Float
   administrationFeePercentage Float        @default(10.0)
-  managementFeePercentage   Float          @default(8.0)
   iptuDeductible            Boolean        @default(true)
   condominiumDeductible     Boolean        @default(true)
   maintenanceDeductible     Boolean        @default(true)

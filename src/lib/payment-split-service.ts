@@ -19,7 +19,6 @@ interface ContractSplitData {
   ownerPhone: string
   rentAmount: number
   administrationFeePercentage: number
-  managementFeePercentage: number
   dueDate: string
   companyId: string
 }
@@ -246,8 +245,7 @@ export class PaymentSplitService {
         dueDate: contractData.dueDate,
         description: `Aluguel - ${contractData.propertyTitle} - ${new Date(contractData.dueDate).toLocaleDateString('pt-BR')}`,
         ownerWalletId: finalWalletId,
-        administrationFeePercentage: contractData.administrationFeePercentage,
-        managementFeePercentage: contractData.managementFeePercentage
+        administrationFeePercentage: contractData.administrationFeePercentage
       })
 
       // Criar registro de pagamento no banco
@@ -270,7 +268,6 @@ export class PaymentSplitService {
           splitData: JSON.stringify({
             ownerWalletId: finalWalletId,
             administrationFeePercentage: contractData.administrationFeePercentage,
-            managementFeePercentage: contractData.managementFeePercentage,
             createdAt: new Date().toISOString()
           })
         }
@@ -444,7 +441,6 @@ export class PaymentSplitService {
             ownerPhone: contract.property.owner.phone,
             rentAmount: contract.rentAmount,
             administrationFeePercentage: contract.administrationFeePercentage,
-            managementFeePercentage: contract.managementFeePercentage,
             dueDate: dueDate.toISOString(),
             companyId: companyId
           })

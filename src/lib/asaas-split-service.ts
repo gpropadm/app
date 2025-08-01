@@ -236,7 +236,6 @@ export class AsaasSplitService {
     description: string
     ownerWalletId: string
     administrationFeePercentage: number
-    managementFeePercentage?: number
   }): Promise<SplitResult> {
     try {
       const {
@@ -246,24 +245,20 @@ export class AsaasSplitService {
         dueDate,
         description,
         ownerWalletId,
-        administrationFeePercentage,
-        managementFeePercentage = 0
+        administrationFeePercentage
       } = params
 
       // Criar/buscar cliente
       const customer = await this.createOrUpdateCustomer(tenantData)
 
       // Calcular valores do split
-      const totalFeePercentage = administrationFeePercentage + managementFeePercentage
-      const companyAmount = amount * (totalFeePercentage / 100)
+      const companyAmount = amount * (administrationFeePercentage / 100)
       const ownerAmount = amount - companyAmount
       const estimatedAsaasFee = amount * 0.018 // Taxa estimada ASAAS (1,8% para boleto)
 
       console.log('Calculando split:', {
         amount,
         administrationFeePercentage,
-        managementFeePercentage,
-        totalFeePercentage,
         companyAmount,
         ownerAmount,
         estimatedAsaasFee
@@ -313,7 +308,7 @@ export class AsaasSplitService {
           ownerAmount,
           companyAmount,
           asaasFee: estimatedAsaasFee,
-          administrationFeePercentage: totalFeePercentage
+          administrationFeePercentage: administrationFeePercentage
         }
       }
     } catch (error) {

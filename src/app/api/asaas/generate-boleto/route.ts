@@ -82,7 +82,6 @@ export async function POST(request: NextRequest) {
       ownerPhone: contract.property.owner.phone,
       rentAmount: amount,
       administrationFeePercentage: contract.administrationFeePercentage || 10,
-      managementFeePercentage: contract.managementFeePercentage || 0,
       dueDate,
       companyId: session.user.companyId
     }
