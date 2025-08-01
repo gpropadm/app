@@ -92,6 +92,13 @@ export async function POST(request: NextRequest) {
     })
 
     // Gerar boletos mensais
+    console.log('Chamando generateMonthlyPaymentsWithSplit com:', {
+      contractId,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      companyId: session.user.companyId
+    })
+    
     const splitService = new PaymentSplitService()
     const result = await splitService.generateMonthlyPaymentsWithSplit(
       contractId,
@@ -99,6 +106,8 @@ export async function POST(request: NextRequest) {
       endDate.toISOString(),
       session.user.companyId
     )
+    
+    console.log('Resultado generateMonthlyPaymentsWithSplit:', result)
 
     await prisma.$disconnect()
 
