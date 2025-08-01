@@ -1,0 +1,10 @@
+FORCE DEPLOY - Portal do Cliente
+Timestamp: 2025-08-01 14:55:00
+Commit: 819b713
+
+Deploy deve incluir:
+- /cliente - Portal do Cliente funcionando
+- Modo DEMO ativo
+- Interface responsiva completa
+
+Vercel deve detectar este arquivo e fazer novo deploy.
