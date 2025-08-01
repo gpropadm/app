@@ -1,16 +1,19 @@
-FORCE DEPLOY - CONTRATOS 3 RISCOS VERTICAIS
-Timestamp: 2025-08-01 18:20:00
-Commit: update-to-three-vertical-lines-icons
+FORCE DEPLOY - PAYMENTS REMODELADO + NOTIFICAÇÕES TEMPO REAL
+Timestamp: 2025-08-01 18:25:00
+Commit: payments-redesign-real-time-notifications
 
 Deploy deve incluir:
-- /contracts - Ícones MoreVertical com 3 pontos/riscos verticais
-- Representa melhor código de barras com 3 linhas verticais
-- Visual mais clean e minimalista
-- Mantém todas as cores e funcionalidades:
-  * Boleto (azul), Mensais (verde), Auto (verde/cinza)
-- Ícone mais simples e elegante para as ações de boleto
-- Três pontos verticais como representação simplificada do barcode
+- /payments - Página completamente remodelada com design moderno
+- Notificações em tempo real quando boletos são pagos
+- Auto-refresh a cada 30 segundos (pode ser desligado)
+- Sistema de notificações toast no canto superior direito
+- Cards modernos com layout limpo e responsivo
+- Stats em tempo real (total, pagos, atraso, valor recebido)
+- Filtros melhorados e busca otimizada
+- Visual consistente com página de contratos
+- Indicador de última atualização
+- Botão manual de refresh
 
-✅ ATUALIZAÇÃO: 3 riscos verticais para ações de boleto!
+✅ NOVA FEATURE: Sistema completo de monitoramento de pagamentos!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
