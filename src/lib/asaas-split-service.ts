@@ -140,6 +140,7 @@ export class AsaasSplitService {
         phone: ownerData.phone,
         address: ownerData.address || 'Não informado',
         city: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()),
+        province: (ownerData.city || 'São Paulo').trim().replace(/\b\w/g, l => l.toUpperCase()), // Alguns APIs usam province
         state: ownerData.state || 'SP',
         postalCode: ownerData.zipCode?.replace(/\D/g, '') || '01310100',
         incomeValue: estimatedIncome,
@@ -151,7 +152,9 @@ export class AsaasSplitService {
         email: subAccountData.email,
         document: subAccountData.cpfCnpj,
         city: subAccountData.city,
-        receivedCity: ownerData.city
+        province: subAccountData.province,
+        receivedCity: ownerData.city,
+        fullPayload: JSON.stringify(subAccountData, null, 2)
       })
 
       const response = await this.makeRequest('/accounts', {
