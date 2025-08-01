@@ -13,7 +13,6 @@ import {
   Clock,
   AlertCircle,
   MapPin,
-  Menu,
   X,
   User,
   Bell,
@@ -336,16 +335,28 @@ export default function ClientPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       {/* App Header - Dark */}
       <div className="bg-slate-700 px-6 pt-12 pb-6">
         <div className="flex items-center justify-between mb-4">
-          <button 
-            onClick={() => setIsMenuOpen(true)}
-            className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center"
-          >
-            <Menu className="w-5 h-5 text-white" />
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-white/30"
+            >
+              <div className="w-4 h-4 flex flex-col justify-between">
+                <span className={`h-0.5 w-full bg-white rounded transition-all duration-300 ${
+                  isMenuOpen ? 'rotate-45 translate-y-1.5' : ''
+                }`}></span>
+                <span className={`h-0.5 w-full bg-white rounded transition-all duration-300 ${
+                  isMenuOpen ? 'opacity-0' : ''
+                }`}></span>
+                <span className={`h-0.5 w-full bg-white rounded transition-all duration-300 ${
+                  isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
+                }`}></span>
+              </div>
+            </button>
+          </div>
           <div className="text-center">
             <h1 className="text-white font-bold text-lg">Portal</h1>
             <p className="text-slate-300 text-sm">Cliente</p>
@@ -420,7 +431,7 @@ export default function ClientPortal() {
       )}
 
       {/* Main Content */}
-      <div className="px-6 py-6 bg-gray-50 flex-1">
+      <div className="px-6 py-6 bg-white flex-1">
         {renderContent()}
       </div>
     </div>
