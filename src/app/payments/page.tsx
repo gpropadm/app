@@ -86,6 +86,19 @@ export default function Payments() {
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [lastRefresh, setLastRefresh] = useState(new Date())
   const [notification, setNotification] = useState<{type: 'success' | 'error' | 'info', message: string, title?: string} | null>(null)
+  
+  // Modal Marcar Pago
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedPaymentForUpdate, setSelectedPaymentForUpdate] = useState<Payment | null>(null)
+  const [paymentData, setPaymentData] = useState({
+    paymentMethod: 'DINHEIRO',
+    paidDate: new Date().toISOString().split('T')[0],
+    notes: '',
+    amount: 0
+  })
+  const [uploadedReceipt, setUploadedReceipt] = useState<File | null>(null)
+  const [uploadedReceiptUrl, setUploadedReceiptUrl] = useState('')
+  const [processingPayment, setProcessingPayment] = useState(false)
 
   // Notificação em tempo real
   const showNotification = (type: 'success' | 'error' | 'info', message: string, title?: string) => {
@@ -158,6 +171,113 @@ export default function Payments() {
       }
     } finally {
       if (!silent) setLoading(false)
+    }
+  }
+
+  // Função para abrir modal de marcar como pago
+  const openPaymentModal = (payment: Payment) => {
+    setSelectedPaymentForUpdate(payment)
+    setPaymentData({
+      paymentMethod: 'DINHEIRO',
+      paidDate: new Date().toISOString().split('T')[0],
+      notes: '',
+      amount: payment.amount
+    })
+    setUploadedReceipt(null)
+    setUploadedReceiptUrl('')
+    setShowPaymentModal(true)
+  }
+
+  // Função para fechar modal
+  const closePaymentModal = () => {
+    setShowPaymentModal(false)
+    setSelectedPaymentForUpdate(null)
+    setUploadedReceipt(null)
+    setUploadedReceiptUrl('')
+  }
+
+  // Função para upload de comprovante
+  const handleReceiptUpload = async (file: File) => {
+    if (!file) return
+
+    // Validação de arquivo
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      showNotification('error', 'Arquivo muito grande. Máximo 5MB.')
+      return
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+    if (!allowedTypes.includes(file.type)) {
+      showNotification('error', 'Tipo de arquivo não suportado. Use JPG, PNG ou PDF.')
+      return
+    }
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setUploadedReceiptUrl(result.url)
+        setUploadedReceipt(file)
+        showNotification('success', 'Comprovante enviado com sucesso!')
+      } else {
+        throw new Error('Erro no upload')
+      }
+    } catch (error) {
+      console.error('Erro no upload:', error)
+      showNotification('error', 'Erro ao enviar comprovante. Tente novamente.')
+    }
+  }
+
+  // Função para marcar como pago
+  const markAsPaid = async () => {
+    if (!selectedPaymentForUpdate) return
+
+    setProcessingPayment(true)
+
+    try {
+      const updateData = {
+        status: 'PAID',
+        paidDate: paymentData.paidDate,
+        paymentMethod: paymentData.paymentMethod,
+        notes: paymentData.notes,
+        receipts: uploadedReceiptUrl ? JSON.stringify([{ url: uploadedReceiptUrl, type: 'receipt' }]) : null
+      }
+
+      const response = await fetch('/api/payments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          paymentId: selectedPaymentForUpdate.id,
+          ...updateData
+        }),
+      })
+
+      if (response.ok) {
+        showNotification('success', 
+          `Pagamento de ${selectedPaymentForUpdate.tenant?.name || selectedPaymentForUpdate.contract?.tenant?.name} marcado como pago!`,
+          '✅ Pagamento Confirmado'
+        )
+        closePaymentModal()
+        fetchPayments() // Recarregar dados
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro ao atualizar pagamento')
+      }
+    } catch (error) {
+      console.error('Erro ao marcar como pago:', error)
+      showNotification('error', 'Erro ao marcar como pago. Tente novamente.')
+    } finally {
+      setProcessingPayment(false)
     }
   }
 
@@ -524,10 +644,7 @@ export default function Payments() {
                           )}
                           {payment.status !== 'PAID' && (
                             <button
-                              onClick={() => {
-                                // Aqui você pode implementar marcar como pago
-                                showNotification('info', 'Funcionalidade de marcar como pago em desenvolvimento')
-                              }}
+                              onClick={() => openPaymentModal(payment)}
                               className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
                             >
                               Marcar Pago
@@ -556,6 +673,163 @@ export default function Payments() {
                 ? 'Tente ajustar os filtros de busca.'
                 : 'Aguardando pagamentos...'}
             </p>
+          </div>
+        )}
+
+        {/* Modal Marcar como Pago */}
+        {showPaymentModal && selectedPaymentForUpdate && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">
+                  Marcar como Pago
+                </h2>
+                <button
+                  onClick={closePaymentModal}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Informações do Pagamento */}
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-900 mb-2">Detalhes do Pagamento</h3>
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p><strong>Inquilino:</strong> {selectedPaymentForUpdate.tenant?.name || selectedPaymentForUpdate.contract?.tenant?.name}</p>
+                    <p><strong>Propriedade:</strong> {selectedPaymentForUpdate.property?.title || selectedPaymentForUpdate.contract?.property?.title}</p>
+                    <p><strong>Vencimento:</strong> {formatDate(selectedPaymentForUpdate.dueDate)}</p>
+                    <p><strong>Valor:</strong> R$ {selectedPaymentForUpdate.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                  </div>
+                </div>
+
+                {/* Método de Pagamento */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Método de Pagamento *
+                  </label>
+                  <select
+                    value={paymentData.paymentMethod}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, paymentMethod: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="DINHEIRO">💵 Dinheiro</option>
+                    <option value="TRANSFERENCIA">🏦 Transferência Bancária</option>
+                    <option value="PIX">📱 PIX</option>
+                    <option value="CARTAO">💳 Cartão</option>
+                    <option value="CHEQUE">📄 Cheque</option>
+                    <option value="DEPOSITO">🏧 Depósito</option>
+                  </select>
+                </div>
+
+                {/* Data do Pagamento */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Data do Pagamento *
+                  </label>
+                  <input
+                    type="date"
+                    value={paymentData.paidDate}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, paidDate: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Upload de Comprovante */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Comprovante (opcional)
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                    {!uploadedReceipt ? (
+                      <div className="text-center">
+                        <FileImage className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="mt-2">
+                          <label htmlFor="receipt-upload" className="cursor-pointer">
+                            <span className="mt-2 block text-sm font-medium text-gray-900">
+                              Clique para enviar comprovante
+                            </span>
+                            <span className="mt-1 block text-xs text-gray-500">
+                              PNG, JPG ou PDF até 5MB
+                            </span>
+                          </label>
+                          <input
+                            id="receipt-upload"
+                            type="file"
+                            className="hidden"
+                            accept="image/*,.pdf"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) handleReceiptUpload(file)
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-3">
+                        <FileImage className="h-8 w-8 text-green-600" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-gray-900">{uploadedReceipt.name}</p>
+                          <p className="text-xs text-gray-500">{(uploadedReceipt.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setUploadedReceipt(null)
+                            setUploadedReceiptUrl('')
+                          }}
+                          className="text-red-600 hover:text-red-800"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Observações */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Observações (opcional)
+                  </label>
+                  <textarea
+                    value={paymentData.notes}
+                    onChange={(e) => setPaymentData(prev => ({ ...prev, notes: e.target.value }))}
+                    rows={3}
+                    placeholder="Adicione observações sobre este pagamento..."
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                {/* Botões */}
+                <div className="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                  <button
+                    onClick={closePaymentModal}
+                    className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={markAsPaid}
+                    disabled={processingPayment}
+                    className={`px-6 py-2 text-white rounded-lg transition-colors ${
+                      processingPayment 
+                        ? 'bg-gray-400 cursor-not-allowed' 
+                        : 'bg-green-600 hover:bg-green-700'
+                    }`}
+                  >
+                    {processingPayment ? (
+                      <div className="flex items-center space-x-2">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        <span>Salvando...</span>
+                      </div>
+                    ) : (
+                      'Confirmar Pagamento'
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
