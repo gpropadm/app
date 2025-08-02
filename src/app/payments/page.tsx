@@ -354,6 +354,20 @@ export default function Payments() {
     }
   }
 
+  // Estado para controlar quais inquilinos estão expandidos
+  const [expandedTenants, setExpandedTenants] = useState<Set<string>>(new Set())
+
+  // Função para alternar expansão de inquilino
+  const toggleTenantExpansion = (tenantName: string) => {
+    const newExpanded = new Set(expandedTenants)
+    if (newExpanded.has(tenantName)) {
+      newExpanded.delete(tenantName)
+    } else {
+      newExpanded.add(tenantName)
+    }
+    setExpandedTenants(newExpanded)
+  }
+
   const filteredPayments = payments.filter(payment => {
     const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || ''
     const propertyTitle = payment.property?.title || payment.contract?.property?.title || ''
@@ -374,7 +388,18 @@ export default function Payments() {
       matchesStatus = payment.status?.toUpperCase() === filterStatus.toUpperCase()
     }
 
-    return matchesSearch && matchesStatus
+    // Filtro por mês atual (exceto se inquilino estiver expandido)
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+    const paymentMonth = dueDate.getMonth()
+    const paymentYear = dueDate.getFullYear()
+    
+    const isCurrentMonth = paymentMonth === currentMonth && paymentYear === currentYear
+    const isTenantExpanded = expandedTenants.has(tenantName)
+    
+    const matchesMonth = isTenantExpanded || isCurrentMonth
+
+    return matchesSearch && matchesStatus && matchesMonth
   })
 
   const stats = {
@@ -438,7 +463,15 @@ export default function Payments() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Pagamentos</h1>
               <p className="text-gray-600 mt-1">
-                Gerencie todos os pagamentos de aluguéis
+                Mostrando apenas {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+              </p>
+              <p className="text-sm text-blue-600 mt-1">
+                💡 Clique no nome do inquilino para ver todos os meses
+                {expandedTenants.size > 0 && (
+                  <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                    {expandedTenants.size} expandido{expandedTenants.size > 1 ? 's' : ''}
+                  </span>
+                )}
               </p>
             </div>
             <div className="mt-4 sm:mt-0 flex items-center space-x-3">
@@ -605,11 +638,47 @@ export default function Payments() {
                             </div>
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino não informado'}
-                            </div>
+                            <button
+                              onClick={() => {
+                                const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || ''
+                                if (tenantName) toggleTenantExpansion(tenantName)
+                              }}
+                              className="text-left hover:bg-blue-50 p-1 rounded transition-colors"
+                            >
+                              <div className="flex items-center space-x-2">
+                                <div className="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                  {payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino não informado'}
+                                </div>
+                                {(() => {
+                                  const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || ''
+                                  const isExpanded = expandedTenants.has(tenantName)
+                                  return (
+                                    <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
+                                      <ChevronRight className="w-4 h-4 text-gray-400" />
+                                    </div>
+                                  )
+                                })()}
+                              </div>
+                              {(() => {
+                                const tenantName = payment.tenant?.name || payment.contract?.tenant?.name || ''
+                                const isExpanded = expandedTenants.has(tenantName)
+                                if (isExpanded) {
+                                  return (
+                                    <div className="text-xs text-blue-600 mt-1">
+                                      Mostrando todos os meses
+                                    </div>
+                                  )
+                                } else {
+                                  return (
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      Clique para ver todos os meses
+                                    </div>
+                                  )
+                                }
+                              })()}
+                            </button>
                             {payment.contract?.tenant?.phone && (
-                              <div className="text-sm text-gray-500">
+                              <div className="text-sm text-gray-500 mt-1">
                                 📞 {payment.contract.tenant.phone}
                               </div>
                             )}
