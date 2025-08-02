@@ -714,12 +714,12 @@ export default function Payments() {
                     onChange={(e) => setPaymentData(prev => ({ ...prev, paymentMethod: e.target.value }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="DINHEIRO">💵 Dinheiro</option>
-                    <option value="TRANSFERENCIA">🏦 Transferência Bancária</option>
-                    <option value="PIX">📱 PIX</option>
-                    <option value="CARTAO">💳 Cartão</option>
-                    <option value="CHEQUE">📄 Cheque</option>
-                    <option value="DEPOSITO">🏧 Depósito</option>
+                    <option value="DINHEIRO">Dinheiro</option>
+                    <option value="TRANSFERENCIA">Transferência Bancária</option>
+                    <option value="PIX">PIX</option>
+                    <option value="CARTAO">Cartão</option>
+                    <option value="CHEQUE">Cheque</option>
+                    <option value="DEPOSITO">Depósito</option>
                   </select>
                 </div>
 
