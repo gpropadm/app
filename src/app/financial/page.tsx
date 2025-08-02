@@ -77,6 +77,26 @@ export default function Financial() {
       if (response.ok) {
         const data = await response.json()
         console.log('📊 Financial data received:', data)
+        
+        // DEBUG: Informações detalhadas sobre receitas
+        console.log('💰 RECEITA DO MÊS ATUAL:', data.currentMonth?.revenue)
+        console.log('📋 BREAKDOWN DETALHADO:', data.breakdown?.revenue?.map(r => ({
+          propriedade: r.property,
+          inquilino: r.tenant,
+          valorAluguel: r.rentAmount,
+          taxaAdmin: r.adminFeePercentage + '%',
+          valorTaxaAdmin: r.adminFee,
+          taxaManagement: r.managementFeePercentage + '%', 
+          valorTaxaManagement: r.managementFee,
+          totalReceita: r.totalFee,
+          dataPagamento: r.paidDate
+        })))
+        
+        const totalCalculado = data.breakdown?.revenue?.reduce((sum, r) => sum + r.totalFee, 0) || 0
+        console.log('🧮 TOTAL CALCULADO (soma das taxas):', totalCalculado)
+        console.log('📊 TOTAL DA API:', data.currentMonth?.revenue)
+        console.log('⚖️ DIFERENÇA:', Math.abs(totalCalculado - (data.currentMonth?.revenue || 0)))
+        
         setFinancialData(data)
       } else {
         const errorData = await response.json().catch(() => ({}))
