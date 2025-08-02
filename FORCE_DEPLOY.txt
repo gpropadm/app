@@ -1,20 +1,29 @@
-FORCE DEPLOY - PAYMENTS TABELA + SISTEMA COBRANÇA
-Timestamp: 2025-08-01 18:35:00
-Commit: payments-table-view-collection-system
+FORCE DEPLOY - ASAAS BALANCE INTEGRATION COMPLETE
+Timestamp: 2025-08-02 12:45:00
+Commit: asaas-balance-integration-complete
+
+✅ NOVA FEATURE: Integração completa com saldo real do Asaas!
 
 Deploy deve incluir:
-- /payments - Visualização em tabela compacta e profissional
-- Sistema de identificação automática de boletos vencidos
-- Linha vermelha para pagamentos em atraso
-- Contador de dias em atraso
-- Botão "Cobrar" via WhatsApp automático para vencidos
-- Filtro especial "Vencidos (precisam cobrança)"
-- Avatar com iniciais do inquilino
-- Telefone visível na tabela
-- Botão "Marcar Pago" para atualizar status
-- Stats corrigidos baseados em datas reais
-- Mensagem automática de cobrança personalizada
+- /api/asaas/balance - API para consultar saldo real da conta Asaas
+- Card "Saldo Real Asaas" na página /financial
+- Comparação automática entre comissões esperadas vs saldo disponível
+- Indicadores visuais para valores bloqueados e transferências pendentes
+- Botão de atualização manual com timestamp da última consulta
+- Estados de loading e erro para contas não configuradas
+- Suporte completo ao dark mode
+- Layout responsivo em grid de 4 colunas
 
-✅ NOVA FEATURE: Sistema completo de cobrança automática!
+BENEFÍCIOS PARA O USUÁRIO:
+- Visualizar saldo real sem precisar logar no Asaas
+- Acompanhar se as comissões estão sendo creditadas corretamente
+- Monitorar valores bloqueados ou pendentes
+- Comparação automática com receitas esperadas do mês
+
+INTEGRAÇÃO TÉCNICA:
+- Consulta em tempo real da API Asaas v3/finance/balance
+- Cálculo automático das comissões esperadas baseado nos pagamentos confirmados
+- Tratamento de erros para contas não configuradas
+- Interface moderna com estados de carregamento
 
 Vercel deve detectar este arquivo e fazer novo deploy.

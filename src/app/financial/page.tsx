@@ -59,9 +59,23 @@ interface FinancialSummary {
   }
 }
 
+interface AsaasBalance {
+  balance: number
+  available: number
+  blocked: number
+  pendingTransfer: number
+  expectedCommissions: number
+  companyName: string
+  asaasEnabled: boolean
+  lastUpdated: string
+  error?: string
+}
+
 export default function Financial() {
   const [financialData, setFinancialData] = useState<FinancialSummary | null>(null)
+  const [asaasBalance, setAsaasBalance] = useState<AsaasBalance | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadingBalance, setLoadingBalance] = useState(true)
   const [showReportsModal, setShowReportsModal] = useState(false)
   const [generatingReport, setGeneratingReport] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1)
@@ -109,8 +123,51 @@ export default function Financial() {
     }
   }
 
+  const fetchAsaasBalance = async () => {
+    try {
+      setLoadingBalance(true)
+      console.log('🏦 Consultando saldo Asaas...')
+      const response = await fetch('/api/asaas/balance')
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('💰 Saldo Asaas recebido:', data)
+        setAsaasBalance(data)
+      } else {
+        console.error('❌ Erro ao consultar saldo Asaas:', response.status)
+        setAsaasBalance({
+          balance: 0,
+          available: 0,
+          blocked: 0,
+          pendingTransfer: 0,
+          expectedCommissions: 0,
+          companyName: '',
+          asaasEnabled: false,
+          lastUpdated: new Date().toISOString(),
+          error: 'Erro ao consultar saldo'
+        })
+      }
+    } catch (error) {
+      console.error('❌ Erro ao buscar saldo Asaas:', error)
+      setAsaasBalance({
+        balance: 0,
+        available: 0,
+        blocked: 0,
+        pendingTransfer: 0,
+        expectedCommissions: 0,
+        companyName: '',
+        asaasEnabled: false,
+        lastUpdated: new Date().toISOString(),
+        error: 'Erro de conexão'
+      })
+    } finally {
+      setLoadingBalance(false)
+    }
+  }
+
   useEffect(() => {
     fetchFinancialSummary()
+    fetchAsaasBalance()
   }, [])
 
   const formatCurrency = (value: number) => {
@@ -426,7 +483,7 @@ export default function Financial() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Receitas do Mês</h3>
@@ -476,6 +533,90 @@ export default function Financial() {
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Receitas - Despesas
             </p>
+          </div>
+
+          {/* Saldo Real Asaas */}
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Saldo Real Asaas</h3>
+              <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <DollarSign className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              </div>
+            </div>
+            {loadingBalance ? (
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+              </div>
+            ) : asaasBalance?.error ? (
+              <div>
+                <p className="text-2xl font-bold text-gray-400">Não configurado</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {asaasBalance.error}
+                </p>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                  Configure o Asaas para ver o saldo real
+                </p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                  {formatCurrency(asaasBalance?.available || 0)}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Disponível para saque
+                </p>
+                
+                {/* Comparação com comissões esperadas */}
+                {asaasBalance?.expectedCommissions && asaasBalance.expectedCommissions > 0 && (
+                  <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded">
+                    <p className="text-xs text-green-700 dark:text-green-300">
+                      <span className="font-medium">Esperado:</span> {formatCurrency(asaasBalance.expectedCommissions)}
+                    </p>
+                    {Math.abs((asaasBalance.available || 0) - asaasBalance.expectedCommissions) > 1 && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                        Diferença: {formatCurrency(Math.abs((asaasBalance.available || 0) - asaasBalance.expectedCommissions))}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                {/* Informações adicionais */}
+                {asaasBalance && !asaasBalance.error && (
+                  <div className="mt-2 space-y-1">
+                    {asaasBalance.blocked > 0 && (
+                      <p className="text-xs text-red-600 dark:text-red-400">
+                        Bloqueado: {formatCurrency(asaasBalance.blocked)}
+                      </p>
+                    )}
+                    {asaasBalance.pendingTransfer > 0 && (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                        Transferência pendente: {formatCurrency(asaasBalance.pendingTransfer)}
+                      </p>
+                    )}
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between mt-3">
+                  <button
+                    onClick={fetchAsaasBalance}
+                    className="text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 flex items-center transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3 mr-1" />
+                    Atualizar
+                  </button>
+                  {asaasBalance?.lastUpdated && (
+                    <p className="text-xs text-gray-400">
+                      {new Date(asaasBalance.lastUpdated).toLocaleTimeString('pt-BR', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
