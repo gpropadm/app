@@ -251,18 +251,28 @@ export default function Payments() {
         receipts: uploadedReceiptUrl ? JSON.stringify([{ url: uploadedReceiptUrl, type: 'receipt' }]) : null
       }
 
+      console.log('📤 Enviando dados para API:', {
+        id: selectedPaymentForUpdate.id,
+        ...updateData
+      })
+
       const response = await fetch('/api/payments', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paymentId: selectedPaymentForUpdate.id,
+          id: selectedPaymentForUpdate.id,
           ...updateData
         }),
       })
 
+      console.log('📡 Resposta da API:', response.status, response.statusText)
+
       if (response.ok) {
+        const result = await response.json()
+        console.log('✅ Sucesso na API:', result)
+        
         showNotification('success', 
           `Pagamento de ${selectedPaymentForUpdate.tenant?.name || selectedPaymentForUpdate.contract?.tenant?.name} marcado como pago!`,
           '✅ Pagamento Confirmado'
@@ -270,8 +280,18 @@ export default function Payments() {
         closePaymentModal()
         fetchPayments() // Recarregar dados
       } else {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Erro ao atualizar pagamento')
+        const errorText = await response.text()
+        console.error('❌ Erro da API:', errorText)
+        
+        let errorMessage = 'Erro ao atualizar pagamento'
+        try {
+          const errorData = JSON.parse(errorText)
+          errorMessage = errorData.error || errorData.message || errorMessage
+        } catch (e) {
+          errorMessage = errorText || errorMessage
+        }
+        
+        throw new Error(errorMessage)
       }
     } catch (error) {
       console.error('Erro ao marcar como pago:', error)

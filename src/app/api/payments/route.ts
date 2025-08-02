@@ -198,8 +198,12 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    console.log('=== API PAYMENTS PUT CALLED ===')
     const user = await requireAuth(request)
     const { id, ...data } = await request.json()
+    
+    console.log('📤 Dados recebidos:', { id, data })
+    console.log('👤 Usuário:', { id: user.id, email: user.email })
     
     // Verificar se o pagamento pertence ao usuário
     const payment = await prisma.payment.findFirst({
@@ -211,19 +215,23 @@ export async function PUT(request: NextRequest) {
       }
     })
 
+    console.log('🔍 Pagamento encontrado:', payment ? 'SIM' : 'NÃO')
+
     if (!payment) {
+      console.log('❌ Pagamento não encontrado ou não pertence ao usuário')
       return NextResponse.json({ error: 'Pagamento não encontrado' }, { status: 404 })
     }
 
     // Atualizar o pagamento
+    console.log('🔄 Atualizando pagamento...')
     const updatedPayment = await prisma.payment.update({
       where: { id },
       data: {
-        status: 'PAID',
-        paidDate: new Date(),
+        status: data.status || 'PAID',
+        paidDate: data.paidDate ? new Date(data.paidDate) : new Date(),
         paymentMethod: data.paymentMethod,
-        receipts: JSON.stringify(data.receipts || []),
-        notes: data.notes
+        receipts: data.receipts || null,
+        notes: data.notes || null
       },
       include: {
         contract: {
@@ -235,6 +243,7 @@ export async function PUT(request: NextRequest) {
       }
     })
 
+    console.log('✅ Pagamento atualizado com sucesso:', updatedPayment.id)
     return NextResponse.json(updatedPayment)
   } catch (error) {
     console.error('Error updating payment:', error)
