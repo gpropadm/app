@@ -222,7 +222,17 @@ export default function Payments() {
       tenantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       propertyTitle.toLowerCase().includes(searchTerm.toLowerCase())
     
-    const matchesStatus = filterStatus === 'all' || payment.status?.toUpperCase() === filterStatus.toUpperCase()
+    // Verificar se está vencido (para filtro especial)
+    const dueDate = new Date(payment.dueDate)
+    const today = new Date()
+    const isOverdue = dueDate < today && payment.status !== 'PAID'
+    
+    let matchesStatus = true
+    if (filterStatus === 'VENCIDOS') {
+      matchesStatus = isOverdue
+    } else if (filterStatus !== 'all') {
+      matchesStatus = payment.status?.toUpperCase() === filterStatus.toUpperCase()
+    }
 
     return matchesSearch && matchesStatus
   })
@@ -230,7 +240,11 @@ export default function Payments() {
   const stats = {
     total: payments.length,
     paid: payments.filter(p => isPaidStatus(p.status)).length,
-    overdue: payments.filter(p => p.status?.toUpperCase() === 'OVERDUE').length,
+    overdue: payments.filter(p => {
+      const dueDate = new Date(p.dueDate)
+      const today = new Date()
+      return dueDate < today && p.status !== 'PAID'
+    }).length,
     totalValue: payments
       .filter(p => isPaidStatus(p.status))
       .reduce((sum, p) => sum + p.amount, 0)
@@ -396,73 +410,137 @@ export default function Payments() {
                 <option value="PAID">Pago</option>
                 <option value="PENDING">Pendente</option>
                 <option value="OVERDUE">Em Atraso</option>
+                <option value="VENCIDOS">Vencidos (precisam cobrança)</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Payments List */}
-        <div className="space-y-4">
-          {filteredPayments.map((payment) => (
-            <div key={payment.id} className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4 flex-1">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#fef2f2'}}>
-                    <Receipt className="w-6 h-6" style={{color: '#f63c6a'}} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino não informado'}
-                      </h3>
-                      <div className="flex items-center space-x-2">
-                        {getStatusIcon(payment.status)}
-                        <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(payment.status)}`}>
-                          {getStatusText(payment.status)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Propriedade:</div>
-                        <div className="flex items-center text-gray-900">
-                          <Home className="w-4 h-4 mr-2 text-gray-400" />
-                          <span className="truncate font-medium">{payment.property?.title || payment.contract?.property?.title || 'Propriedade não informada'}</span>
+        {/* Payments Table */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Inquilino
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Propriedade
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Vencimento
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Valor
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ações
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredPayments.map((payment) => {
+                  const dueDate = new Date(payment.dueDate)
+                  const today = new Date()
+                  const isOverdue = dueDate < today && payment.status !== 'PAID'
+                  const daysPastDue = isOverdue ? Math.floor((today.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24)) : 0
+                  
+                  return (
+                    <tr key={payment.id} className={`hover:bg-gray-50 ${isOverdue ? 'bg-red-50' : ''}`}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                              <span className="text-sm font-medium text-gray-700">
+                                {(payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino')
+                                  .split(' ')
+                                  .map(n => n[0])
+                                  .slice(0, 2)
+                                  .join('')}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {payment.tenant?.name || payment.contract?.tenant?.name || 'Inquilino não informado'}
+                            </div>
+                            {payment.contract?.tenant?.phone && (
+                              <div className="text-sm text-gray-500">
+                                📞 {payment.contract.tenant.phone}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Vencimento:</div>
-                        <div className="flex items-center text-gray-900">
-                          <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                          <span className="font-medium">{formatDate(payment.dueDate)}</span>
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Valor:</div>
-                        <div className="flex items-center text-gray-900">
-                          <DollarSign className="w-4 h-4 mr-2 text-gray-400" />
-                          <span className="font-bold text-lg">R$ {payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                        </div>
-                      </div>
-                    </div>
-                    {payment.paidDate && (
-                      <div className="mt-3 p-3 bg-green-50 rounded-lg">
-                        <div className="flex items-center text-green-800 text-sm">
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          <span>Pago em {formatDate(payment.paidDate)}</span>
-                          {payment.paymentMethod && (
-                            <span className="ml-2 px-2 py-1 bg-green-100 rounded text-xs">
-                              {payment.paymentMethod.toUpperCase()}
-                            </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {payment.property?.title || payment.contract?.property?.title || 'Não informada'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <div className={isOverdue ? 'text-red-600 font-semibold' : ''}>
+                          {formatDate(payment.dueDate)}
+                          {isOverdue && (
+                            <div className="text-xs text-red-500">
+                              {daysPastDue} dias em atraso
+                            </div>
                           )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        R$ {payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center space-x-2">
+                          {getStatusIcon(payment.status)}
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(payment.status)}`}>
+                            {getStatusText(payment.status)}
+                          </span>
+                        </div>
+                        {payment.paidDate && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Pago em {formatDate(payment.paidDate)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          {isOverdue && payment.contract?.tenant?.phone && (
+                            <button
+                              onClick={() => {
+                                const phone = payment.contract?.tenant?.phone?.replace(/\D/g, '')
+                                const message = `Olá ${payment.tenant?.name || payment.contract?.tenant?.name}, seu pagamento do aluguel de R$ ${payment.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} venceu em ${formatDate(payment.dueDate)} (${daysPastDue} dias atrás). Por favor, regularize sua situação.`
+                                const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`
+                                window.open(whatsappUrl, '_blank')
+                              }}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-xs hover:bg-green-700 flex items-center space-x-1"
+                              title="Cobrar via WhatsApp"
+                            >
+                              <Phone className="w-3 h-3" />
+                              <span>Cobrar</span>
+                            </button>
+                          )}
+                          {payment.status !== 'PAID' && (
+                            <button
+                              onClick={() => {
+                                // Aqui você pode implementar marcar como pago
+                                showNotification('info', 'Funcionalidade de marcar como pago em desenvolvimento')
+                              }}
+                              className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                            >
+                              Marcar Pago
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {filteredPayments.length === 0 && (

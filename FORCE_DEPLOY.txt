@@ -1,16 +1,20 @@
-FORCE DEPLOY - PAYMENTS DEBUG + CORREÇÃO DADOS
-Timestamp: 2025-08-01 18:30:00
-Commit: payments-fix-data-structure-debug
+FORCE DEPLOY - PAYMENTS TABELA + SISTEMA COBRANÇA
+Timestamp: 2025-08-01 18:35:00
+Commit: payments-table-view-collection-system
 
 Deploy deve incluir:
-- /payments - Correção da estrutura de dados dos pagamentos
-- Debug logs para identificar problemas nos dados da API
-- Suporte a diferentes estruturas de dados (contract.tenant, contract.property)
-- Botão de teste para verificar notificações (temporário)
-- Melhor tratamento de dados vazios/ausentes
-- Verificação do status real dos pagamentos
-- Logs no console para debugging
+- /payments - Visualização em tabela compacta e profissional
+- Sistema de identificação automática de boletos vencidos
+- Linha vermelha para pagamentos em atraso
+- Contador de dias em atraso
+- Botão "Cobrar" via WhatsApp automático para vencidos
+- Filtro especial "Vencidos (precisam cobrança)"
+- Avatar com iniciais do inquilino
+- Telefone visível na tabela
+- Botão "Marcar Pago" para atualizar status
+- Stats corrigidos baseados em datas reais
+- Mensagem automática de cobrança personalizada
 
-🔧 CORREÇÃO: Dados de pagamentos e estrutura da API!
+✅ NOVA FEATURE: Sistema completo de cobrança automática!
 
 Vercel deve detectar este arquivo e fazer novo deploy.
